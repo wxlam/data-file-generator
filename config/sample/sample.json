@@ -1,0 +1,119 @@
+{
+  "profileName": "profile-name",
+  "sheetName": "Sheet1",
+  "startRow": 2,
+  "endRow": 500,
+  "output": {
+    "folder": "output/folder/",
+    "fileNamePrefix": "PROFILE-PREFIX",
+    "fileIdColumn": "UNIQUE_ID_COLUMN",
+    "fileExtension": ".xml"
+  },
+  "simulator": {
+    "configOutput": "output/00Simulator/",
+    "filename": "00-sim-profile-name",
+    "configTemplatePath": "data/template/",
+    "configTemplate": "SIM_CONFIG_TEMPLATE.xml",
+    "configFilenameParam": "{FILE_NAME}",
+    "additionalSimulatorConfig": [
+      {
+        "name": "additional simulator config name",
+        "simulatorConfigTemplatePath": "data/template/",
+        "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
+        "simulatorConfigFilenameParam": "{FILE_NAME}",
+        "condition": [
+          {
+            "columnName": "SIM_COL_NAME",
+            "conditionalValue": "!=",
+            "columnValue": "%EMPTY%",
+            "format": "%NO SPACES%"
+          }
+        ]
+      }
+    ]
+  },
+  "templates": [
+    {
+      "name": "default",
+      "path": "data/template/",
+      "fileName": "default_template.xml"
+    },
+    {
+      "name": "single condition",
+      "path": "data/template/",
+      "fileName": "error_template.xml",
+      "condition": [
+        {
+          "columnName": "SINGLE_CONDITION_COL_NAME",
+          "conditionalValue": "=",
+          "columnValue": "SINGLE_CONDITION_VALUE"
+        }
+      ]
+    },
+    {
+      "name": "multiple condition",
+      "path": "data/template/",
+      "fileName": "AccountInqError.xml",
+      "condition": [
+        {
+          "columnName": "MULTIPLE_CONDITION_1_COL",
+          "conditionalValue": "=",
+          "columnValue": "MULTIPLE_CONDITION_VALUE1"
+        },
+        {
+          "columnName": "MULTIIPLE_CONDITION_2_COL",
+          "conditionalValue": "!=",
+          "columnValue": "MULTIPLE_CONDITION_VALUE2"
+        }
+      ]
+    }
+  ],
+  "mappedSection": [
+    {
+      "name": "repeating template example",
+      "templateFile": "data/template/repeating-template.xml",
+      "parameter": "{REPLACEMENT_PARAMETER}",
+      "uniqueIdentifier": {
+        "prefix": "SHEET",
+        "suffix": "_COLUMN_VALUE1"
+      },
+      "map": {
+        "TEMPLATE_VALUE1": "SHEET_COLUMN_VALUE1",
+        "TEMPLATE_VALUE2": "SHEET_COLUMN_VALUE2",
+        "TEMPLATE_VALUE3": "SHEET_COLUMN_VALUE3"
+      }
+    }
+  ],
+  "filteredSection": {
+    "sectionSheetName": "Sheet1",
+    "sectionSheetTagColumn": "FILTERED_COLUMN_NAME",
+    "columnMappings": [
+      {
+        "fromSheetName": "Sheet1",
+        "fromSheetColumn": "FILTERED_COLUMN_NAME",
+        "toSheetName": "Sheet2",
+        "toSheetColumn": "MATCHING_COLUMN_NAME"
+      },
+      {
+        "fromSheetName": "Sheet2",
+        "fromSheetColumn": "MATCHING_COLUMN_NAME",
+        "toSheetName": "Sheet2",
+        "toSheetColumn": "OTHER_COLUMN_NAME"
+      },
+      {
+        "fromSheetName": "Sheet2",
+        "fromSheetColumn": "OTHER_COLUMN_NAME",
+        "toSheetName": "Sheet3",
+        "toSheetColumn": "FINAL_COLUMN_NAME"
+      }
+    ],
+    "templates": [
+      {
+        "name": "default",
+        "path": "data/template/",
+        "fileName": "template-file.xml",
+        "replacementParamName": "{TEMPLATE_REPLACEMENT_PARAM_NAME}"
+      }
+    ]
+  }
+}

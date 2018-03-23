@@ -1,0 +1,10 @@
+{
+  "profileName": "default",
+  "inputSheet": "data/sample.xlsx",
+  "output": {
+    "folder": "output/",
+    "fileExtension": ".json"
+  },
+  "useExistingFilenameColumn" : "USE_FILE_NAME",
+  "startRow" : 0
+}

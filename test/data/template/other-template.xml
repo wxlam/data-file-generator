@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SampleRs>
+    <UNIQUE_ID>{UNIQUE_ID_COLUMN}</UNIQUE_ID>
+    <ERROR_VALUE1>{SHEET1_COLUMN_VALUE1}</ERROR_VALUE1>
+</SampleRs>
