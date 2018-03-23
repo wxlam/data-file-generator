@@ -1,0 +1,19 @@
+{
+  "profileName": "test-sample",
+  "sheetName": "Sheet1",
+  "startRow": 2,
+  "endRow": 500,
+  "output": {
+    "folder": "output/folder/",
+    "fileNamePrefix": "PROFILE-PREFIX",
+    "fileIdColumn": "UNIQUE_ID_COLUMN",
+    "fileExtension": ".xml"
+  },
+  "templates": [
+    {
+      "name": "default",
+      "path": "data/template/",
+      "fileName": "basic-template.xml"
+    }
+  ]
+}
