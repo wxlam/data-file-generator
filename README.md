@@ -2,7 +2,7 @@
 To generate multiple copies of a file using a data contained in a spreadsheet with on a template(s)
 
 ## Getting Started
-
+IN PROGRESS
 
 ### Set up
 To start, data needs to be added into an excel spreadsheet, then the template file(s) will need to be created and marked up, then the config files need to be created.
@@ -112,3 +112,6 @@ output files will appear in the `output` folder
 `./config/sample/sample.json` contains the different combinations and values that can be used for the config json files
 
 `./test/` directory contains examples of config files, templates, worsksheets
+
+#### Acknowledgments
+Special thanks to [Priyanka](https://github.com/pjagga) for her support on this project
