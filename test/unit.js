@@ -8,7 +8,6 @@ var fs = require('fs');
 var fsExtra = require('fs-extra');
 var xlsx = require('xlsx');
 var fse = require('fs-extra');
-var nock = require('nock');
 var fsmock = require('mock-fs');
 
 

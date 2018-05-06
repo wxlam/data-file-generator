@@ -25,26 +25,16 @@
   "author": "Wendy Lam <mwxlam@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "body-parser": "^1.18.2",
     "chai": "^3.5.0",
-    "cookie-parser": "^1.4.3",
-    "cors": "^2.8.4",
     "debug": "^2.2.0",
-    "express": "^4.13.4",
     "fs-extra": "^2.1.2",
     "html-escape": "^2.0.0",
     "istanbul": "^0.4.5",
-    "jade": "^1.11.0",
     "konfig": "^0.2.1",
     "lodash": "^4.17.5",
     "mocha": "^3.5.3",
     "mock-fs": "^4.4.2",
-    "morgan": "^1.9.0",
-    "multer": "^1.3.0",
-    "nock": "^9.2.3",
-    "serve-favicon": "^2.3.2",
     "simple-mock": "^0.7.3",
-    "spy": "^1.0.0",
     "xlsx": "^0.8.8"
   }
 }
