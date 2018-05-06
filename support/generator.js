@@ -132,13 +132,13 @@ var generatorUtils = {
 
   encodeSpacesFromStringWith: function encodeSpacesFromString (stringValue, replaceWith) {
     // default to %20% if nothing is sent
-    if(!replaceWith) {
+    if (!replaceWith) {
       replaceWith = '%20';
     }
     return stringValue.replace(/\s/g, replaceWith);
   },
 
-  getRepeatingGroupValues: function getRepeatingGroupValues (repeatingGroupMap, dataRow, count, templatePath) {
+  getRepeatingGroupValues: function getRepeatingGroupValues (repeatingGroupMap, dataRow, count, templatePath, isSplitValue) {
     var identifier, splitPos, prefixValue, suffixValue, paramName, paramValue, templateParamName;
     var template = generatorUtils.readFile(templatePath);
 
@@ -149,6 +149,12 @@ var generatorUtils = {
       if (value === '%AUTO_INCREMENT%') {
         value = count;
         template = template.replace(templateParamName, value);
+      } else if (isSplitValue) {
+        // for splitValues there is no dataRow object, what's expected is a single value
+        //  from the array as a result of the split function
+        //if value is empty then make sure a blank value is returned and not 'undefined'
+        paramValue = dataRow === undefined ? '' : dataRow;
+        template = template.replace(templateParamName, paramValue);
       } else {
         identifier = value.split('_');
         splitPos = value.search(identifier[1]);
@@ -190,10 +196,44 @@ var generatorUtils = {
             repeatingGrp = repeatingGrp + ','
           }
           //append repeating groups into single instance to be added to results file
-          repeatingGrp = repeatingGrp + generatorUtils.getRepeatingGroupValues(repeatingGrpMap, dataRow, i + 1, repeatingGrpTemplatePath);
+          repeatingGrp = repeatingGrp + generatorUtils.getRepeatingGroupValues(repeatingGrpMap, dataRow, i + 1, repeatingGrpTemplatePath, false);
         }
       }
     }
+
+    resultsFile = resultsFile.replace(repeatingGrpParam, repeatingGrp);
+    return resultsFile;
+  },
+
+  addRepeatingGrpWithSplitValues: function addRepeatingGrpWithSplitValues (dataRow, resultsFile, repeatingGrpTemplate, fileExtension) {
+    var repeatingGrp = '';
+
+    var repeatingGrpMap = repeatingGrpTemplate.map;
+    var repeatingGrpParam = repeatingGrpTemplate.parameter;
+    var repeatingGrpSplitColumnName = repeatingGrpTemplate.splitValues.columnName.replace(/[{}]/g, '');
+    var repeatingGrpSplitWith = repeatingGrpTemplate.splitValues.splitWith;
+    var repeatingGrpTemplatePath = repeatingGrpTemplate.templateFile;
+    var applyCondition = true;
+
+    var repeatingGrpValues = dataRow[repeatingGrpSplitColumnName];
+    var repeatingGrpArray = repeatingGrpValues.split(repeatingGrpSplitWith);
+
+
+    _.forEach(repeatingGrpArray, function (value, index) {
+      // check to see if condition applied to repeating group
+      if (repeatingGrpTemplate.hasOwnProperty('condition')) {
+        applyCondition = generatorUtils.checkAllTemplateConditionalValues(dataRow, repeatingGrpTemplate.condition, '', i + 1)
+      }
+      // apply condition if it exists, default is true
+      if (applyCondition) {
+        // add comma for json files
+        if (index > 0 && fileExtension === '.json') {
+          repeatingGrp = repeatingGrp + ','
+        }
+        //append repeating groups into single instance to be added to results file
+        repeatingGrp = repeatingGrp + generatorUtils.getRepeatingGroupValues(repeatingGrpMap, value, null, repeatingGrpTemplatePath, true);
+      }
+    })
 
     resultsFile = resultsFile.replace(repeatingGrpParam, repeatingGrp);
     return resultsFile;
@@ -488,7 +528,7 @@ var generatorUtils = {
     if (!templateUsed) {
       _.forEach(templateConditions, function (condition, index) {
         // if condition has uniqueIdentifier with prefix and suffix, to determine columnName
-        if(condition.hasOwnProperty('uniqueIdentifier')) {
+        if (condition.hasOwnProperty('uniqueIdentifier')) {
           condition.columnName = condition.uniqueIdentifier.prefix + indexValue + condition.uniqueIdentifier.suffix
         }
 
@@ -579,7 +619,7 @@ var generatorUtils = {
       //handle multiple conditions
       _.forEach(simObj.condition, function (simObjCondition) {
         // save original value for dataRowColumnValue, so it doesn't get overwritten
-        if(origDataRowColumnValue === '') {
+        if (origDataRowColumnValue === '') {
           origDataRowColumnValue = simDataRow[simObjCondition.columnName];
         }
         var dataRowColumnValue = simDataRow[simObjCondition.columnName];
@@ -604,7 +644,7 @@ var generatorUtils = {
             }
 
             // if simulator config has property simulatorConfigFilenameParam then
-            if(simObj.hasOwnProperty('simulatorConfigFilenameParam')) {
+            if (simObj.hasOwnProperty('simulatorConfigFilenameParam')) {
               addSimFileName = simObj.simulatorConfigFilenameParam.replace('{', '');
               addSimFileName = addSimFileName.replace('}', '');
               simDataRow[addSimFileName] = simFilename;
@@ -722,9 +762,16 @@ var generatorUtils = {
         if (generatorObj.hasOwnProperty('mappedSection') && _.isObject(generatorObj.mappedSection)) {
           var repeatingGrps = generatorObj.mappedSection;
           var fileExtension = generatorObj.output.fileExtension;
+
           repeatingGrps.forEach(function (repeatingGrp) {
-            resultsFile = generatorUtils.addRepeatingGrp(data[r], resultsFile, repeatingGrp, fileExtension);
+            // if the repeating group template has splitValues element, then need to be handled differently
+            if (repeatingGrp.hasOwnProperty('splitValues')) {
+              resultsFile = generatorUtils.addRepeatingGrpWithSplitValues(data[r], resultsFile, repeatingGrp, fileExtension);
+            } else {
+              resultsFile = generatorUtils.addRepeatingGrp(data[r], resultsFile, repeatingGrp, fileExtension);
+            }
           })
+
         }
 
         //check if default template has any conditions, if it does then apply template only when condition is true
@@ -742,7 +789,7 @@ var generatorUtils = {
           console.log('> ' + index + ' > use existing file: ' + data[r][useExistingFilenameColumn]);
 
         } else {
-
+          // apply template
           if (useTemplate) {
 
             //check to see if a filtered template is to be applied
@@ -776,6 +823,8 @@ var generatorUtils = {
                     }
 
                   } else if (otherTemplate.hasOwnProperty('parameterTemplate')) {
+                    // if you have pre-existing values set up in a file,
+                    //  and want to replace with the pre-exisiting values
                     var paramGrp = otherTemplate.parameterTemplate;
                     resultsFile = generatorUtils.addParamGrp(resultsFile, paramGrp);
 
@@ -795,18 +844,33 @@ var generatorUtils = {
           }
         }
 
+        //==========================================\\
+        // FINAL check if parameters have NOT been updated
+        //==========================================\\
+        var checkParameters = generatorUtils.getParameters(resultsFile);
+        if (checkParameters.length > 0) {
+          console.log('NOT all PARAMETERS have been mapped!!!! Check parameters: ' + checkParameters.toString())
+        }
+
         //===========================================\\
         // OUTPUT new results File
         //===========================================\\
-        var idColumnName = generatorObj.output.fileIdColumn;
-        if (!data[r].hasOwnProperty(idColumnName))
-          throw ('Row: ' + r + ' - Column Name (' + idColumnName + ') not found in spreadsheet');
-        var identifier = data[r][idColumnName];
+
         //check if resultsFile tagged with %NONE% > which means don't create a file for this row
         if (resultsFile !== '%NONE%') {
           //only create file when existing file not specified
           if (resultsFile !== '%USE_EXISTING%') {
-            fileName = generatorObj.output.fileNamePrefix + identifier + generatorObj.output.fileExtension;
+            if (generatorObj.output.fileName === '%SET_FILENAME_TO%') {
+              var setFileNameTo = generatorObj.output.setFilenameTo.replace(/[{}]/g, '');
+              fileName = data[r][setFileNameTo] + generatorObj.output.fileExtension;
+            } else {
+              var idColumnName = generatorObj.output.fileIdColumn;
+              if (!data[r].hasOwnProperty(idColumnName))
+                throw ('Row: ' + r + ' - Column Name (' + idColumnName + ') not found in spreadsheet');
+              var identifier = data[r][idColumnName];
+
+              fileName = generatorObj.output.fileNamePrefix + identifier + generatorObj.output.fileExtension;
+            }
             generatorUtils.writeFile(generatorObj.output.folder, fileName, resultsFile);
             console.log('> ' + index + ' > create file for >> ' + identifier + ' >> filename >> ' + fileName);
           }

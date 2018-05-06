@@ -2,7 +2,7 @@
 To generate multiple copies of a file using a data contained in a spreadsheet with on a template(s)
 
 ## Getting Started
-IN PROGRESS
+npm install data-file-generator
 
 ### Set up
 To start, data needs to be added into an excel spreadsheet, then the template file(s) will need to be created and marked up, then the config files need to be created.
