@@ -123,7 +123,6 @@ var generatorUtils = {
 
       });
     }
-
   },
 
   removeSpacesFromString: function removeSpacesFromString (stringValue) {
@@ -849,7 +848,17 @@ var generatorUtils = {
         //==========================================\\
         var checkParameters = generatorUtils.getParameters(resultsFile);
         if (checkParameters.length > 0) {
-          console.log('NOT all PARAMETERS have been mapped!!!! Check parameters: ' + checkParameters.toString())
+          //apply default values
+          console.log('NOT all PARAMETERS have been mapped!')
+          let remainingParams = []
+          if(generatorObj.hasOwnProperty('setAsDefaultValue')) {
+            console.log('APPLYING default param value: ' + generatorObj.setAsDefaultValue)
+            // applying default value as set in config file
+            checkParameters.forEach(function(param) {
+              remainingParams[param] = generatorObj.setAsDefaultValue
+            })
+          }
+          resultsFile = generatorUtils.replaceValues(generatorObj, remainingParams, checkParameters, resultsFile);
         }
 
         //===========================================\\
