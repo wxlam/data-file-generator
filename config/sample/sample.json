@@ -3,6 +3,7 @@
   "sheetName": "Sheet1",
   "startRow": 2,
   "endRow": 500,
+  "setAsDefaultValue": "",
   "output": {
     "folder": "output/folder/",
     "fileNamePrefix": "PROFILE-PREFIX",

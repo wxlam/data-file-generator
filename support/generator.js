@@ -7,7 +7,7 @@ var sumTotal;
 
 var generatorUtils = {
 
-  getParameters: function getParameters (template) {
+  getParameters: function getParameters(template) {
 
     /* Match from template file */
     var regexPattern = new RegExp('\{' + '(.*?)' + '\}', 'g');
@@ -27,7 +27,7 @@ var generatorUtils = {
     return parameters;
   },
 
-  readContentsOfWorksheet: function readContentsOfWorksheet (worksheet) {
+  readContentsOfWorksheet: function readContentsOfWorksheet(worksheet) {
 
     /* Match the fetched value in the spreadsheet */
     var headers = {};
@@ -68,20 +68,37 @@ var generatorUtils = {
     return data;
   },
 
-  readFile: function readFile (file) {
-    return fs.readFileSync(file, {encoding: 'utf-8'}, function (err) {
+  readDataGenFolderLocation: function readDataGenFolderLocation() {
+    // if datafile.opt exists, then read from file
+    if (fsExtra.existsSync(process.cwd() + '/datafile.opt')) {
+      // read from datafile.opt
+      return fs.readFileSync(process.cwd() + '/datafile.opt', { encoding: 'utf-8' }, function (err) {
+        if (err) {
+          return console.warn(err);
+        }
+      });
+    } else {
+      return '';
+    }
+  },
+
+  readFile: function readFile(file) {
+    // read from location datafile.opt
+    let folderLocation = generatorUtils.readDataGenFolderLocation()
+    return fs.readFileSync(folderLocation + '/' + file, { encoding: 'utf-8' }, function (err) {
       if (err) {
         return console.warn(err);
       }
     });
   },
 
-  writeFile: function writeFile (pathToOutputFile, fileName, fileContents) {
+  writeFile: function writeFile(pathToOutputFile, fileName, fileContents) {
     var outfileName;
-
-    outfileName = pathToOutputFile + fileName;
+    // read from datafile.opt
+    let folderLocation = generatorUtils.readDataGenFolderLocation()
+    outfileName = folderLocation + '/' + pathToOutputFile + fileName;
     //confirm directories are created, if not then have them created before attempting to create file
-    fsExtra.ensureDirSync(pathToOutputFile);
+    fsExtra.ensureDirSync(folderLocation + '/' + pathToOutputFile);
     fs.writeFileSync(outfileName, fileContents, 'utf-8', function (err) {
       if (err) {
         return console.warn(err);
@@ -89,7 +106,7 @@ var generatorUtils = {
     });
   },
 
-  getFiles: function getFiles (dir, filesArr) {
+  getFiles: function getFiles(dir, filesArr) {
     filesArr = filesArr || [];
     var files = fs.readdirSync(dir);
     for (var i in files) {
@@ -103,7 +120,7 @@ var generatorUtils = {
     return filesArr;
   },
 
-  removeFilesFromDir: function removeFilesFromDir (pathTo, filePrefix) {
+  removeFilesFromDir: function removeFilesFromDir(pathTo, filePrefix) {
 
     //check if folder exists, if it does not then create folder
     if (!fs.existsSync(pathTo)) {
@@ -125,11 +142,11 @@ var generatorUtils = {
     }
   },
 
-  removeSpacesFromString: function removeSpacesFromString (stringValue) {
+  removeSpacesFromString: function removeSpacesFromString(stringValue) {
     return stringValue.replace(/\s/g, '');
   },
 
-  encodeSpacesFromStringWith: function encodeSpacesFromString (stringValue, replaceWith) {
+  encodeSpacesFromStringWith: function encodeSpacesFromString(stringValue, replaceWith) {
     // default to %20% if nothing is sent
     if (!replaceWith) {
       replaceWith = '%20';
@@ -137,7 +154,7 @@ var generatorUtils = {
     return stringValue.replace(/\s/g, replaceWith);
   },
 
-  getRepeatingGroupValues: function getRepeatingGroupValues (repeatingGroupMap, dataRow, count, templatePath, isSplitValue) {
+  getRepeatingGroupValues: function getRepeatingGroupValues(repeatingGroupMap, dataRow, count, templatePath, isSplitValue) {
     var identifier, splitPos, prefixValue, suffixValue, paramName, paramValue, templateParamName;
     var template = generatorUtils.readFile(templatePath);
 
@@ -170,7 +187,7 @@ var generatorUtils = {
     return template;
   },
 
-  addRepeatingGrp: function addRepeatingGrp (dataRow, resultsFile, repeatingGrpTemplate, fileExtension) {
+  addRepeatingGrp: function addRepeatingGrp(dataRow, resultsFile, repeatingGrpTemplate, fileExtension) {
     var repeatingGrp = '';
 
     var repeatingGrpMap = repeatingGrpTemplate.map;
@@ -204,7 +221,7 @@ var generatorUtils = {
     return resultsFile;
   },
 
-  addRepeatingGrpWithSplitValues: function addRepeatingGrpWithSplitValues (dataRow, resultsFile, repeatingGrpTemplate, fileExtension) {
+  addRepeatingGrpWithSplitValues: function addRepeatingGrpWithSplitValues(dataRow, resultsFile, repeatingGrpTemplate, fileExtension) {
     var repeatingGrp = '';
 
     var repeatingGrpMap = repeatingGrpTemplate.map;
@@ -238,14 +255,14 @@ var generatorUtils = {
     return resultsFile;
   },
 
-  addParamGrp: function addParamGrp (resultsFile, paramGrpTemplate) {
+  addParamGrp: function addParamGrp(resultsFile, paramGrpTemplate) {
     var paramFile = generatorUtils.readFile(paramGrpTemplate.templateFile);
 
     resultsFile = resultsFile.replace(paramGrpTemplate.parameter, paramFile);
     return resultsFile;
   },
 
-  checkKeyNameExists: function checkKeyNameExists (dataRow, keyName, secondMatch, exactMatch) {
+  checkKeyNameExists: function checkKeyNameExists(dataRow, keyName, secondMatch, exactMatch) {
 
     return _.filter(dataRow, function (value, key) {
       if (exactMatch) {
@@ -267,7 +284,7 @@ var generatorUtils = {
     })
   },
 
-  padOutParamValues: function padOutParamValues (paramObject, param) {
+  padOutParamValues: function padOutParamValues(paramObject, param) {
     var pad, res;
 
     pad = paramObject.padding.padWith;
@@ -283,13 +300,13 @@ var generatorUtils = {
     return res;
   },
 
-  getMatchingPositionBasedValue: function getMatchingPositionBasedValue (positionObject, param) {
+  getMatchingPositionBasedValue: function getMatchingPositionBasedValue(positionObject, param) {
     return _.filter(positionObject, function (value) {
       return value.paramName === param;
     })
   },
 
-  replaceValues: function replaceValues (genObj, dataRow, parameters, resultsFile, incrementalValue) {
+  replaceValues: function replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue) {
     var paramName, fullParamName, paramValue;
     var fileExtension;
     //check if output object exists, if it does not then default to '.xml'
@@ -355,7 +372,7 @@ var generatorUtils = {
     return resultsFile;
   },
 
-  checkTagsMatch: function checkTagsMatch (tagsToMatch, tag) {
+  checkTagsMatch: function checkTagsMatch(tagsToMatch, tag) {
     var match = false;
 
     if (tagsToMatch) {
@@ -371,7 +388,7 @@ var generatorUtils = {
     return match;
   },
 
-  getFilteredSet: function getFilteredSet (filteredSetData, filteredSetTagColumn, tagsToMatch) {
+  getFilteredSet: function getFilteredSet(filteredSetData, filteredSetTagColumn, tagsToMatch) {
     return _.filter(filteredSetData, function (rows) {
       //need to check if tag column exists, if it does then continue
       //  else ignore row
@@ -393,7 +410,7 @@ var generatorUtils = {
 
   },
 
-  getMatchingFilteredSet: function getMatchingFilteredSet (genObj, workbook, filteredSetWorkSheet, filteredSetConfigObj, dataRow, resultsFile) {
+  getMatchingFilteredSet: function getMatchingFilteredSet(genObj, workbook, filteredSetWorkSheet, filteredSetConfigObj, dataRow, resultsFile) {
 
     var filteredSetData = generatorUtils.readContentsOfWorksheet(filteredSetWorkSheet);
     var filteredSetTagColumn = filteredSetConfigObj.sectionSheetTagColumn;
@@ -520,7 +537,7 @@ var generatorUtils = {
     return resultsFile;
   },
 
-  checkAllTemplateConditionalValues: function checkAllTemplateConditionalValues (dataRow, templateConditions, templateUsed, indexValue) {
+  checkAllTemplateConditionalValues: function checkAllTemplateConditionalValues(dataRow, templateConditions, templateUsed, indexValue) {
     var result = false;
 
     //if template is already used, then don't generate using another template
@@ -544,7 +561,7 @@ var generatorUtils = {
     return result;
   },
 
-  checkTemplateConditionalValue: function checkTemplateConditionalValue (dataRowValue, templateCondition, indexValue) {
+  checkTemplateConditionalValue: function checkTemplateConditionalValue(dataRowValue, templateCondition, indexValue) {
     var dataTemplateConditionValue = dataRowValue;
     var templateConditionValue;
     if (templateCondition.hasOwnProperty('columnValue')) {
@@ -586,7 +603,7 @@ var generatorUtils = {
     }
   },
 
-  useOtherTemplate: function useOtherTemplate (genObj, otherTemplate, dataRow) {
+  useOtherTemplate: function useOtherTemplate(genObj, otherTemplate, dataRow) {
     var pathToOtherTemplate = otherTemplate.path + otherTemplate.fileName;
 
     if (otherTemplate.fileName !== '%NONE%') {
@@ -603,12 +620,12 @@ var generatorUtils = {
     }
   },
 
-  generateSimulatorConfig: function generateSimulatorConfig (dataRow, simObj, simTemplate, simParameters, simFile) {
+  generateSimulatorConfig: function generateSimulatorConfig(dataRow, simObj, simTemplate, simParameters, simFile) {
     simTemplate = simTemplate.replace(simObj.simulatorConfigFilenameParam, simFile);
     return generatorUtils.replaceValues(simObj, dataRow, simParameters, simTemplate);
   },
 
-  generateAdditionalSimulatorConfig: function generateSimulatorConfig (dataRow, additionalSimObj, simFilename) {
+  generateAdditionalSimulatorConfig: function generateSimulatorConfig(dataRow, additionalSimObj, simFilename) {
     var addSimFile = '';
     var simDataRow = dataRow;
     var addSimFileName = '';
@@ -657,7 +674,7 @@ var generatorUtils = {
     return addSimFile;
   },
 
-  getNamedTemplate: function getNamedTemplate (generatorObj, templateName) {
+  getNamedTemplate: function getNamedTemplate(generatorObj, templateName) {
     //determine the default template to use
     var defaultTemplate = _.find(generatorObj.templates, function (templates) {
       return templates.name === templateName;
@@ -676,11 +693,11 @@ var generatorUtils = {
 
   },
 
-  getDefaultTemplate: function getDefaultTemplate (generatorObj) {
+  getDefaultTemplate: function getDefaultTemplate(generatorObj) {
     return generatorUtils.getNamedTemplate(generatorObj, 'default');
   },
 
-  generateTemplateWithJSON: function generateTemplateWithJSON (generateObjectFile) {
+  generateTemplateWithJSON: function generateTemplateWithJSON(generateObjectFile) {
     var defaultGeneratorObj = JSON.parse(generatorUtils.readFile('config/default.json'));
     var generatorObj = JSON.parse(generatorUtils.readFile(generateObjectFile));
     //merge with default generator config
@@ -851,10 +868,10 @@ var generatorUtils = {
           //apply default values
           console.log('NOT all PARAMETERS have been mapped!')
           let remainingParams = []
-          if(generatorObj.hasOwnProperty('setAsDefaultValue')) {
+          if (generatorObj.hasOwnProperty('setAsDefaultValue')) {
             console.log('APPLYING default param value: ' + generatorObj.setAsDefaultValue)
             // applying default value as set in config file
-            checkParameters.forEach(function(param) {
+            checkParameters.forEach(function (param) {
               remainingParams[param] = generatorObj.setAsDefaultValue
             })
           }
