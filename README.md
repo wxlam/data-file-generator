@@ -10,13 +10,15 @@ To start, data needs to be added into an excel spreadsheet, then the template fi
 file structure:
 ```
 .
-+-- config
-|   +-- default.json
-|   +-- test-sample.json
-+-- data
-|   +-- template
-|       +-- basic-template.xml
-|   +-- sample.xlsx
++-- data-files
+|   +-- config
+|       +-- default.json
+|       +-- test-sample.json
+|   +-- data
+|       +-- template
+|           +-- basic-template.xml
+|       +-- sample.xlsx
++-- datafile.opt
 ```
 
 `config` folder contains all config json files that determine how the templates and spreadsheet data will be used
@@ -26,6 +28,8 @@ file structure:
 `data/template` contains the marked up templates to be used in the file generation
 
 `output` (folder will be created) contains all the files generated from the template with the data provided in the spreadsheets
+
+`datafile.opt` file contains location of where data files exists (including config, templates, output)
 
 ### Preparation
 
@@ -112,6 +116,3 @@ output files will appear in the `output` folder
 `./config/sample/sample.json` contains the different combinations and values that can be used for the config json files
 
 `./test/` directory contains examples of config files, templates, worsksheets
-
-#### Acknowledgments
-Special thanks to [Priyanka](https://github.com/pjagga) for her support on this project

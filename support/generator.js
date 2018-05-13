@@ -42,7 +42,7 @@ var generatorUtils = {
 
       //to get the full correct column and row number of the cell, use utils.decode_cell to
       //  split into {c:ColNum, r:RowNum}
-      //  then using that value, use utils.encode_col to convert ColNum into a letter, eg. AA instead of '27'
+      //  then using that value, use utils.encode_col to convert ColNum into a varter, eg. AA instead of '27'
       var cell = xlsx.utils.decode_cell(z);
       var colValue = xlsx.utils.encode_col(cell.c);
       var rowValue = cell.r;
@@ -82,10 +82,17 @@ var generatorUtils = {
     }
   },
 
-  readFile: function readFile(file) {
-    // read from location datafile.opt
-    let folderLocation = generatorUtils.readDataGenFolderLocation()
-    return fs.readFileSync(folderLocation + '/' + file, { encoding: 'utf-8' }, function (err) {
+  readFile: function readFile(file, folderLocationSet) {
+    var fileLocation
+    if (!folderLocationSet) {
+      // read from location datafile.opt
+      var folderLocation = generatorUtils.readDataGenFolderLocation()
+      fileLocation = folderLocation + '/' + file
+    } else {
+      fileLocation = file
+    }
+
+    return fs.readFileSync(fileLocation, { encoding: 'utf-8' }, function (err) {
       if (err) {
         return console.warn(err);
       }
@@ -93,13 +100,13 @@ var generatorUtils = {
   },
 
   writeFile: function writeFile(pathToOutputFile, fileName, fileContents) {
-    var outfileName;
+    var outfilePath;
     // read from datafile.opt
-    let folderLocation = generatorUtils.readDataGenFolderLocation()
-    outfileName = folderLocation + '/' + pathToOutputFile + fileName;
+    var folderLocation = generatorUtils.readDataGenFolderLocation()
+    outfilePath = folderLocation + '/' + pathToOutputFile;
     //confirm directories are created, if not then have them created before attempting to create file
-    fsExtra.ensureDirSync(folderLocation + '/' + pathToOutputFile);
-    fs.writeFileSync(outfileName, fileContents, 'utf-8', function (err) {
+    fsExtra.ensureDirSync(outfilePath);
+    fs.writeFileSync(outfilePath + fileName, fileContents, 'utf-8', function (err) {
       if (err) {
         return console.warn(err);
       }
@@ -699,11 +706,13 @@ var generatorUtils = {
 
   generateTemplateWithJSON: function generateTemplateWithJSON(generateObjectFile) {
     var defaultGeneratorObj = JSON.parse(generatorUtils.readFile('config/default.json'));
-    var generatorObj = JSON.parse(generatorUtils.readFile(generateObjectFile));
+    var generatorObj = JSON.parse(generatorUtils.readFile(generateObjectFile, true));
     //merge with default generator config
     generatorObj = _.merge(defaultGeneratorObj, generatorObj);
 
-    var workbook = xlsx.readFile(generatorObj.inputSheet);
+    // read folder location from datafile.opt
+    var folderLocation = generatorUtils.readDataGenFolderLocation()
+    var workbook = xlsx.readFile(folderLocation + '/' + generatorObj.inputSheet);
     var worksheet = workbook.Sheets[generatorObj.sheetName];
     if (!worksheet) {
       throw 'Unable to find sheet name (' + generatorObj.sheetName + ') in spreadsheet: (' + generatorObj.inputSheet + ')';
@@ -861,13 +870,26 @@ var generatorUtils = {
         }
 
         //==========================================\\
-        // FINAL check if parameters have NOT been updated
+        // Check if any GLOBAL parameter values to be set from config file
+        //==========================================\\
+        if (generatorObj.hasOwnProperty('fixedMappingValues')) {
+          var fixedMappingValues = generatorObj.fixedMappingValues.hashes()
+          var fixedMapParams = []
+          // create array with param names for fixed param names
+          fixedMappingValues.forEach(function (value, key) {
+            fixedMapParams.push(key)
+          })
+          resultsFile = generatorUtils.replaceValues(generatorObj, fixedMapParams, fixedMappingValues, resultsFile);
+        }
+
+        //==========================================\\
+        // FINAL check if any parameters have NOT been updated
         //==========================================\\
         var checkParameters = generatorUtils.getParameters(resultsFile);
         if (checkParameters.length > 0) {
           //apply default values
           console.log('NOT all PARAMETERS have been mapped!')
-          let remainingParams = []
+          var remainingParams = []
           if (generatorObj.hasOwnProperty('setAsDefaultValue')) {
             console.log('APPLYING default param value: ' + generatorObj.setAsDefaultValue)
             // applying default value as set in config file
