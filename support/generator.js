@@ -352,14 +352,21 @@ var generatorUtils = {
         if (fileExtension === '.xml') {
           paramValue = escape(paramValue);
         }
+        // handle when parameter is not set, set to default values empty or null
         if (paramValue === undefined) {
-          if (fileExtension === '.json') {
-            //need to handle null values by removing 'quotes' around the fullParamName
-            //  for json files
-            paramValue = null;
-            fullParamName = '"{' + paramName + '}"';
+          // if default value has been set in config then use it
+          if (genObj.hasOwnProperty('setAsDefaultValue')) {
+             paramValue = genObj.setAsDefaultValue 
           } else {
-            paramValue = '';
+            // not default value has been set in config, then set as empty or null
+            if (fileExtension === '.json') {
+              //need to handle null values by removing 'quotes' around the fullParamName
+              //  for json files
+              paramValue = null;
+              fullParamName = '"{' + paramName + '}"';
+            } else {
+              paramValue = '';
+            }
           }
         }
 
