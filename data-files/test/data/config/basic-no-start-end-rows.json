@@ -1,0 +1,18 @@
+{
+  "profileName": "basic-no-start-end-row",
+  "inputSheet": "test/data/spreadsheet/sample.xlsx",
+  "sheetName": "Sheet1",
+  "output": {
+    "folder": "test/data/output/sample/",
+    "fileNamePrefix": "BASIC-",
+    "fileIdColumn": "UNIQUE_ID_COLUMN",
+    "fileExtension": ".xml"
+  },
+  "templates": [
+    {
+      "name": "default",
+      "path" : "test/data/template/",
+      "fileName": "basic-template.xml"
+    }
+  ]
+}

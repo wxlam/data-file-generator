@@ -1,0 +1,42 @@
+{
+  "profileName": "multi-template-with-conditions",
+  "inputSheet": "test/data/spreadsheet/sample.xlsx",
+  "sheetName": "Sheet1",
+  "output": {
+    "folder": "test/data/output/sample/",
+    "fileNamePrefix": "BASIC-",
+    "fileIdColumn": "UNIQUE_ID_COLUMN",
+    "fileExtension": ".xml"
+  },
+  "templates": [
+    {
+      "name": "default",
+      "path" : "test/data/template/",
+      "fileName": "basic-template.xml",
+      "condition" : [
+        {
+          "columnName": "MULTIPLE_CONDITION_1_COL",
+          "conditionalValue": "!=",
+          "columnValue": "MULTIPLE_CONDITION_VALUE2"
+        }
+      ]
+    },
+    {
+      "name": "other",
+      "path" : "test/data/template/",
+      "fileName": "basic-template.xml",
+      "condition" : [
+        {
+          "columnName": "MULTIPLE_CONDITION_1_COL",
+          "conditionalValue": "!=",
+          "columnValue": "MULTIPLE_CONDITION_VALUE2"
+        },
+        {
+          "columnName": "MULTIPLE_CONDITION_2_COL",
+          "conditionalValue": "=",
+          "columnValue": "MULTIPLE_CONDITION_VALUE2"
+        }
+      ]
+    }
+  ]
+}

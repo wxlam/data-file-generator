@@ -1,0 +1,26 @@
+{
+  "profileName": "basic-default-template-with-condition",
+  "inputSheet": "test/data/spreadsheet/sample.xlsx",
+  "sheetName": "Sheet1",
+  "output": {
+    "folder": "test/data/output/sample/",
+    "fileNamePrefix": "BASIC-",
+    "fileIdColumn": "UNIQUE_ID_COLUMN",
+    "fileExtension": ".xml"
+  },
+  "startRow" : 2,
+  "templates": [
+    {
+      "name": "default",
+      "path" : "test/data/template/",
+      "fileName": "basic-template.xml",
+      "condition" : [
+        {
+          "columnName": "SINGLE_CONDITION_COL_NAME",
+          "conditionalValue": "=",
+          "columnValue": "SINGLE_CONDITION_VALUE"
+        }
+      ]
+    }
+  ]
+}

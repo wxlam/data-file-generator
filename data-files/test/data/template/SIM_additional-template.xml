@@ -1,0 +1,18 @@
+<response>
+    <applicable-to>sim-endpoint-config-name</applicable-to>
+    <request-matchers>
+        <matcher type="mvel">
+            <request-expression>request contains 'Id>{UNIQUE_ID_COLUMN}'</request-expression>
+        </matcher>
+        <matcher type="mvel">
+            <request-expression>request contains 'Value>{SINGLE_CONDITION_COL_NAME}'</request-expression>
+        </matcher>
+    </request-matchers>
+    <response-payload>sim-endpoint-folder/{SIM_COL_NAME}</response-payload>
+    <delay>0</delay>
+    <side-effects>
+        <redis-request-side-effect channel="REDIS_rq_channel-name"/>
+        <redis-response-side-effect channel="REDIS_rs_channel-name"/>
+        <stdout-side-effect/>
+    </side-effects>
+</response>
