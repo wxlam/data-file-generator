@@ -1,16 +1,16 @@
-let fs = require('fs')
-let fsExtra = require('fs-extra')
-let generator = require('../support/generator.js')
+var fs = require('fs')
+var fsExtra = require('fs-extra')
+var generator = require('../support/generator.js')
 
-let sampleFileSetup = {
+var sampleFileSetup = {
     checkIfConfigFile: function checkIfConfigFile() {
         // default data files directory is './data-files'
         //  else read value from data-file-gen.rc
-        let dataFileDir = '/data-files'
+        var dataFileDir = '/data-files'
         if (fsExtra.existsSync(process.cwd() + '/datafile.opt')) {
             console.log('reading from: datafile.opt')
-            let dataFileGenOptions = process.cwd() + '/datafile.opt'
-            let dataGenOptions = generator.readFile(dataFileGenOptions)
+            var dataFileGenOptions = process.cwd() + '/datafile.opt'
+            var dataGenOptions = generator.readFile(dataFileGenOptions)
             if (dataGenOptions != '') {
                 dataFileDir = dataGenOptions
             }
@@ -22,8 +22,8 @@ let sampleFileSetup = {
     },
     copyFiles: function copyFiles(dirName) {
         // console.log('setup with sample structure')
-        let rootDir = process.cwd() + '/' + dirName
-        let fileRootDir = __dirname
+        var rootDir = process.cwd() + '/' + dirName
+        var fileRootDir = __dirname
 
         fsExtra.copySync(fileRootDir + '/../config', rootDir + '/config', (src, dest) => {
             // only copy across files that aren't within the 'config/sample' folser

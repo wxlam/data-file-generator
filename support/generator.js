@@ -784,6 +784,25 @@ var generatorUtils = {
 
         var useTemplate;
 
+        //==========================================\\
+        // Check if any GLOBAL parameter values to be set from config file
+        //==========================================\\
+        if (generatorObj.hasOwnProperty('fixedMappingValues')) {
+          var fixedMappingValues = []
+          var fixedMapParams = []
+          fixedMappingValues = _.forEach(generatorObj.fixedMappingValues, function(value, key) {
+            fixedMappingValues[key] = value
+          })
+          // create array with param names for fixed param names
+          _.forEach(fixedMappingValues, function (value, key) {
+            fixedMapParams.push(key)
+          })
+          resultsFile = generatorUtils.replaceValues(generatorObj, fixedMappingValues, fixedMapParams, resultsFile);
+        }
+
+        //==========================================\\
+        // Apply the template
+        //==========================================\\
         if (generatorObj.hasOwnProperty('mappedSection') && _.isObject(generatorObj.mappedSection)) {
           var repeatingGrps = generatorObj.mappedSection;
           var fileExtension = generatorObj.output.fileExtension;
@@ -867,19 +886,6 @@ var generatorUtils = {
             //if default template conditions are not met, then don't create resultFile
             resultsFile = '%NONE%';
           }
-        }
-
-        //==========================================\\
-        // Check if any GLOBAL parameter values to be set from config file
-        //==========================================\\
-        if (generatorObj.hasOwnProperty('fixedMappingValues')) {
-          var fixedMappingValues = generatorObj.fixedMappingValues.hashes()
-          var fixedMapParams = []
-          // create array with param names for fixed param names
-          fixedMappingValues.forEach(function (value, key) {
-            fixedMapParams.push(key)
-          })
-          resultsFile = generatorUtils.replaceValues(generatorObj, fixedMapParams, fixedMappingValues, resultsFile);
         }
 
         //==========================================\\

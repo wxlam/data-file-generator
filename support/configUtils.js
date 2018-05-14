@@ -1,17 +1,17 @@
-let _ = require('lodash');
-let generator = require('./generator.js');
+var _ = require('lodash');
+var generator = require('./generator.js');
 
-let configUtils = {
+var configUtils = {
 
   getConfigFiles: function getConfigFiles(dir) {
-    let parsedConfig = [];
-    let configFiles = generator.getFiles(dir);
+    var parsedConfig = [];
+    var configFiles = generator.getFiles(dir);
 
     _.forEach(configFiles, function (configFile) {
       try {
-          let file = JSON.parse(generator.readFile(configFile, true));
+          var file = JSON.parse(generator.readFile(configFile, true));
           if (file.output) {
-              let fileConfig = {};
+              var fileConfig = {};
               fileConfig.profileName = file.profileName;
               fileConfig.path = configFile;
               fileConfig.outputFolder = file.output.folder;

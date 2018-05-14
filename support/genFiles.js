@@ -1,19 +1,19 @@
-let _ = require('lodash');
-let generator = require('../support/generator.js');
-let configUtils = require('../support/configUtils.js');
+var _ = require('lodash');
+var generator = require('../support/generator.js');
+var configUtils = require('../support/configUtils.js');
 
-let genFiles = {
+var genFiles = {
 
   generateResponse: function generateResponse(inputProfiles) {
 
-    let profiles = inputProfiles.split(',');
-    let folderLocation = generator.readDataGenFolderLocation();
-    let configLocation = folderLocation + '/config';
-    let profileConfig = configUtils.getConfigFiles(configLocation);
+    var profiles = inputProfiles.split(',');
+    var folderLocation = generator.readDataGenFolderLocation();
+    var configLocation = folderLocation + '/config';
+    var profileConfig = configUtils.getConfigFiles(configLocation);
 
     _.forEach(profiles, function(profile) {
 
-      let matchedProfile = _.filter(profileConfig, function(configProfile) {
+      var matchedProfile = _.filter(profileConfig, function(configProfile) {
         return configProfile.profileName === profile;
       });
 
