@@ -1,8 +1,9 @@
-var xlsx = require('xlsx');
-var fs = require('fs');
-var fsExtra = require('fs-extra');
-var escape = require("html-escape");
-var _ = require('lodash');
+const xlsx = require('xlsx');
+const fs = require('fs');
+const fsExtra = require('fs-extra');
+const escape = require("html-escape");
+const _ = require('lodash');
+const jexl = require('jexl')
 var sumTotal;
 
 var generatorUtils = {
@@ -161,9 +162,13 @@ var generatorUtils = {
     return stringValue.replace(/\s/g, replaceWith);
   },
 
-  getRepeatingGroupValues: function getRepeatingGroupValues(repeatingGroupMap, dataRow, count, templatePath, isSplitValue) {
+  getRepeatingGroupValues: function getRepeatingGroupValues(repeatingGroupMap, dataRow, count, templatePath, isSplitValue, repeatingGrpTransform) {
     var identifier, splitPos, prefixValue, suffixValue, paramName, paramValue, templateParamName;
     var template = generatorUtils.readFile(templatePath);
+    var isJson = false
+    if (templatePath.indexOf('json', templatePath.length - 4) > 0) {
+      isJson = true
+    }
 
     _.forEach(repeatingGroupMap, function (value, key) {
       templateParamName = '{' + key + '}';
@@ -185,44 +190,108 @@ var generatorUtils = {
         suffixValue = value.slice(splitPos);
         paramName = prefixValue + count + '_' + suffixValue;
         //if value is empty then make sure a blank value is returned and not 'undefined'
-        paramValue = dataRow[paramName] === undefined ? '' : dataRow[paramName];
-        template = template.replace(templateParamName, paramValue);
+        if (isJson) {
+          paramValue = dataRow[paramName] === undefined ? null : dataRow[paramName];
+        } else {
+          paramValue = dataRow[paramName] === undefined ? '' : dataRow[paramName];
+        }
+        
+        // if JSON && paramValue is null, paramName may be wrapped in quotes
+        // template = template.replace(templateParamName, paramValue);
+        if(isJson && paramValue === null) {
+          template = template.replace(`\"${templateParamName}\"`, paramValue);
+          // incase paramName not wrapped in quotes
+          template = template.replace(templateParamName, paramValue);
+        } else {
+          
+          // check if transform required
+          if(repeatingGrpTransform && _.isArray(repeatingGrpTransform) && repeatingGrpTransform.length > 0) {
+            let useParamName = prefixValue + '_' + suffixValue
+            // find matching transform for columnName && paramValue
+            let transformMatch = _.find(repeatingGrpTransform, function(matchObj) {
+              return matchObj.columnName === useParamName && matchObj.columnValue === paramValue
+            })
+            if (transformMatch) {
+              let transformParamValue = generatorUtils.transformValues(transformMatch, useParamName, paramValue)
+              template = template.replace(templateParamName, transformParamValue);
+            } 
+          } 
+          // catch all for when transform is not required
+          template = template.replace(templateParamName, paramValue);
+        }
       }
+
+      // get parameters
+      let parameters = generatorUtils.getParameters(template);
+      //also apply default template
+      template = generatorUtils.replaceValues(repeatingGroupMap, dataRow, parameters, template);
 
     });
 
     return template;
   },
 
-  addRepeatingGrp: function addRepeatingGrp(dataRow, resultsFile, repeatingGrpTemplate, fileExtension) {
-    var repeatingGrp = '';
-
-    var repeatingGrpMap = repeatingGrpTemplate.map;
-    var repeatingGrpParam = repeatingGrpTemplate.parameter;
-    var repeatingGrpPrefix = repeatingGrpTemplate.uniqueIdentifier.prefix;
-    var repeatingGrpSuffix = repeatingGrpTemplate.uniqueIdentifier.suffix;
-    var repeatingGrpTemplatePath = repeatingGrpTemplate.templateFile;
+  applyRepeatingGrp: function applyRepeatingGrp(dataRow, repeatingGrpTemplate, counter) {
     var applyCondition = true;
+    var repeatingGrpValue = ''
+    var repeatingGrpTransform = false
+
+    // check to see if condition applied to repeating group
+    if (repeatingGrpTemplate.hasOwnProperty('condition')) {
+      applyCondition = generatorUtils.checkAllTemplateConditionalValues(dataRow, repeatingGrpTemplate.condition, '', counter + 1)
+    }
+    // apply condition if it exists, default is true
+    if (applyCondition) {
+
+      //check if transform object exists
+      if(repeatingGrpTemplate.hasOwnProperty('transform')) {
+        repeatingGrpTransform = repeatingGrpTemplate.transform
+      }
+
+      //append repeating groups into single instance to be added to results file
+      repeatingGrpValue = generatorUtils.getRepeatingGroupValues(repeatingGrpTemplate.map, dataRow, counter + 1, repeatingGrpTemplate.templateFile, false, repeatingGrpTransform);
+    }
+
+    return repeatingGrpValue
+  },
+
+  generateRepeatingGrp: function generateRepeatingGrp(dataRow, repeatingGrpTemplate, fileExtension) {
+    var repeatingGrp = '';
+    var repeatingGrpPrefix, repeatingGrpSuffix
+    if(repeatingGrpTemplate.hasOwnProperty('uniqueIdentifier')) {
+      repeatingGrpPrefix = repeatingGrpTemplate.uniqueIdentifier.prefix;
+      repeatingGrpSuffix = repeatingGrpTemplate.uniqueIdentifier.suffix;
+    } else {
+      repeatingGrpPrefix = ''
+      repeatingGrpSuffix = ''
+    }
+    
 
     //check if column contains value in spreadsheet
     var repeatingGrpHeadings = generatorUtils.checkKeyNameExists(dataRow, repeatingGrpPrefix, repeatingGrpSuffix, false);
     if (repeatingGrpHeadings && repeatingGrpHeadings.length > 0) {
       for (var i = 0; i < repeatingGrpHeadings.length; i++) {
-        // check to see if condition applied to repeating group
-        if (repeatingGrpTemplate.hasOwnProperty('condition')) {
-          applyCondition = generatorUtils.checkAllTemplateConditionalValues(dataRow, repeatingGrpTemplate.condition, '', i + 1)
+        // add comma for json files
+        // for json files
+        // and only when comma does not already exist as last character
+        let applyRepeatingGrp = generatorUtils.applyRepeatingGrp(dataRow, repeatingGrpTemplate, i)
+        if (i > 0 &&  applyRepeatingGrp != '' && i < repeatingGrpHeadings.length && fileExtension === '.json' 
+        && repeatingGrp.lastIndexOf(',') < (repeatingGrp.length - 1)) {
+          repeatingGrp = repeatingGrp + ','
         }
-        // apply condition if it exists, default is true
-        if (applyCondition) {
-          // add comma for json files
-          if (i > 0 && fileExtension === '.json') {
-            repeatingGrp = repeatingGrp + ','
-          }
-          //append repeating groups into single instance to be added to results file
-          repeatingGrp = repeatingGrp + generatorUtils.getRepeatingGroupValues(repeatingGrpMap, dataRow, i + 1, repeatingGrpTemplatePath, false);
-        }
+        repeatingGrp = repeatingGrp + applyRepeatingGrp
       }
     }
+
+    // console.log(`repeatingGrp >>> ${repeatingGrp}`)
+    return repeatingGrp
+  },
+
+  addRepeatingGrp: function addRepeatingGrp(dataRow, resultsFile, repeatingGrpTemplate, fileExtension) {
+    var repeatingGrp = '';
+
+    var repeatingGrpParam = repeatingGrpTemplate.parameter;
+    repeatingGrp = generatorUtils.generateRepeatingGrp(dataRow, repeatingGrpTemplate, fileExtension)
 
     resultsFile = resultsFile.replace(repeatingGrpParam, repeatingGrp);
     return resultsFile;
@@ -231,31 +300,15 @@ var generatorUtils = {
   addRepeatingGrpWithSplitValues: function addRepeatingGrpWithSplitValues(dataRow, resultsFile, repeatingGrpTemplate, fileExtension) {
     var repeatingGrp = '';
 
-    var repeatingGrpMap = repeatingGrpTemplate.map;
     var repeatingGrpParam = repeatingGrpTemplate.parameter;
     var repeatingGrpSplitColumnName = repeatingGrpTemplate.splitValues.columnName.replace(/[{}]/g, '');
     var repeatingGrpSplitWith = repeatingGrpTemplate.splitValues.splitWith;
-    var repeatingGrpTemplatePath = repeatingGrpTemplate.templateFile;
-    var applyCondition = true;
 
     var repeatingGrpValues = dataRow[repeatingGrpSplitColumnName];
     var repeatingGrpArray = repeatingGrpValues.split(repeatingGrpSplitWith);
 
-
     _.forEach(repeatingGrpArray, function (value, index) {
-      // check to see if condition applied to repeating group
-      if (repeatingGrpTemplate.hasOwnProperty('condition')) {
-        applyCondition = generatorUtils.checkAllTemplateConditionalValues(dataRow, repeatingGrpTemplate.condition, '', i + 1)
-      }
-      // apply condition if it exists, default is true
-      if (applyCondition) {
-        // add comma for json files
-        if (index > 0 && fileExtension === '.json') {
-          repeatingGrp = repeatingGrp + ','
-        }
-        //append repeating groups into single instance to be added to results file
-        repeatingGrp = repeatingGrp + generatorUtils.getRepeatingGroupValues(repeatingGrpMap, value, null, repeatingGrpTemplatePath, true);
-      }
+      repeatingGrp = generatorUtils.applyRepeatingGrp(value, repeatingGrp, repeatingGrpTemplate, index)
     })
 
     resultsFile = resultsFile.replace(repeatingGrpParam, repeatingGrp);
@@ -313,6 +366,32 @@ var generatorUtils = {
     })
   },
 
+  transformValues: function transformValues (transformObj, paramName, paramValue) {
+    // "expression": "{GENDER} == 'M'",
+    // "columnName": "GENDER",
+    // "conditionalValue": "==",
+    // "columnValue": "M",
+    // "replacementValue": "Male"
+    let transformValue
+    if(transformObj.hasOwnProperty("columnName") && transformObj.hasOwnProperty("conditionalValue") && 
+    transformObj.hasOwnProperty("columnValue") && transformObj.hasOwnProperty("replacementValue")) {
+      // if(transObj.hasOwnProperty('expression')) {
+      //   if(jexl.evalSync(transObj.expression)) {
+      //     console.log(`>>> EXPRESSION: ${transObj.expression} evaluates to TRUE!`)
+      //   } else {
+      //     console.log(`>>> EXPRESSION: ${transObj.expression} evaluates to FALSE!`)
+      //   }
+      // }
+      if(paramName === transformObj.columnName && paramValue === transformObj.columnValue) {
+        transformValue = transformObj.replacementValue
+      }
+    } else {
+      throw new Error ("config for transform object has to have all the folowing values: " + 
+        "columnName, conditionalValue, columnValue and replacementValue")
+    }
+    return transformValue
+  },
+
   replaceValues: function replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue) {
     var paramName, fullParamName, paramValue;
     var fileExtension;
@@ -352,6 +431,13 @@ var generatorUtils = {
         if (fileExtension === '.xml') {
           paramValue = escape(paramValue);
         }
+        // if transformation needs to be applied to value
+        if(genObj.hasOwnProperty('transform') && !(_.isUndefined(_.find(genObj.transform, { columnName: paramName})))) {
+          _.forEach(genObj.transform, function (transObj) {
+            paramValue = generatorUtils.transformValues(transObj, paramName, paramValue)
+          })
+        }
+
         // handle when parameter is not set, set to default values empty or null
         if (paramValue === undefined) {
           // if default value has been set in config then use it
@@ -526,7 +612,9 @@ var generatorUtils = {
           //apply template specified in the filtered set config
           templateValues = generatorUtils.replaceValues(genObj, matchedRow, defaultTemplate.parameters, defaultTemplate.template, count);
           // if template is a json, then add ','
-          if (filteredSetConfigObj.templates[0].fileName.indexOf('.json') > 1 && count > 1) {
+          if (filteredSetConfigObj.templates[0].fileName.indexOf('.json') > 1 && count > 1 
+          && templateValues != ''
+          && filteredSet.lastIndexOf(',') < (filteredSet.length - 1)) {
             filteredSet = filteredSet + ',';
           }
           filteredSet = filteredSet + templateValues;
@@ -599,7 +687,8 @@ var generatorUtils = {
     }
 
     switch (templateComparsionValue) {
-      case "=":
+      case "=": 
+      case "==":
         return dataTemplateConditionValue === templateConditionValue;
       case "!=":
         return dataTemplateConditionValue !== templateConditionValue;
@@ -639,7 +728,7 @@ var generatorUtils = {
     return generatorUtils.replaceValues(simObj, dataRow, simParameters, simTemplate);
   },
 
-  generateAdditionalSimulatorConfig: function generateSimulatorConfig(dataRow, additionalSimObj, simFilename) {
+  generateAdditionalSimulatorConfig: function generateAdditionalSimulatorConfig(dataRow, additionalSimObj, simFilename) {
     var addSimFile = '';
     var simDataRow = dataRow;
     var addSimFileName = '';
@@ -688,6 +777,37 @@ var generatorUtils = {
     return addSimFile;
   },
 
+  generateSimulatorJSONResponse: function generateSimulatorJSONResponse (dataRow, jsonSimObj, generatedFilename) {
+
+      // when you don't have a template for the simulator AND it's a JSON object
+      //  can describe JSON object in simulator config
+      if (jsonSimObj.hasOwnProperty('jsonPrimaryNode') && jsonSimObj.hasOwnProperty('jsonMap') ) {
+        let mappedValue = {}
+
+        _.forEach(jsonSimObj.jsonMap, function(mapValue, mapKey) {
+          let paramName, paramValue
+          let fullParamName = mapValue
+          // check if mapValue is a param
+          //  if param > get paramValue
+          //  if not > pass value through
+          let match = new RegExp(/^{.*}$/)
+          if(match.test(fullParamName)) {
+            paramName = fullParamName.replace('{', '').replace('}', '')
+            if(paramName === 'FILE_NAME') {
+              mappedValue[mapKey] = generatedFilename
+            } else {
+              paramValue = dataRow[paramName]
+              mappedValue[mapKey] = paramValue
+            }
+          } else {
+            mappedValue[mapKey] = mapValue
+          }
+        })
+        
+        return mappedValue
+      }
+  },
+
   getNamedTemplate: function getNamedTemplate(generatorObj, templateName) {
     //determine the default template to use
     var defaultTemplate = _.find(generatorObj.templates, function (templates) {
@@ -728,15 +848,34 @@ var generatorUtils = {
     var defaultTemplate = generatorUtils.getDefaultTemplate(generatorObj);
     var template = defaultTemplate.template;
     var parameters = defaultTemplate.parameters;
+    var isTemplateSim = false
+    var isJsonSim = false
 
     var useExistingFilenameColumn = generatorObj.useExistingFilenameColumn;
 
     if (generatorObj.hasOwnProperty('simulator') && _.isObject(generatorObj.simulator)) {
-      var pathToSimTemplate = generatorObj.simulator.simulatorConfigTemplatePath + generatorObj.simulator.simulatorConfigTemplate;
-      var simTemplate = generatorUtils.readFile(pathToSimTemplate);
-      var simParameters = generatorUtils.getParameters(simTemplate);
-      var simFile = '';
-    }
+      var templateSim = _.find(generatorObj.simulator, function (simObj) {
+        return simObj.hasOwnProperty('simulatorConfigTemplate')
+      })
+
+      var jsonMapSim = _.find(generatorObj.simulator, function (simObj) {
+        return simObj.hasOwnProperty('jsonPrimaryNode')
+      })
+
+      if(templateSim) {
+        var pathToSimTemplate = templateSim.simulatorConfigTemplatePath + templateSim.simulatorConfigTemplate;
+        var simTemplate = generatorUtils.readFile(pathToSimTemplate);
+        var simParameters = generatorUtils.getParameters(simTemplate);
+        var simFile = '';
+        isTemplateSim = true
+      }
+
+      if (_.isObject(jsonMapSim)) {
+        isJsonSim = true
+        var simJsonMapResult = []
+      }
+    } 
+    
 
     //===========================================\\
     // READ in contents of worksheet
@@ -823,6 +962,33 @@ var generatorUtils = {
             }
           })
 
+        }
+
+        // if mappedJSONSection exists
+        if (generatorObj.hasOwnProperty('mappedJSONSection') && _.isObject(generatorObj.mappedJSONSection)) {
+          // read mappedJSONSection.templateFile
+          var jsonParentTemplate = generatorUtils.readFile(generatorObj.mappedJSONSection.templateFile)
+          let addComma = false
+
+          _.forEach(generatorObj.mappedJSONSection.childMap, function (cMap, index){
+            let childMapResult = ''
+            let childRepeatingGrp = generatorUtils.generateRepeatingGrp(data[r], cMap, '.json')
+            if(cMap.hasOwnProperty('isInJSONArray') && cMap.isInJSONArray) {
+              // append ',' between each jsonObj
+              //  check if last character is not comma or '}'
+              if (index > 0 && addComma && childRepeatingGrp != ''
+              && childRepeatingGrp.lastIndexOf(',') < (childRepeatingGrp.length - 1) 
+              && (childRepeatingGrp.lastIndexOf('}') === (childRepeatingGrp.length - 1))) {
+                  childMapResult = childMapResult + ','
+              }
+              childMapResult = childMapResult + childRepeatingGrp
+              // additional check for when to add comma, if empty result returned then 
+              //  no need to add comma
+              addComma = childMapResult != ''
+            }
+            jsonParentTemplate = jsonParentTemplate.replace(cMap.parameter, childMapResult)
+          })
+          resultsFile = resultsFile.replace(generatorObj.mappedJSONSection.parameter, jsonParentTemplate)
         }
 
         //check if default template has any conditions, if it does then apply template only when condition is true
@@ -932,6 +1098,13 @@ var generatorUtils = {
 
               fileName = generatorObj.output.fileNamePrefix + identifier + generatorObj.output.fileExtension;
             }
+            if(generatorObj.output.fileExtension === '.json') {
+              try {
+                resultsFile = JSON.stringify(JSON.parse(resultsFile), null, 2)
+              } catch (e) {
+                console.log(`>>> JSON formatting ERROR: ${e}`)
+              }
+            }
             generatorUtils.writeFile(generatorObj.output.folder, fileName, resultsFile);
             console.log('> ' + index + ' > create file for >> ' + identifier + ' >> filename >> ' + fileName);
           }
@@ -939,13 +1112,19 @@ var generatorUtils = {
           //===========================================\\
           // OUTPUT new simulator config File
           //===========================================\\
-          if (simTemplate) {
-            simFile = simFile + generatorUtils.generateSimulatorConfig(data[r], generatorObj.simulator, simTemplate, simParameters, fileName);
+          if (simTemplate && isTemplateSim) {
+            simFile = simFile + generatorUtils.generateSimulatorConfig(data[r], templateSim, simTemplate, simParameters, fileName);
             //If there's additional simulator config that needs to be added ..
-            if (generatorObj.simulator.hasOwnProperty('additionalSimulatorConfig')) {
-              simFile = simFile + generatorUtils.generateAdditionalSimulatorConfig(data[r], generatorObj.simulator.additionalSimulatorConfig, fileName)
+            if (templateSim.hasOwnProperty('additionalSimulatorConfig')) {
+              simFile = simFile + generatorUtils.generateAdditionalSimulatorConfig(data[r], templateSim.additionalSimulatorConfig, fileName)
             }
             console.log('generated fileName: ' + fileName)
+          } 
+          
+          if (isJsonSim) {
+            let jsonSimConfig = generatorUtils.generateSimulatorJSONResponse (data[r], jsonMapSim, fileName)
+            simJsonMapResult.push(jsonSimConfig) 
+            console.log('generated json fileName: ' + fileName)
           }
 
         } else {
@@ -957,7 +1136,13 @@ var generatorUtils = {
 
     //output simulator config file
     if (simTemplate && simFile !== '') {
-      generatorUtils.writeFile(generatorObj.simulator.simulatorConfigOutput, generatorObj.simulator.simulatorFilename, simFile);
+      generatorUtils.writeFile(templateSim.simulatorConfigOutput, templateSim.simulatorFilename, simFile);
+    } 
+    
+    if (_.isObject(simJsonMapResult)) {
+      let finalSimJson = {}
+      finalSimJson[jsonMapSim.jsonPrimaryNode] = simJsonMapResult
+      generatorUtils.writeFile(jsonMapSim.simulatorConfigOutput, jsonMapSim.simulatorFilename, JSON.stringify(finalSimJson, null, 2));
     }
 
   }
