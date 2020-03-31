@@ -104,7 +104,13 @@ other config json files added to `config` folder will apply additional informati
 
 To generate files run:
 `data-file-gen <profile-name>`
+
 or 
+
+`./node_modules/bin/data-file-gen <profile-name>`
+
+to test scripts in repo:
+
 `node index.js <profile-name>`
 
 where `<profile-name>` can be a comma delimited list of profiles, eg. `test-sample` or `test-sample1,test-sample2,test-sample3`
