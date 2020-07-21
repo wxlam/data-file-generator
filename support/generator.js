@@ -516,11 +516,19 @@ var generatorUtils = {
     var filteredSetData = generatorUtils.readContentsOfWorksheet(filteredSetWorkSheet);
     var filteredSetTagColumn = filteredSetConfigObj.sectionSheetTagColumn;
     var primarySheetColumn = filteredSetConfigObj.primarySheetTagColumn;
-    var replacementParamName = filteredSetConfigObj.templates[0].replacementParamName;
     var tagsToMatch = dataRow[primarySheetColumn];
     var filteredFileTemplate = filteredSetConfigObj.templateFromFile;
     var filteredSet = '';
     var matchingDataSet;
+    var replacementParamName;
+    
+    // sometimes filteredSetConfig obj has template array, so need to check for that
+    if(filteredSetConfigObj.hasOwnProperty('replacementParamName')) {
+      replacementParamName = filteredSetConfigObj.replacementParamName
+    } else if (filteredSetConfigObj.hasOwnProperty('templates') 
+      && filteredSetConfigObj.templates[0].hasOwnProperty('replacementParamName')) {
+        replacementParamName = filteredSetConfigObj.templates[0].replacementParamName
+    }
 
     if (!(filteredSetConfigObj.hasOwnProperty('templates') || filteredSetConfigObj.hasOwnProperty('templateFromFile'))) {
       throw ('Unable to find property "templates" or "templateFromFile" in "filteredTemplate" object');
