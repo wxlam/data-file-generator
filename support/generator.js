@@ -165,6 +165,7 @@ var generatorUtils = {
   getRepeatingGroupValues: function getRepeatingGroupValues(repeatingGroupMap, dataRow, count, templatePath, isSplitValue, repeatingGrpTransform) {
     var identifier, splitPos, prefixValue, suffixValue, paramName, paramValue, templateParamName;
     var template = generatorUtils.readFile(templatePath);
+    var savedTemplate = template
     var isJson = false
     if (templatePath.indexOf('json', templatePath.length - 4) > 0) {
       isJson = true
@@ -515,7 +516,7 @@ var generatorUtils = {
     var filteredSetData = generatorUtils.readContentsOfWorksheet(filteredSetWorkSheet);
     var filteredSetTagColumn = filteredSetConfigObj.sectionSheetTagColumn;
     var primarySheetColumn = filteredSetConfigObj.primarySheetTagColumn;
-    var replacementParamName = filteredSetConfigObj.replacementParamName;
+    var replacementParamName = filteredSetConfigObj.templates[0].replacementParamName;
     var tagsToMatch = dataRow[primarySheetColumn];
     var filteredFileTemplate = filteredSetConfigObj.templateFromFile;
     var filteredSet = '';
@@ -634,6 +635,9 @@ var generatorUtils = {
 
       //replace it in the primary template file
       resultsFile = resultsFile.replace(replacementParamName, filteredSet);
+    } else {
+      // if no result then empty response for filteredSet
+      resultsFile = resultsFile.replace(replacementParamName, '');
     }
 
     return resultsFile;
@@ -1117,6 +1121,9 @@ var generatorUtils = {
             //If there's additional simulator config that needs to be added ..
             if (templateSim.hasOwnProperty('additionalSimulatorConfig')) {
               simFile = simFile + generatorUtils.generateAdditionalSimulatorConfig(data[r], templateSim.additionalSimulatorConfig, fileName)
+            }
+            if(templateSim.simulatorConfigTemplate.indexOf('.json') > 0) {
+              simFile = simFile.replace('}{', '},{')
             }
             console.log('generated fileName: ' + fileName)
           } 
