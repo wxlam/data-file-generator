@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha",
-    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha"
+    "nyc-coverage": "./node_modules/.bin/nyc --reporter=lcov --reporter=text-summary npm run test"
   },
   "bin": {
     "data-file-gen": "./index.js"
@@ -29,12 +29,11 @@
     "debug": "^3.1.0",
     "fs-extra": "^2.1.2",
     "html-escape": "^2.0.0",
-    "istanbul": "^0.4.5",
     "jexl": "^2.1.1",
-    "konfig": "^0.2.1",
     "lodash": "^4.17.15",
-    "mocha": "^5.2.0",
+    "mocha": "^8.0.1",
     "mock-fs": "^4.4.2",
+    "nyc": "^15.1.0",
     "simple-mock": "^0.7.3",
     "xlsx": "^0.8.8"
   }
