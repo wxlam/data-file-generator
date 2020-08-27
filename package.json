@@ -1,7 +1,7 @@
 {
   "name": "data-file-generator",
   "description": "data-file-generator is all about generating data for testing using a template feed in from excel spreadsheet(s).",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha",
@@ -31,7 +31,7 @@
     "html-escape": "^2.0.0",
     "jexl": "^2.1.1",
     "lodash": "^4.17.15",
-    "mocha": "^8.0.1",
+    "mocha": "^8.1.2",
     "mock-fs": "^4.4.2",
     "nyc": "^15.1.0",
     "simple-mock": "^0.7.3",
