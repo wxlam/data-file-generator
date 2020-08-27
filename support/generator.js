@@ -467,6 +467,13 @@ var generatorUtils = {
         }
 
         resultsFile = resultsFile.replace(fullParamName, paramValue);
+        // check if paramName still exists
+        //  this is for json files that don't have param wrapped in quotes
+        if(resultsFile.indexOf(`{${paramName}}`) > 0) {
+          // console.log(`paramName <${paramName}> still exists`)
+          fullParamName = '{' + paramName + '}';
+          resultsFile = resultsFile.replace(fullParamName, paramValue);
+        } 
       });
     }
 
@@ -521,7 +528,7 @@ var generatorUtils = {
     var filteredSet = '';
     var matchingDataSet;
     var replacementParamName;
-    
+
     // sometimes filteredSetConfig obj has template array, so need to check for that
     if(filteredSetConfigObj.hasOwnProperty('replacementParamName')) {
       replacementParamName = filteredSetConfigObj.replacementParamName
@@ -736,8 +743,16 @@ var generatorUtils = {
   },
 
   generateSimulatorConfig: function generateSimulatorConfig(dataRow, simObj, simTemplate, simParameters, simFile) {
-    simTemplate = simTemplate.replace(simObj.simulatorConfigFilenameParam, simFile);
-    return generatorUtils.replaceValues(simObj, dataRow, simParameters, simTemplate);
+    var useSimConfig = true
+    // should really check if condition exists
+    if(simObj.hasOwnProperty('condition')) {
+      var dataRowColumnValue = dataRow[simObj.condition.columnName];
+      useSimConfig = generatorUtils.checkTemplateConditionalValue(dataRowColumnValue, simObj.condition);
+    }
+    if(useSimConfig) {
+      simTemplate = simTemplate.replace(simObj.simulatorConfigFilenameParam, simFile);
+      return generatorUtils.replaceValues(simObj, dataRow, simParameters, simTemplate);
+    }
   },
 
   generateAdditionalSimulatorConfig: function generateAdditionalSimulatorConfig(dataRow, additionalSimObj, simFilename) {
@@ -1023,9 +1038,18 @@ var generatorUtils = {
 
             //check to see if a filtered template is to be applied
             if (generatorObj.hasOwnProperty('filteredSection') && _.isObject(generatorObj.filteredSection)) {
-              //find matching accounts
-              var filteredSetWorksheet = workbook.Sheets[generatorObj.filteredSection.sectionSheetName];
-              resultsFile = generatorUtils.getMatchingFilteredSet(generatorObj, workbook, filteredSetWorksheet, generatorObj.filteredSection, data[r], resultsFile)
+              // filtered section may be an array
+              if(_.isArray(generatorObj.filteredSection)) {
+                _.forEach(generatorObj.filteredSection, function (section) {
+                  //find matching accounts
+                  var filteredSetWorksheet = workbook.Sheets[section.sectionSheetName];
+                  resultsFile = generatorUtils.getMatchingFilteredSet(generatorObj, workbook, filteredSetWorksheet, section, data[r], resultsFile)
+                })
+              } else {
+                //find matching accounts
+                var filteredSetWorksheet = workbook.Sheets[generatorObj.filteredSection.sectionSheetName];
+                resultsFile = generatorUtils.getMatchingFilteredSet(generatorObj, workbook, filteredSetWorksheet, generatorObj.filteredSection, data[r], resultsFile)    
+              }
             }
 
             //check for other templates
