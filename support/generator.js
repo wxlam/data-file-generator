@@ -451,6 +451,12 @@ var generatorUtils = {
               //  for json files
               paramValue = null;
               fullParamName = '"{' + paramName + '}"';
+              let pNameRegEx = new RegExp(fullParamName)
+              if(pNameRegEx.test(resultsFile)) {
+                paramValue = '""'
+              } else {
+                paramValue = null
+              }
             } else {
               paramValue = '';
             }
