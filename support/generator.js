@@ -11,7 +11,7 @@ var generatorUtils = {
   getParameters: function getParameters(template) {
 
     /* Match from template file */
-    var regexPattern = new RegExp('\{' + '(.*?)' + '\}', 'g');
+    var regexPattern = new RegExp('\{' + '([^"]*?)' + '\}', 'g');
     var templateParameters = template.match(regexPattern);
     var parameters = [];
     var param;
@@ -1141,6 +1141,7 @@ var generatorUtils = {
               fileName = generatorObj.output.fileNamePrefix + identifier + generatorObj.output.fileExtension;
             }
             if(generatorObj.output.fileExtension === '.json') {
+              resultsFile = resultsFile.replace(/}\s+{/g, '},{').replace(/""""/g, '""')
               try {
                 resultsFile = JSON.stringify(JSON.parse(resultsFile), null, 2)
               } catch (e) {
@@ -1160,13 +1161,8 @@ var generatorUtils = {
             if (templateSim.hasOwnProperty('additionalSimulatorConfig')) {
               simFile = simFile + generatorUtils.generateAdditionalSimulatorConfig(data[r], templateSim.additionalSimulatorConfig, fileName)
             }
-            if(generatorObj.output.fileExtension === '.json') {
-              resultsFile = resultsFile.replace(/}\s+{/g, '},{').replace(/""""/g, '""')
-              try {
-                resultsFile = JSON.stringify(JSON.parse(resultsFile), null, 2)
-              } catch (e) {
-                console.log(`>>> JSON formatting ERROR: ${e}`)
-              }
+            if(templateSim.simulatorConfigTemplate.indexOf('.json') > 0) {
+              simFile = simFile.replace(/}\s+{/g, '},{')
             }
             console.log('generated fileName: ' + fileName)
           } 
