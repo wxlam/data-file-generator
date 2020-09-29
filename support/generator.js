@@ -222,11 +222,6 @@ var generatorUtils = {
         }
       }
 
-      // get parameters
-      let parameters = generatorUtils.getParameters(template);
-      //also apply default template
-      template = generatorUtils.replaceValues(repeatingGroupMap, dataRow, parameters, template);
-
     });
 
     return template;
@@ -282,6 +277,11 @@ var generatorUtils = {
         }
         repeatingGrp = repeatingGrp + applyRepeatingGrp
       }
+    }
+
+    // for JSON response - clean up to make sure array elements separated correctly
+    if(fileExtension === '.json') {
+      repeatingGrp = repeatingGrp.replace(/}\s+{/g, '},{')
     }
 
     // console.log(`repeatingGrp >>> ${repeatingGrp}`)
@@ -1160,8 +1160,13 @@ var generatorUtils = {
             if (templateSim.hasOwnProperty('additionalSimulatorConfig')) {
               simFile = simFile + generatorUtils.generateAdditionalSimulatorConfig(data[r], templateSim.additionalSimulatorConfig, fileName)
             }
-            if(templateSim.simulatorConfigTemplate.indexOf('.json') > 0) {
-              simFile = simFile.replace('}{', '},{')
+            if(generatorObj.output.fileExtension === '.json') {
+              resultsFile = resultsFile.replace(/}\s+{/g, '},{').replace(/""""/g, '""')
+              try {
+                resultsFile = JSON.stringify(JSON.parse(resultsFile), null, 2)
+              } catch (e) {
+                console.log(`>>> JSON formatting ERROR: ${e}`)
+              }
             }
             console.log('generated fileName: ' + fileName)
           } 
