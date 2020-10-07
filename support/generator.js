@@ -1215,7 +1215,7 @@ var generatorUtils = {
     });
 
     //output simulator config file
-    if (simTemplate && simFile != '') {
+    if (simTemplate && simFile !== '') {
       generatorUtils.writeFile(templateSim.simulatorConfigOutput, templateSim.simulatorFilename, simFile);
     }
 
