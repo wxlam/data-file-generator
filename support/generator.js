@@ -196,27 +196,27 @@ var generatorUtils = {
         } else {
           paramValue = dataRow[paramName] === undefined ? '' : dataRow[paramName];
         }
-        
+
         // if JSON && paramValue is null, paramName may be wrapped in quotes
         // template = template.replace(templateParamName, paramValue);
-        if(isJson && paramValue === null) {
+        if (isJson && paramValue === null) {
           template = template.replace(`\"${templateParamName}\"`, paramValue);
           // incase paramName not wrapped in quotes
           template = template.replace(templateParamName, paramValue);
         } else {
-          
+
           // check if transform required
-          if(repeatingGrpTransform && _.isArray(repeatingGrpTransform) && repeatingGrpTransform.length > 0) {
+          if (repeatingGrpTransform && _.isArray(repeatingGrpTransform) && repeatingGrpTransform.length > 0) {
             let useParamName = prefixValue + '_' + suffixValue
             // find matching transform for columnName && paramValue
-            let transformMatch = _.find(repeatingGrpTransform, function(matchObj) {
+            let transformMatch = _.find(repeatingGrpTransform, function (matchObj) {
               return matchObj.columnName === useParamName && matchObj.columnValue === paramValue
             })
             if (transformMatch) {
               let transformParamValue = generatorUtils.transformValues(transformMatch, useParamName, paramValue)
               template = template.replace(templateParamName, transformParamValue);
-            } 
-          } 
+            }
+          }
           // catch all for when transform is not required
           template = template.replace(templateParamName, paramValue);
         }
@@ -240,7 +240,7 @@ var generatorUtils = {
     if (applyCondition) {
 
       //check if transform object exists
-      if(repeatingGrpTemplate.hasOwnProperty('transform')) {
+      if (repeatingGrpTemplate.hasOwnProperty('transform')) {
         repeatingGrpTransform = repeatingGrpTemplate.transform
       }
 
@@ -254,14 +254,14 @@ var generatorUtils = {
   generateRepeatingGrp: function generateRepeatingGrp(dataRow, repeatingGrpTemplate, fileExtension) {
     var repeatingGrp = '';
     var repeatingGrpPrefix, repeatingGrpSuffix
-    if(repeatingGrpTemplate.hasOwnProperty('uniqueIdentifier')) {
+    if (repeatingGrpTemplate.hasOwnProperty('uniqueIdentifier')) {
       repeatingGrpPrefix = repeatingGrpTemplate.uniqueIdentifier.prefix;
       repeatingGrpSuffix = repeatingGrpTemplate.uniqueIdentifier.suffix;
     } else {
       repeatingGrpPrefix = ''
       repeatingGrpSuffix = ''
     }
-    
+
 
     //check if column contains value in spreadsheet
     var repeatingGrpHeadings = generatorUtils.checkKeyNameExists(dataRow, repeatingGrpPrefix, repeatingGrpSuffix, false);
@@ -271,8 +271,8 @@ var generatorUtils = {
         // for json files
         // and only when comma does not already exist as last character
         let applyRepeatingGrp = generatorUtils.applyRepeatingGrp(dataRow, repeatingGrpTemplate, i)
-        if (i > 0 &&  applyRepeatingGrp != '' && i < repeatingGrpHeadings.length && fileExtension === '.json' 
-        && repeatingGrp.lastIndexOf(',') < (repeatingGrp.length - 1)) {
+        if (i > 0 && applyRepeatingGrp != '' && i < repeatingGrpHeadings.length && fileExtension === '.json'
+          && repeatingGrp.lastIndexOf(',') < (repeatingGrp.length - 1)) {
           repeatingGrp = repeatingGrp + ','
         }
         repeatingGrp = repeatingGrp + applyRepeatingGrp
@@ -280,7 +280,7 @@ var generatorUtils = {
     }
 
     // for JSON response - clean up to make sure array elements separated correctly
-    if(fileExtension === '.json') {
+    if (fileExtension === '.json') {
       repeatingGrp = repeatingGrp.replace(/}\s+{/g, '},{')
     }
 
@@ -367,15 +367,15 @@ var generatorUtils = {
     })
   },
 
-  transformValues: function transformValues (transformObj, paramName, paramValue) {
+  transformValues: function transformValues(transformObj, paramName, paramValue) {
     // "expression": "{GENDER} == 'M'",
     // "columnName": "GENDER",
     // "conditionalValue": "==",
     // "columnValue": "M",
     // "replacementValue": "Male"
     let transformValue
-    if(transformObj.hasOwnProperty("columnName") && transformObj.hasOwnProperty("conditionalValue") && 
-    transformObj.hasOwnProperty("columnValue") && transformObj.hasOwnProperty("replacementValue")) {
+    if (transformObj.hasOwnProperty("columnName") && transformObj.hasOwnProperty("conditionalValue") &&
+      transformObj.hasOwnProperty("columnValue") && transformObj.hasOwnProperty("replacementValue")) {
       // if(transObj.hasOwnProperty('expression')) {
       //   if(jexl.evalSync(transObj.expression)) {
       //     console.log(`>>> EXPRESSION: ${transObj.expression} evaluates to TRUE!`)
@@ -383,11 +383,11 @@ var generatorUtils = {
       //     console.log(`>>> EXPRESSION: ${transObj.expression} evaluates to FALSE!`)
       //   }
       // }
-      if(paramName === transformObj.columnName && paramValue === transformObj.columnValue) {
+      if (paramName === transformObj.columnName && paramValue === transformObj.columnValue) {
         transformValue = transformObj.replacementValue
       }
     } else {
-      throw new Error ("config for transform object has to have all the folowing values: " + 
+      throw new Error("config for transform object has to have all the folowing values: " +
         "columnName, conditionalValue, columnValue and replacementValue")
     }
     return transformValue
@@ -433,7 +433,7 @@ var generatorUtils = {
           paramValue = escape(paramValue);
         }
         // if transformation needs to be applied to value
-        if(genObj.hasOwnProperty('transform') && !(_.isUndefined(_.find(genObj.transform, { columnName: paramName})))) {
+        if (genObj.hasOwnProperty('transform') && !(_.isUndefined(_.find(genObj.transform, { columnName: paramName })))) {
           _.forEach(genObj.transform, function (transObj) {
             paramValue = generatorUtils.transformValues(transObj, paramName, paramValue)
           })
@@ -443,7 +443,7 @@ var generatorUtils = {
         if (paramValue === undefined) {
           // if default value has been set in config then use it
           if (genObj.hasOwnProperty('setAsDefaultValue')) {
-             paramValue = genObj.setAsDefaultValue 
+            paramValue = genObj.setAsDefaultValue
           } else {
             // not default value has been set in config, then set as empty or null
             if (fileExtension === '.json') {
@@ -452,10 +452,11 @@ var generatorUtils = {
               paramValue = null;
               fullParamName = '"{' + paramName + '}"';
               let pNameRegEx = new RegExp(fullParamName)
-              if(pNameRegEx.test(resultsFile)) {
+              if (pNameRegEx.test(resultsFile)) {
                 paramValue = '""'
               } else {
-                paramValue = null
+                // change from null
+                paramValue = ''
               }
             } else {
               paramValue = '';
@@ -475,11 +476,11 @@ var generatorUtils = {
         resultsFile = resultsFile.replace(fullParamName, paramValue);
         // check if paramName still exists
         //  this is for json files that don't have param wrapped in quotes
-        if(resultsFile.indexOf(`{${paramName}}`) > 0) {
+        if (resultsFile.indexOf(`{${paramName}}`) > 0) {
           // console.log(`paramName <${paramName}> still exists`)
           fullParamName = '{' + paramName + '}';
           resultsFile = resultsFile.replace(fullParamName, paramValue);
-        } 
+        }
       });
     }
 
@@ -536,11 +537,11 @@ var generatorUtils = {
     var replacementParamName;
 
     // sometimes filteredSetConfig obj has template array, so need to check for that
-    if(filteredSetConfigObj.hasOwnProperty('replacementParamName')) {
+    if (filteredSetConfigObj.hasOwnProperty('replacementParamName')) {
       replacementParamName = filteredSetConfigObj.replacementParamName
-    } else if (filteredSetConfigObj.hasOwnProperty('templates') 
+    } else if (filteredSetConfigObj.hasOwnProperty('templates')
       && filteredSetConfigObj.templates[0].hasOwnProperty('replacementParamName')) {
-        replacementParamName = filteredSetConfigObj.templates[0].replacementParamName
+      replacementParamName = filteredSetConfigObj.templates[0].replacementParamName
     }
 
     if (!(filteredSetConfigObj.hasOwnProperty('templates') || filteredSetConfigObj.hasOwnProperty('templateFromFile'))) {
@@ -628,19 +629,52 @@ var generatorUtils = {
       if (filteredSetConfigObj.hasOwnProperty('templates')) {
         var defaultTemplate = generatorUtils.getNamedTemplate(filteredSetConfigObj, 'default');
         replacementParamName = defaultTemplate.replacementParamName;
-        _.forEach(matchingDataSet, function (matchedRow, rowIndex) {
+        // need to use make a clean copy of the default template for use
+        //  as default template is used to overwritten with updates
+        //  so may result in removing any additional params once those values have been replaced
+        let cleanTemplate = ''
+        cleanTemplate = defaultTemplate.template
+        _.forEach(filteredSetConfigObj.templates, (filteredSetConfigTemplate) => {
+          _.forEach(matchingDataSet, (matchedRow, rowIndex) => {
+            // check if conditionalTemplates exist
+            if (filteredSetConfigTemplate.hasOwnProperty('templates')) {
+              let conditionalTemplates = filteredSetConfigTemplate.templates
+              // setting new variables for templates used so that they'll be 'clean' on each
+              //  iteration of the loop
+              let useTemplate = ''
+              useTemplate = cleanTemplate
+              _.forEach(conditionalTemplates, cTemplateObj => {
+                // check to see if condition applied 
+                if (cTemplateObj.hasOwnProperty('condition')) {
+                  applyCondition = generatorUtils.checkAllTemplateConditionalValues(matchedRow, cTemplateObj.condition)
+                }
+                // apply condition if it exists, default is true
+                if (applyCondition) {
+                  let cTemplateValues
+                  let cReplacementParamName
+                  let cTemplate = generatorUtils.getNamedTemplate(filteredSetConfigTemplate, cTemplateObj.name);
+                  cTemplateValues = generatorUtils.replaceValues(genObj, matchedRow, cTemplate.parameters, cTemplate.template);
+                  cReplacementParamName = cTemplateObj.replacementParamName;
+                  //replace it in the template file
+                  useTemplate = useTemplate.replace(cReplacementParamName, cTemplateValues);
+                }
+              })
+              // apply any updates to default template
+              defaultTemplate.template = useTemplate
+            }
 
-          var count = rowIndex + 1;
-          //apply template specified in the filtered set config
-          templateValues = generatorUtils.replaceValues(genObj, matchedRow, defaultTemplate.parameters, defaultTemplate.template, count);
-          // if template is a json, then add ','
-          if (filteredSetConfigObj.templates[0].fileName.indexOf('.json') > 1 && count > 1 
-          && templateValues != ''
-          && filteredSet.lastIndexOf(',') < (filteredSet.length - 1)) {
-            filteredSet = filteredSet + ',';
-          }
-          filteredSet = filteredSet + templateValues;
-        });
+            var count = rowIndex + 1;
+            //apply template specified in the filtered set config
+            templateValues = generatorUtils.replaceValues(genObj, matchedRow, defaultTemplate.parameters, defaultTemplate.template, count);
+            // if template is a json, then add ','
+            if (filteredSetConfigTemplate.fileName.indexOf('.json') > 1 && count > 1
+              && templateValues != ''
+              && filteredSet.lastIndexOf(',') < (filteredSet.length - 1)) {
+              filteredSet = filteredSet + ',';
+            }
+            filteredSet = filteredSet + templateValues;
+          });
+        })
       } else {
         //config has property: templateFromFile
         var templatefile = filteredFileTemplate.templateInputFolder + filteredFileTemplate.templateFileNameFormat;
@@ -712,7 +746,7 @@ var generatorUtils = {
     }
 
     switch (templateComparsionValue) {
-      case "=": 
+      case "=":
       case "==":
         return dataTemplateConditionValue === templateConditionValue;
       case "!=":
@@ -751,11 +785,11 @@ var generatorUtils = {
   generateSimulatorConfig: function generateSimulatorConfig(dataRow, simObj, simTemplate, simParameters, simFile) {
     var useSimConfig = true
     // should really check if condition exists
-    if(simObj.hasOwnProperty('condition')) {
+    if (simObj.hasOwnProperty('condition')) {
       var dataRowColumnValue = dataRow[simObj.condition.columnName];
       useSimConfig = generatorUtils.checkTemplateConditionalValue(dataRowColumnValue, simObj.condition);
     }
-    if(useSimConfig) {
+    if (useSimConfig) {
       simTemplate = simTemplate.replace(simObj.simulatorConfigFilenameParam, simFile);
       return generatorUtils.replaceValues(simObj, dataRow, simParameters, simTemplate);
     }
@@ -810,35 +844,35 @@ var generatorUtils = {
     return addSimFile;
   },
 
-  generateSimulatorJSONResponse: function generateSimulatorJSONResponse (dataRow, jsonSimObj, generatedFilename) {
+  generateSimulatorJSONResponse: function generateSimulatorJSONResponse(dataRow, jsonSimObj, generatedFilename) {
 
-      // when you don't have a template for the simulator AND it's a JSON object
-      //  can describe JSON object in simulator config
-      if (jsonSimObj.hasOwnProperty('jsonPrimaryNode') && jsonSimObj.hasOwnProperty('jsonMap') ) {
-        let mappedValue = {}
+    // when you don't have a template for the simulator AND it's a JSON object
+    //  can describe JSON object in simulator config
+    if (jsonSimObj.hasOwnProperty('jsonPrimaryNode') && jsonSimObj.hasOwnProperty('jsonMap')) {
+      let mappedValue = {}
 
-        _.forEach(jsonSimObj.jsonMap, function(mapValue, mapKey) {
-          let paramName, paramValue
-          let fullParamName = mapValue
-          // check if mapValue is a param
-          //  if param > get paramValue
-          //  if not > pass value through
-          let match = new RegExp(/^{.*}$/)
-          if(match.test(fullParamName)) {
-            paramName = fullParamName.replace('{', '').replace('}', '')
-            if(paramName === 'FILE_NAME') {
-              mappedValue[mapKey] = generatedFilename
-            } else {
-              paramValue = dataRow[paramName]
-              mappedValue[mapKey] = paramValue
-            }
+      _.forEach(jsonSimObj.jsonMap, function (mapValue, mapKey) {
+        let paramName, paramValue
+        let fullParamName = mapValue
+        // check if mapValue is a param
+        //  if param > get paramValue
+        //  if not > pass value through
+        let match = new RegExp(/^{.*}$/)
+        if (match.test(fullParamName)) {
+          paramName = fullParamName.replace('{', '').replace('}', '')
+          if (paramName === 'FILE_NAME') {
+            mappedValue[mapKey] = generatedFilename
           } else {
-            mappedValue[mapKey] = mapValue
+            paramValue = dataRow[paramName]
+            mappedValue[mapKey] = paramValue
           }
-        })
-        
-        return mappedValue
-      }
+        } else {
+          mappedValue[mapKey] = mapValue
+        }
+      })
+
+      return mappedValue
+    }
   },
 
   getNamedTemplate: function getNamedTemplate(generatorObj, templateName) {
@@ -895,7 +929,7 @@ var generatorUtils = {
         return simObj.hasOwnProperty('jsonPrimaryNode')
       })
 
-      if(templateSim) {
+      if (templateSim) {
         var pathToSimTemplate = templateSim.simulatorConfigTemplatePath + templateSim.simulatorConfigTemplate;
         var simTemplate = generatorUtils.readFile(pathToSimTemplate);
         var simParameters = generatorUtils.getParameters(simTemplate);
@@ -907,8 +941,8 @@ var generatorUtils = {
         isJsonSim = true
         var simJsonMapResult = []
       }
-    } 
-    
+    }
+
 
     //===========================================\\
     // READ in contents of worksheet
@@ -969,7 +1003,7 @@ var generatorUtils = {
         if (generatorObj.hasOwnProperty('fixedMappingValues')) {
           var fixedMappingValues = []
           var fixedMapParams = []
-          fixedMappingValues = _.forEach(generatorObj.fixedMappingValues, function(value, key) {
+          fixedMappingValues = _.forEach(generatorObj.fixedMappingValues, function (value, key) {
             fixedMappingValues[key] = value
           })
           // create array with param names for fixed param names
@@ -1003,16 +1037,16 @@ var generatorUtils = {
           var jsonParentTemplate = generatorUtils.readFile(generatorObj.mappedJSONSection.templateFile)
           let addComma = false
 
-          _.forEach(generatorObj.mappedJSONSection.childMap, function (cMap, index){
+          _.forEach(generatorObj.mappedJSONSection.childMap, function (cMap, index) {
             let childMapResult = ''
             let childRepeatingGrp = generatorUtils.generateRepeatingGrp(data[r], cMap, '.json')
-            if(cMap.hasOwnProperty('isInJSONArray') && cMap.isInJSONArray) {
+            if (cMap.hasOwnProperty('isInJSONArray') && cMap.isInJSONArray) {
               // append ',' between each jsonObj
               //  check if last character is not comma or '}'
               if (index > 0 && addComma && childRepeatingGrp != ''
-              && childRepeatingGrp.lastIndexOf(',') < (childRepeatingGrp.length - 1) 
-              && (childRepeatingGrp.lastIndexOf('}') === (childRepeatingGrp.length - 1))) {
-                  childMapResult = childMapResult + ','
+                && childRepeatingGrp.lastIndexOf(',') < (childRepeatingGrp.length - 1)
+                && (childRepeatingGrp.lastIndexOf('}') === (childRepeatingGrp.length - 1))) {
+                childMapResult = childMapResult + ','
               }
               childMapResult = childMapResult + childRepeatingGrp
               // additional check for when to add comma, if empty result returned then 
@@ -1045,7 +1079,7 @@ var generatorUtils = {
             //check to see if a filtered template is to be applied
             if (generatorObj.hasOwnProperty('filteredSection') && _.isObject(generatorObj.filteredSection)) {
               // filtered section may be an array
-              if(_.isArray(generatorObj.filteredSection)) {
+              if (_.isArray(generatorObj.filteredSection)) {
                 _.forEach(generatorObj.filteredSection, function (section) {
                   //find matching accounts
                   var filteredSetWorksheet = workbook.Sheets[section.sectionSheetName];
@@ -1054,7 +1088,7 @@ var generatorUtils = {
               } else {
                 //find matching accounts
                 var filteredSetWorksheet = workbook.Sheets[generatorObj.filteredSection.sectionSheetName];
-                resultsFile = generatorUtils.getMatchingFilteredSet(generatorObj, workbook, filteredSetWorksheet, generatorObj.filteredSection, data[r], resultsFile)    
+                resultsFile = generatorUtils.getMatchingFilteredSet(generatorObj, workbook, filteredSetWorksheet, generatorObj.filteredSection, data[r], resultsFile)
               }
             }
 
@@ -1140,7 +1174,7 @@ var generatorUtils = {
 
               fileName = generatorObj.output.fileNamePrefix + identifier + generatorObj.output.fileExtension;
             }
-            if(generatorObj.output.fileExtension === '.json') {
+            if (generatorObj.output.fileExtension === '.json') {
               resultsFile = resultsFile.replace(/}\s+{/g, '},{').replace(/""""/g, '""')
               try {
                 resultsFile = JSON.stringify(JSON.parse(resultsFile), null, 2)
@@ -1161,15 +1195,15 @@ var generatorUtils = {
             if (templateSim.hasOwnProperty('additionalSimulatorConfig')) {
               simFile = simFile + generatorUtils.generateAdditionalSimulatorConfig(data[r], templateSim.additionalSimulatorConfig, fileName)
             }
-            if(templateSim.simulatorConfigTemplate.indexOf('.json') > 0) {
-              simFile = simFile.replace(/}\s+{/g, '},{')
+            if (templateSim.simulatorConfigTemplate.indexOf('.json') > 0) {
+              simFile = simFile.replace(/}\s+{/g, '},{').replace(/}{/g, '},{')
             }
             console.log('generated fileName: ' + fileName)
-          } 
-          
+          }
+
           if (isJsonSim) {
-            let jsonSimConfig = generatorUtils.generateSimulatorJSONResponse (data[r], jsonMapSim, fileName)
-            simJsonMapResult.push(jsonSimConfig) 
+            let jsonSimConfig = generatorUtils.generateSimulatorJSONResponse(data[r], jsonMapSim, fileName)
+            simJsonMapResult.push(jsonSimConfig)
             console.log('generated json fileName: ' + fileName)
           }
 
@@ -1181,10 +1215,10 @@ var generatorUtils = {
     });
 
     //output simulator config file
-    if (simTemplate && simFile !== '') {
+    if (simTemplate && simFile != '') {
       generatorUtils.writeFile(templateSim.simulatorConfigOutput, templateSim.simulatorFilename, simFile);
-    } 
-    
+    }
+
     if (_.isObject(simJsonMapResult)) {
       let finalSimJson = {}
       finalSimJson[jsonMapSim.jsonPrimaryNode] = simJsonMapResult
