@@ -455,8 +455,12 @@ var generatorUtils = {
               if (pNameRegEx.test(resultsFile)) {
                 paramValue = '""'
               } else {
-                // change from null
-                paramValue = ''
+                // change from: paramValue = null
+                if(genObj.hasOwnProperty('jsonDefaultValue')) {
+                  // value can be set as string or null
+                  // eg. jsonDefaultValue: "\"\"" or jsonDefaultValue: null
+                  paramValue = genObj.jsonDefaultValue
+                }
               }
             } else {
               paramValue = '';
