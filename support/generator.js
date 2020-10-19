@@ -324,7 +324,6 @@ var generatorUtils = {
   },
 
   checkKeyNameExists: function checkKeyNameExists(dataRow, keyName, secondMatch, exactMatch) {
-
     return _.filter(dataRow, function (value, key) {
       if (exactMatch) {
         if (key === keyName) {
@@ -447,19 +446,40 @@ var generatorUtils = {
           } else {
             // not default value has been set in config, then set as empty or null
             if (fileExtension === '.json') {
-              //need to handle null values by removing 'quotes' around the fullParamName
-              //  for json files
+              // need to handle the 3 types >> sometimes it will be repeatingGroup
+              // and other times will be single value
+              // so need to test for all then determine what to do
+              // if single value then can be using defaultValue
+              // if repeatingGroup then need to remove
               paramValue = null;
               fullParamName = '"{' + paramName + '}"';
-              let pNameRegEx = new RegExp(fullParamName)
-              if (pNameRegEx.test(resultsFile)) {
+              let pNameRegEx = new RegExp(fullParamName)                            // {ADDRESS}
+              let pNameInBodyRegEx = new RegExp(`\\:\\s+?"{${paramName}}",?`)       // "streetNumber": "{STREET_NUMBER}",
+              let pNameInBodyNumberRegEx = new RegExp(`\\:\\s+?{${paramName}},?`)   // "unitFlatLevel": {UNIT}
+              if (pNameInBodyRegEx.test(resultsFile)) {
+                // if in body > it's likely to be a value matched to a key
                 paramValue = '""'
-              } else {
-                // change from: paramValue = null
+              } else if(pNameInBodyNumberRegEx.test(resultsFile)) {
+                // if in body (as a number) > it's likely to be a value matched to a key
                 if(genObj.hasOwnProperty('jsonDefaultValue')) {
                   // value can be set as string or null
                   // eg. jsonDefaultValue: "\"\"" or jsonDefaultValue: null
                   paramValue = genObj.jsonDefaultValue
+                } else {
+                  paramValue = null
+                }
+              } else {
+                // if not then likely to be repeating grp value > so sould be empty
+                // eg. {ADDRESS}
+                if(pNameRegEx.test(resultsFile)) {
+                  paramValue = ''
+                } else {
+                  // catch all remaining
+                  if(genObj.hasOwnProperty('jsonDefaultValue')) {
+                    // value can be set as string or null
+                    // eg. jsonDefaultValue: "\"\"" or jsonDefaultValue: null
+                    paramValue = genObj.jsonDefaultValue
+                  } 
                 }
               }
             } else {
@@ -790,8 +810,17 @@ var generatorUtils = {
     var useSimConfig = true
     // should really check if condition exists
     if (simObj.hasOwnProperty('condition')) {
-      var dataRowColumnValue = dataRow[simObj.condition.columnName];
-      useSimConfig = generatorUtils.checkTemplateConditionalValue(dataRowColumnValue, simObj.condition);
+      let simConditions = []
+      if(!_.isArray(simObj.condition)) {
+        simConditions.push(simObj.condition)
+      } else {
+        simConditions = simObj.condition
+      }
+      _.forEach(simConditions, (simCondition) => {
+        var dataRowColumnValue = dataRow[simCondition.columnName];
+        useSimConfig = generatorUtils.checkTemplateConditionalValue(dataRowColumnValue, simCondition);
+      })
+
     }
     if (useSimConfig) {
       simTemplate = simTemplate.replace(simObj.simulatorConfigFilenameParam, simFile);
@@ -1023,16 +1052,39 @@ var generatorUtils = {
         if (generatorObj.hasOwnProperty('mappedSection') && _.isObject(generatorObj.mappedSection)) {
           var repeatingGrps = generatorObj.mappedSection;
           var fileExtension = generatorObj.output.fileExtension;
+          let useRGrpTemplate = true
 
           repeatingGrps.forEach(function (repeatingGrp) {
-            // if the repeating group template has splitValues element, then need to be handled differently
-            if (repeatingGrp.hasOwnProperty('splitValues')) {
-              resultsFile = generatorUtils.addRepeatingGrpWithSplitValues(data[r], resultsFile, repeatingGrp, fileExtension);
-            } else {
-              resultsFile = generatorUtils.addRepeatingGrp(data[r], resultsFile, repeatingGrp, fileExtension);
+            if(repeatingGrp.hasOwnProperty('condition')) {
+              useRGrpTemplate = generatorUtils.checkAllTemplateConditionalValues(data[r], repeatingGrp.condition);
+            } 
+            if(useRGrpTemplate) {
+              // if the repeating group template has splitValues element, then need to be handled differently
+              if (repeatingGrp.hasOwnProperty('splitValues')) {
+                resultsFile = generatorUtils.addRepeatingGrpWithSplitValues(data[r], resultsFile, repeatingGrp, fileExtension);
+              } else {
+                resultsFile = generatorUtils.addRepeatingGrp(data[r], resultsFile, repeatingGrp, fileExtension);
+              }
             }
           })
+        }
 
+        if (generatorObj.hasOwnProperty('conditionalSection') && _.isObject(generatorObj.conditionalSection)) {
+          let conditionalSections = generatorObj.conditionalSection;
+          let useConditionalTemplate = true
+
+          conditionalSections.forEach(function (conditionSec) {
+            let parentTemplate = ''
+            if(conditionSec.hasOwnProperty('condition')) {
+              useConditionalTemplate = generatorUtils.checkAllTemplateConditionalValues(data[r], conditionSec.condition);
+            } 
+            if(useConditionalTemplate) {
+              parentTemplate = generatorUtils.readFile(conditionSec.templateFile)
+              let cParameters = generatorUtils.getParameters(parentTemplate);
+              parentTemplate = generatorUtils.replaceValues(generatorObj, data[r], cParameters, parentTemplate);
+            }
+            resultsFile = resultsFile.replace(conditionSec.parameter, parentTemplate)
+          })
         }
 
         // if mappedJSONSection exists
@@ -1179,7 +1231,7 @@ var generatorUtils = {
               fileName = generatorObj.output.fileNamePrefix + identifier + generatorObj.output.fileExtension;
             }
             if (generatorObj.output.fileExtension === '.json') {
-              resultsFile = resultsFile.replace(/}\s+{/g, '},{').replace(/""""/g, '""')
+              resultsFile = resultsFile.replace(/}\s+{/g, '},{').replace(/""""/g, '""').replace(/},\s+\],/g, '}],')
               try {
                 resultsFile = JSON.stringify(JSON.parse(resultsFile), null, 2)
               } catch (e) {
