@@ -823,7 +823,9 @@ var generatorUtils = {
 
     }
     if (useSimConfig) {
-      simTemplate = simTemplate.replace(simObj.simulatorConfigFilenameParam, simFile);
+      // apply global match when replacing filename
+      let simFilenameRegex = new RegExp(simObj.simulatorConfigFilenameParam, 'g')
+      simTemplate = simTemplate.replace(simFilenameRegex, simFile);
       return generatorUtils.replaceValues(simObj, dataRow, simParameters, simTemplate);
     }
   },
