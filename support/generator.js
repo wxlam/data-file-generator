@@ -1233,7 +1233,7 @@ var generatorUtils = {
               fileName = generatorObj.output.fileNamePrefix + identifier + generatorObj.output.fileExtension;
             }
             if (generatorObj.output.fileExtension === '.json') {
-              resultsFile = resultsFile.replace(/}\s+{/g, '},{').replace(/""""/g, '""').replace(/},\s+\],/g, '}],')
+              resultsFile = resultsFile.replace(/}\s{0,}{/g, '},{').replace(/""""/g, '""').replace(/},\s+\],/g, '}],')
               try {
                 resultsFile = JSON.stringify(JSON.parse(resultsFile), null, 2)
               } catch (e) {
@@ -1254,7 +1254,7 @@ var generatorUtils = {
               simFile = simFile + generatorUtils.generateAdditionalSimulatorConfig(data[r], templateSim.additionalSimulatorConfig, fileName)
             }
             if (templateSim.simulatorConfigTemplate.indexOf('.json') > 0) {
-              simFile = simFile.replace(/}\s+{/g, '},{').replace(/}{/g, '},{')
+              simFile = simFile.replace(/}\s{0,}{/g, '},{').replace(/}{/g, '},{')
             }
             console.log('generated fileName: ' + fileName)
           }
