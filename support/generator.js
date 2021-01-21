@@ -522,6 +522,9 @@ var generatorUtils = {
         }
 
         resultsFile = resultsFile.replace(fullParamName, paramValue);
+        // removed check to replace any outstanding params here
+        //  there's another check before resultsFile is generated
+        //  this allows for sub-templates to be used
       });
     }
 
@@ -564,6 +567,169 @@ var generatorUtils = {
 
     });
 
+  },
+
+  applyColumnMapping: function applyColumnMapping(workbook, dataRow, filteredSetConfigObj, filteredSetData) {
+    var matchingDataSet;
+    var filteredSetTagColumn = filteredSetConfigObj.sectionSheetTagColumn;
+    var primarySheetColumn = filteredSetConfigObj.primarySheetTagColumn;
+    var tagsToMatch = dataRow[primarySheetColumn];
+
+    if (filteredSetConfigObj.hasOwnProperty('columnMappings')) {
+      var columnMappings = filteredSetConfigObj.columnMappings;
+      var fromTag, fromTagColumn, fromData, toTag, toTagColumn, toData;
+      var fromSheetName, toSheetName, toSheetWorksheet;
+
+      _.forEach(columnMappings, function (mapping, index) {
+
+        fromTagColumn = mapping.fromSheetColumn;
+
+        //if first row then
+        //  else set fromData to use the previously filtered set of data
+        if (index === 0) {
+          fromData = dataRow;
+          fromTag = dataRow[fromTagColumn];
+        } else {
+          fromData = matchingDataSet;
+        }
+
+        //check if from/to sheet names are different
+        if (mapping.fromSheetName === mapping.toSheetName) {
+          //if sheets are different, then read contents of new worksheet
+          //  else if the same, then just assign it as the previous sheet
+          if (!fromData) {
+            toSheetWorksheet = workbook.Sheets[mapping.toSheetName];
+            toData = generatorUtils.readContentsOfWorksheet(toSheetWorksheet);
+          } else {
+            toData = fromData;
+          }
+        }
+
+        //set worksheet for toData
+        toSheetWorksheet = workbook.Sheets[mapping.toSheetName];
+        toData = generatorUtils.readContentsOfWorksheet(toSheetWorksheet);
+        toTagColumn = mapping.toSheetColumn;
+
+        //need to do something here about dealing with an array (1st time round it's fine, but next time round it's not)
+        //  need to consider 1-D array then multi-D array
+        matchingDataSet = {};
+        let fromDataArr = []
+        // fromData can still be an object with more than 1 item
+        if(!_.isArray(fromData)) {
+          fromDataArr.push(fromData)
+        } else {
+          fromDataArr = fromData
+        }
+
+        _.forEach(fromDataArr, function (fromDataRow) {
+          //if the mapping sheet is the same, then need to set fromTag to be the value in the 'toSheetColumn'
+          //  so it will correctly match
+          if (mapping.fromSheetName === mapping.toSheetName) {
+            fromTag = fromDataRow[mapping.toSheetColumn];
+          } else {
+            if (!fromTag) {
+              fromTag = fromDataRow[mapping.fromSheetColumn]
+            }
+          }
+          //if fromTag exists, then apply mapping filter else don't
+          if (fromTag) {
+            //append matchingDataSet results together to an array
+            matchingDataSet = _.toArray(_.extend(matchingDataSet, generatorUtils.getFilteredSet(toData, toTagColumn, fromTag)));
+          }
+
+        });
+
+        fromSheetName = mapping.fromSheetName;
+        toSheetName = mapping.toSheetName;
+
+        fromData = matchingDataSet;
+      });
+
+      //convert result into an array, to make it consistent with what is returned from the result of the getFilterSet function
+      matchingDataSet = _.toArray(matchingDataSet);
+
+    } else {
+      //when you have no columnMappings to handle
+      matchingDataSet = generatorUtils.getFilteredSet(filteredSetData, filteredSetTagColumn, tagsToMatch);
+    }
+
+    console.log('num of matches: ' + matchingDataSet.length);
+    return matchingDataSet
+  },
+
+  applyFilteredSetToMatches: function applyFilteredSetToMatches(genObj, filteredSetConfigObj, resultsFile, generatedTemplateFile, matchingDataSet) {
+    var filteredFileTemplate = filteredSetConfigObj.templateFromFile;
+    var matchingDataSet;
+    var replacementParamName;
+    var templateValues;
+    var filteredSet = '';
+
+    //if use config has templates property then use templates to determine the templates to use
+    //  else assume config is using templateFromFile instead
+    if (filteredSetConfigObj.hasOwnProperty('templates')) {
+
+      var defaultTemplate = generatorUtils.getNamedTemplate(filteredSetConfigObj, 'default', generatedTemplateFile);
+      replacementParamName = defaultTemplate.replacementParamName;
+      // need to use make a clean copy of the default template for use
+      //  as default template is used to overwritten with updates
+      //  so may result in removing any additional params once those values have been replaced
+      let cleanTemplate = ''
+      cleanTemplate = defaultTemplate.template
+      _.forEach(filteredSetConfigObj.templates, (filteredSetConfigTemplate) => {
+        _.forEach(matchingDataSet, (matchedRow, rowIndex) => {
+          // check if conditionalTemplates exist
+          if (filteredSetConfigTemplate.hasOwnProperty('templates')) {
+            let conditionalTemplates = filteredSetConfigTemplate.templates
+            // setting new variables for templates used so that they'll be 'clean' on each
+            //  iteration of the loop
+            let useTemplate = cleanTemplate
+            _.forEach(conditionalTemplates, cTemplateObj => {
+              // check to see if condition applied 
+              if (cTemplateObj.hasOwnProperty('condition')) {
+                applyCondition = generatorUtils.checkAllTemplateConditionalValues(matchedRow, cTemplateObj.condition)
+              }
+              // apply condition if it exists, default is true
+              if (applyCondition) {
+                let cTemplateValues
+                let cReplacementParamName
+                let cTemplate = ''
+                cTemplate = generatorUtils.getNamedTemplate(filteredSetConfigTemplate, cTemplateObj.name, generatedTemplateFile);
+                cTemplateValues = generatorUtils.replaceValues(genObj, matchedRow, cTemplate.parameters, cTemplate.template);
+                cReplacementParamName = cTemplateObj.replacementParamName;
+                //replace it in the template file
+                useTemplate = useTemplate.replace(cReplacementParamName, cTemplateValues);
+              }
+            })
+            // apply any updates to default template
+            defaultTemplate.template = useTemplate
+          }
+
+          var count = rowIndex + 1;
+          //apply template specified in the filtered set config
+          templateValues = generatorUtils.replaceValues(genObj, matchedRow, defaultTemplate.parameters, defaultTemplate.template, count);
+          // if template is a json, then add ','
+          if (filteredSetConfigTemplate.fileName.indexOf('.json') > 1 && count > 1
+            && templateValues != ''
+            && filteredSet.lastIndexOf(',') < (filteredSet.length - 1)) {
+            filteredSet = filteredSet + ',';
+          }
+          filteredSet = filteredSet + templateValues;
+        });
+      })
+    } else {
+      //config has property: templateFromFile
+      var templatefile = filteredFileTemplate.templateInputFolder + filteredFileTemplate.templateFileNameFormat;
+      replacementParamName = filteredFileTemplate.replacementParamName;
+
+      _.forEach(matchingDataSet, function (matchedRow) {
+        var identifier = matchedRow[filteredFileTemplate.templateFileParamColumn];
+        var fileName = templatefile.replace(filteredFileTemplate.templateFileParamName, identifier);
+        templateValues = generatorUtils.readFile(fileName);
+        filteredSet = filteredSet + templateValues;
+      });
+    }
+
+    return filteredSet
   },
 
   getMatchingFilteredSet: function getMatchingFilteredSet(genObj, workbook, filteredSetWorkSheet, filteredSetConfigObj, dataRow, resultsFile, generatedTemplateFile) {
@@ -668,13 +834,14 @@ var generatorUtils = {
       //if use config has templates property then use templates to determine the templates to use
       //  else assume config is using templateFromFile instead
       if (filteredSetConfigObj.hasOwnProperty('templates')) {
+
         var defaultTemplate = generatorUtils.getNamedTemplate(filteredSetConfigObj, 'default', generatedTemplateFile);
         replacementParamName = defaultTemplate.replacementParamName;
         // need to use make a clean copy of the default template for use
         //  as default template is used to overwritten with updates
         //  so may result in removing any additional params once those values have been replaced
         let cleanTemplate = ''
-        cleanTemplate = defaultTemplate.template 
+        cleanTemplate = defaultTemplate.template
         _.forEach(filteredSetConfigObj.templates, (filteredSetConfigTemplate) => {
           _.forEach(matchingDataSet, (matchedRow, rowIndex) => {
             // check if conditionalTemplates exist
@@ -682,12 +849,13 @@ var generatorUtils = {
               let conditionalTemplates = filteredSetConfigTemplate.templates
               // setting new variables for templates used so that they'll be 'clean' on each
               //  iteration of the loop
-              let useTemplate = ''
-              useTemplate = cleanTemplate
-              // // useGeneratedTemplate
-              // if(filteredSetConfigTemplate.hasOwnProperty('useGeneratedTemplate') && filteredSetConfigTemplate.useGeneratedTemplate) {
-              //   useTemplate = generatedTemplateFile
-              // }
+              let useTemplate = cleanTemplate
+              
+              // useGeneratedTemplate
+              if(filteredSetConfigTemplate.hasOwnProperty('useGeneratedTemplate') && filteredSetConfigTemplate.useGeneratedTemplate) {
+                useTemplate = generatedTemplateFile
+              }
+
               _.forEach(conditionalTemplates, cTemplateObj => {
                 // check to see if condition applied 
                 if (cTemplateObj.hasOwnProperty('condition')) {
@@ -709,6 +877,30 @@ var generatorUtils = {
               defaultTemplate.template = useTemplate
             }
 
+            // if filteredSetConfig has 'applyTemplate' property
+            //  it means that you need to apply a 'child' filtered template before applying the current filtered set
+            if(filteredSetConfigTemplate.hasOwnProperty('applyTemplate') && _.isObject(filteredSetConfigTemplate.applyTemplate)) {
+              let applyTemplate = filteredSetConfigTemplate.applyTemplate
+              let applyTemplatePath = applyTemplate.applyToTemplate.path + applyTemplate.applyToTemplate.fileName
+              let tempResultsFile = generatorUtils.readFile(applyTemplatePath);
+              var tempDefaultTemplate = generatorUtils.getNamedTemplate(applyTemplate, 'default');
+              let tempReplacementParamName = tempDefaultTemplate.replacementParamName;
+              var tempFilteredSetWorksheet = workbook.Sheets[applyTemplate.sectionSheetName];
+              let tempFilteredSetData = generatorUtils.readContentsOfWorksheet(tempFilteredSetWorksheet);
+              let tempFilteredSet = ''
+              let tempMatchingDataSet = generatorUtils.applyColumnMapping(workbook, matchedRow, applyTemplate, tempFilteredSetData) 
+              if(tempMatchingDataSet.length > 0) {
+                tempFilteredSet = generatorUtils.applyFilteredSetToMatches(genObj, applyTemplate, tempResultsFile, generatedTemplateFile, tempMatchingDataSet)
+              } 
+              
+              // re-apply the clean template each time
+              let templateToUse = ''
+              templateToUse = cleanTemplate
+              //replace it in the primary template file
+              templateToUse = templateToUse.replace(tempReplacementParamName, tempFilteredSet);
+              defaultTemplate.template = templateToUse
+            }
+
             var count = rowIndex + 1;
             //apply template specified in the filtered set config
             templateValues = generatorUtils.replaceValues(genObj, matchedRow, defaultTemplate.parameters, defaultTemplate.template, count);
@@ -720,6 +912,7 @@ var generatorUtils = {
             }
             filteredSet = filteredSet + templateValues;
           });
+
         })
       } else {
         //config has property: templateFromFile
@@ -736,11 +929,11 @@ var generatorUtils = {
 
       //replace it in the primary template file
       resultsFile = resultsFile.replace(replacementParamName, filteredSet);
+
     } else {
       // if no result then empty response for filteredSet
       resultsFile = resultsFile.replace(replacementParamName, '');
     }
-
     return resultsFile;
   },
 
@@ -952,8 +1145,6 @@ var generatorUtils = {
     } else {
       new Error("Unable to find default template");
     }
-
-
   },
 
   getDefaultTemplate: function getDefaultTemplate(generatorObj) {
@@ -1004,7 +1195,6 @@ var generatorUtils = {
         var simJsonMapResult = []
       }
     }
-
 
     //===========================================\\
     // READ in contents of worksheet
@@ -1078,10 +1268,6 @@ var generatorUtils = {
         //==========================================\\
         // Apply the template
         //==========================================\\
-
-        //==========================================\\
-        //    mappedSection
-        //==========================================\\
         if (generatorObj.hasOwnProperty('mappedSection') && _.isObject(generatorObj.mappedSection)) {
           var repeatingGrps = generatorObj.mappedSection;
           var fileExtension = generatorObj.output.fileExtension;
@@ -1102,9 +1288,6 @@ var generatorUtils = {
           })
         }
 
-        //==========================================\\
-        //   conditionalSection
-        //==========================================\\
         if (generatorObj.hasOwnProperty('conditionalSection') && _.isObject(generatorObj.conditionalSection)) {
           let conditionalSections = generatorObj.conditionalSection;
           let useConditionalTemplate = true
@@ -1123,9 +1306,7 @@ var generatorUtils = {
           })
         }
 
-        //==========================================\\
-        //   mappedJSONSection
-        //==========================================\\
+        // if mappedJSONSection exists
         if (generatorObj.hasOwnProperty('mappedJSONSection') && _.isObject(generatorObj.mappedJSONSection)) {
           // read mappedJSONSection.templateFile
           var jsonParentTemplate = generatorUtils.readFile(generatorObj.mappedJSONSection.templateFile)
@@ -1170,56 +1351,33 @@ var generatorUtils = {
           // apply template
           if (useTemplate) {
 
-            let filteredTemplates = []
-            // apply filter in order
-            if (generatorObj.hasOwnProperty('applyFilteredTemplatesInOrder')) {
-              filteredTemplates = generatorObj.applyFilteredTemplatesInOrder
-            } else {
-              if (generatorObj.hasOwnProperty('filteredSection') && _.isObject(generatorObj.filteredSection)) {
-                filteredTemplates.push(generatorObj.filteredSection)
+            //check to see if a filtered template is to be applied
+            if (generatorObj.hasOwnProperty('filteredSection') && _.isObject(generatorObj.filteredSection)) {
+              // filtered section may be an array
+              if (_.isArray(generatorObj.filteredSection)) {
+                let filterResultsTemplate = resultsFile
+                _.forEach(generatorObj.filteredSection, function (section) {
+                  if(section.hasOwnProperty('applyToTemplate') 
+                    && _.isObject(section.applyToTemplate)) {
+                    var applyTemplatePath = section.applyToTemplate.path + section.applyToTemplate.fileName
+                    filterResultsTemplate = generatorUtils.readFile(applyTemplatePath);
+
+                    //generate using specific template to apply
+                    var filteredSetWorksheet = workbook.Sheets[section.sectionSheetName];
+                    filterResultsTemplate = generatorUtils.getMatchingFilteredSet(generatorObj, workbook, filteredSetWorksheet, section, data[r], filterResultsTemplate)
+                  } else {
+                    //find matching rows and apply to template
+                    var filteredSetWorksheet = workbook.Sheets[section.sectionSheetName];
+                    resultsFile = generatorUtils.getMatchingFilteredSet(generatorObj, workbook, filteredSetWorksheet, section, data[r], resultsFile, filterResultsTemplate)
+                  }
+                })
+              } else {
+                //find matching rows and apply to template
+                var filteredSetWorksheet = workbook.Sheets[generatorObj.filteredSection.sectionSheetName];
+                resultsFile = generatorUtils.getMatchingFilteredSet(generatorObj, workbook, filteredSetWorksheet, generatorObj.filteredSection, data[r], resultsFile)
               }
             }
 
-            //==========================================\\
-            //   filteredSection
-            //==========================================\\
-            var filterResultsTemplate = resultsFile
-            _.forEach(filteredTemplates, (filteredTemplate) => {
-              //check to see if a filtered template is to be applied
-              if (filteredTemplate.hasOwnProperty('filteredSection') && _.isObject(filteredTemplate.filteredSection)) {
-                var generatedResultsTemplate = filterResultsTemplate 
-                // apply default template first
-                filterResultsTemplate = resultsFile
-
-                // if applyToTemplate option >> read file from param values instead of using the primary one
-                if(filteredTemplate.filteredSection[0].hasOwnProperty('applyToTemplate') && _.isObject(filteredTemplate.filteredSection[0].applyToTemplate)) {
-                  var applyTemplatePath = filteredTemplate.filteredSection[0].applyToTemplate.path + filteredTemplate.filteredSection[0].applyToTemplate.fileName
-                  filterResultsTemplate = generatorUtils.readFile(applyTemplatePath);
-                } 
-                // filtered section may be an array
-                if (_.isArray(filteredTemplate.filteredSection)) {
-                  let tempFilterResultsTemplate = ''
-                  _.forEach(filteredTemplate.filteredSection, function (section) {
-                    //find matching accounts
-                    var filteredSetWorksheet = workbook.Sheets[section.sectionSheetName];
-                    filterResultsTemplate = generatorUtils.getMatchingFilteredSet(generatorObj, workbook, filteredSetWorksheet, section, data[r], filterResultsTemplate, generatedResultsTemplate)
-                    tempFilterResultsTemplate = tempFilterResultsTemplate + filterResultsTemplate
-                  })
-                  filterResultsTemplate = tempFilterResultsTemplate
-                } else {
-                  //find matching accounts
-                  var filteredSetWorksheet = workbook.Sheets[filteredTemplate.filteredSection.sectionSheetName];
-                  filterResultsTemplate = generatorUtils.getMatchingFilteredSet(generatorObj, workbook, filteredSetWorksheet, filteredTemplate.filteredSection, data[r], filterResultsTemplate, generatedResultsTemplate)
-                
-                }
-                // resultsFile = filterResultsTemplate
-              }
-            })
-            resultsFile = filterResultsTemplate
-
-            //==========================================\\
-            //   otherTemplates
-            //==========================================\\
             //check for other templates
             if (generatorObj.templates.length > 1) {
               var otherTemplates = _.filter(generatorObj.templates, function (template) {
@@ -1279,7 +1437,7 @@ var generatorUtils = {
             checkParameters.forEach(function (param) {
               remainingParams[param] = generatorObj.setAsDefaultValue
             })
-          }
+          } 
           resultsFile = generatorUtils.replaceValues(generatorObj, remainingParams, checkParameters, resultsFile);
         }
 
