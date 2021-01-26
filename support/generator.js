@@ -873,8 +873,10 @@ var generatorUtils = {
                   useTemplate = useTemplate.replace(cReplacementParamName, cTemplateValues);
                 }
               })
-              // apply any updates to default template
-              defaultTemplate.template = useTemplate
+              // apply this updated template as the clean template so that it'll be used
+              // WAS: 
+              // defaultTemplate.template = useTemplate
+              cleanTemplate = useTemplate
             }
 
             // if filteredSetConfig has 'applyTemplate' property
