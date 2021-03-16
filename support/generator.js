@@ -551,7 +551,7 @@ var generatorUtils = {
     return _.filter(filteredSetData, function (rows) {
       //need to check if tag column exists, if it does then continue
       //  else ignore row
-      if (rows[filteredSetTagColumn]) {
+      if (rows && rows[filteredSetTagColumn]) {
         //need to check for whole tags (delineated by ',') and not just partial matches
         var filteredTags = rows[filteredSetTagColumn].split(',');
         var matchingTags = _.filter(filteredTags, function (tag) {
