@@ -882,25 +882,40 @@ var generatorUtils = {
             // if filteredSetConfig has 'applyTemplate' property
             //  it means that you need to apply a 'child' filtered template before applying the current filtered set
             if(filteredSetConfigTemplate.hasOwnProperty('applyTemplate') && _.isObject(filteredSetConfigTemplate.applyTemplate)) {
-              let applyTemplate = filteredSetConfigTemplate.applyTemplate
-              let applyTemplatePath = applyTemplate.applyToTemplate.path + applyTemplate.applyToTemplate.fileName
-              let tempResultsFile = generatorUtils.readFile(applyTemplatePath);
-              var tempDefaultTemplate = generatorUtils.getNamedTemplate(applyTemplate, 'default');
-              let tempReplacementParamName = tempDefaultTemplate.replacementParamName;
-              var tempFilteredSetWorksheet = workbook.Sheets[applyTemplate.sectionSheetName];
-              let tempFilteredSetData = generatorUtils.readContentsOfWorksheet(tempFilteredSetWorksheet);
-              let tempFilteredSet = ''
-              let tempMatchingDataSet = generatorUtils.applyColumnMapping(workbook, matchedRow, applyTemplate, tempFilteredSetData) 
-              if(tempMatchingDataSet.length > 0) {
-                tempFilteredSet = generatorUtils.applyFilteredSetToMatches(genObj, applyTemplate, tempResultsFile, generatedTemplateFile, tempMatchingDataSet)
-              } 
+              // if applyTemplate is not an array then push into array
+              if(!_.isArray(filteredSetConfigTemplate.applyTemplate)) {
+                let tempApplyTemplate = filteredSetConfigTemplate.applyTemplate
+                let tempApplyTemplateArr = []
+                tempApplyTemplateArr.push(tempApplyTemplate)
+                filteredSetConfigTemplate.applyTemplate = tempApplyTemplateArr
+              }
+              // set up new filteredCleanTemplate to use for filteredSection
+              let filteredCleanTemplate = {} = cleanTemplate
               
-              // re-apply the clean template each time
-              let templateToUse = ''
-              templateToUse = cleanTemplate
-              //replace it in the primary template file
-              templateToUse = templateToUse.replace(tempReplacementParamName, tempFilteredSet);
-              defaultTemplate.template = templateToUse
+              // for each arrayTemplate in filteredSetConfigTemplate > apply the template config
+              _.forEach(filteredSetConfigTemplate.applyTemplate, (applyTempateObj) => {
+                let applyTemplate = {} = applyTempateObj
+                let applyTemplatePath = applyTemplate.applyToTemplate.path + applyTemplate.applyToTemplate.fileName
+                let tempResultsFile = generatorUtils.readFile(applyTemplatePath);
+                var tempDefaultTemplate = generatorUtils.getNamedTemplate(applyTemplate, 'default');
+                let tempReplacementParamName = tempDefaultTemplate.replacementParamName;
+                var tempFilteredSetWorksheet = workbook.Sheets[applyTemplate.sectionSheetName];
+                let tempFilteredSetData = generatorUtils.readContentsOfWorksheet(tempFilteredSetWorksheet);
+                let tempFilteredSet = ''
+                let tempMatchingDataSet = generatorUtils.applyColumnMapping(workbook, matchedRow, applyTemplate, tempFilteredSetData) 
+                if(tempMatchingDataSet.length > 0) {
+                  tempFilteredSet = generatorUtils.applyFilteredSetToMatches(genObj, applyTemplate, tempResultsFile, generatedTemplateFile, tempMatchingDataSet)
+                } 
+                // re-apply the clean template each time
+                let templateToUse = ''
+                templateToUse = filteredCleanTemplate
+                //replace it in the primary template file
+                templateToUse = templateToUse.replace(tempReplacementParamName, tempFilteredSet);
+                // save to primary template
+                defaultTemplate.template = templateToUse
+                // save "new" clean template with previous values
+                filteredCleanTemplate = templateToUse
+              })
             }
 
             var count = rowIndex + 1;
