@@ -873,10 +873,11 @@ var generatorUtils = {
                   useTemplate = useTemplate.replace(cReplacementParamName, cTemplateValues);
                 }
               })
+
               // apply this updated template as the clean template so that it'll be used
-              // WAS: 
-              // defaultTemplate.template = useTemplate
               cleanTemplate = useTemplate
+              // save to primary template
+              defaultTemplate.template = useTemplate
             }
 
             // if filteredSetConfig has 'applyTemplate' property
@@ -895,17 +896,25 @@ var generatorUtils = {
               // for each arrayTemplate in filteredSetConfigTemplate > apply the template config
               _.forEach(filteredSetConfigTemplate.applyTemplate, (applyTempateObj) => {
                 let applyTemplate = {} = applyTempateObj
+                let applyCondition = true // default to always applyCondition, as 'condition' property may not always exist
                 let applyTemplatePath = applyTemplate.applyToTemplate.path + applyTemplate.applyToTemplate.fileName
                 let tempResultsFile = generatorUtils.readFile(applyTemplatePath);
                 var tempDefaultTemplate = generatorUtils.getNamedTemplate(applyTemplate, 'default');
                 let tempReplacementParamName = tempDefaultTemplate.replacementParamName;
-                var tempFilteredSetWorksheet = workbook.Sheets[applyTemplate.sectionSheetName];
-                let tempFilteredSetData = generatorUtils.readContentsOfWorksheet(tempFilteredSetWorksheet);
                 let tempFilteredSet = ''
-                let tempMatchingDataSet = generatorUtils.applyColumnMapping(workbook, matchedRow, applyTemplate, tempFilteredSetData) 
-                if(tempMatchingDataSet.length > 0) {
-                  tempFilteredSet = generatorUtils.applyFilteredSetToMatches(genObj, applyTemplate, tempResultsFile, generatedTemplateFile, tempMatchingDataSet)
-                } 
+                // if condition property exists and check if it should be applied or not
+                if (tempDefaultTemplate.hasOwnProperty('condition')) {
+                  applyCondition = generatorUtils.checkAllTemplateConditionalValues(matchedRow, tempDefaultTemplate.condition)
+                }
+                // apply condition (if it exists, applyCondition is set to true as default)
+                if(applyCondition) {
+                  var tempFilteredSetWorksheet = workbook.Sheets[applyTemplate.sectionSheetName];
+                  let tempFilteredSetData = generatorUtils.readContentsOfWorksheet(tempFilteredSetWorksheet);
+                  let tempMatchingDataSet = generatorUtils.applyColumnMapping(workbook, matchedRow, applyTemplate, tempFilteredSetData) 
+                  if(tempMatchingDataSet.length > 0) {
+                    tempFilteredSet = generatorUtils.applyFilteredSetToMatches(genObj, applyTemplate, tempResultsFile, generatedTemplateFile, tempMatchingDataSet)
+                  } 
+                }
                 // re-apply the clean template each time
                 let templateToUse = ''
                 templateToUse = filteredCleanTemplate
