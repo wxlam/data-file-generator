@@ -1,14 +1,14 @@
 {
   "name": "data-file-generator",
   "description": "data-file-generator is all about generating data for testing using a template feed in from excel spreadsheet(s).",
-  "version": "0.8.9",
+  "version": "0.8.10",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha",
     "nyc-coverage": "./node_modules/.bin/nyc --reporter=lcov --reporter=text-summary npm run test"
   },
   "bin": {
-    "data-file-gen": "./index.js"
+    "data-file-gen": "index.js"
   },
   "repository": {
     "type": "git",
