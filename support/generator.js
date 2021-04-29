@@ -711,7 +711,11 @@ var generatorUtils = {
           if (filteredSetConfigTemplate.fileName.indexOf('.json') > 1 && count > 1
             && templateValues != ''
             && filteredSet.lastIndexOf(',') < (filteredSet.length - 1)) {
-            filteredSet = filteredSet + ',';
+              if(filteredSetConfigTemplate.hasOwnProperty('separator')) {
+                filteredSet = filteredSet + filteredSetConfigTemplate.separator;
+              } else {
+                filteredSet = filteredSet + ',';
+              }
           }
           filteredSet = filteredSet + templateValues;
         });
@@ -934,7 +938,11 @@ var generatorUtils = {
             if (filteredSetConfigTemplate.fileName.indexOf('.json') > 1 && count > 1
               && templateValues != ''
               && filteredSet.lastIndexOf(',') < (filteredSet.length - 1)) {
-              filteredSet = filteredSet + ',';
+                if(filteredSetConfigTemplate.hasOwnProperty('separator')) {
+                  filteredSet = filteredSet + filteredSetConfigTemplate.separator;
+                } else {
+                  filteredSet = filteredSet + ',';
+                }
             }
             filteredSet = filteredSet + templateValues;
           });
