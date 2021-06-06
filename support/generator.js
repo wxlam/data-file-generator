@@ -132,13 +132,15 @@ var generatorUtils = {
 
   getFiles: function getFiles(dir, filesArr) {
     filesArr = filesArr || [];
-    var files = fs.readdirSync(dir);
-    for (var i in files) {
-      var name = dir + '/' + files[i];
-      if (fs.statSync(name).isDirectory()) {
-        getFiles(name, filesArr);
-      } else {
-        filesArr.push(name);
+    if (fs.existsSync(dir)) {
+      var files = fs.readdirSync(dir);
+      for (var i in files) {
+        var name = dir + '/' + files[i];
+        if (fs.statSync(name).isDirectory()) {
+          getFiles(name, filesArr);
+        } else {
+          filesArr.push(name);
+        }
       }
     }
     return filesArr;
