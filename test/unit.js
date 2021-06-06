@@ -10,7 +10,6 @@ var xlsx = require('xlsx');
 var fse = require('fs-extra');
 var fsmock = require('mock-fs');
 
-
 //add in afterEach function to clean up after each test
 afterEach(function () {
   //restore simple-mock back to original state
@@ -961,10 +960,10 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
     simple.mock(utils, 'readFile').returnWith('aa bb cc dd');
 
     var res = utils.getMatchingFilteredSet(genObj, workbook, filteredSetWorkSheet, filteredSetConfigObj, dataRow, resultsFile);
-    expect(res).to.equal('abc {REPLACE_VALUE} def');
+    expect(res).to.equal('abc  def');
   });
 
-  it.skip('should test for getMatchingFilteredSet does not have matching filteredSection property - templateFromFile', function () {
+  it('should test for getMatchingFilteredSet does not have matching filteredSection property - templateFromFile', function () {
 
     genObj = {
       "profileName": "test-profile",
@@ -1014,7 +1013,6 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
     simple.mock(utils, 'replaceValues').returnWith('abc test def');
     simple.mock(utils, 'readFile').returnWith('aa bb cc dd');
     var spy = simple.spy(utils, 'getMatchingFilteredSet');
-    var res = utils.getMatchingFilteredSet(genObj, workbook, filteredSetWorkSheet, filteredSetConfigObj, dataRow, resultsFile);
 
     expect(spy.lastCall.threw, Error);
   });
