@@ -523,7 +523,7 @@ var generatorUtils = {
           }
         }
 
-        resultsFile = resultsFile.replace(fullParamName, paramValue);
+        resultsFile = resultsFile.replace(fullParamName, paramValue).replace('%BACKSLASH_APOSTROPHE%', '\\\'');
         // removed check to replace any outstanding params here
         //  there's another check before resultsFile is generated
         //  this allows for sub-templates to be used
@@ -1070,6 +1070,16 @@ var generatorUtils = {
       _.forEach(simConditions, (simCondition) => {
         var dataRowColumnValue = dataRow[simCondition.columnName];
         useSimConfig = generatorUtils.checkTemplateConditionalValue(dataRowColumnValue, simCondition);
+        if(useSimConfig) {
+          if (simCondition.hasOwnProperty('format')) { 
+            if (simCondition.format === '%NO SPACES%') 
+            {
+              dataRow[simCondition.columnName] = generatorUtils.removeSpacesFromString(dataRowColumnValue);
+            } else if(simCondition.format === '%USE_BACKSLASH_APOSTROPHE%') {
+              dataRow[simCondition.columnName] = dataRowColumnValue.replace('\'', '%BACKSLASH_APOSTROPHE%');
+            }
+           }
+        }
       })
 
     }
@@ -1105,12 +1115,12 @@ var generatorUtils = {
             //apply additional formatting - if specified
             if (simObjCondition.hasOwnProperty('format')) {
               if (simObjCondition.format === '%NO SPACES%') {
-                simDataRow[simObjCondition.columnName] = generatorUtils.removeSpacesFromString(origDataRowColumnValue);
+                simDataRow[simObjCondition.columnName] = generatorUtils.removeSpacesFromString(dataRowColumnValue);
               } else if (simObjCondition.format === '%ENCODE SPACES%') {
                 if (simObjCondition.hasOwnProperty('encodeWith')) {
-                  simDataRow[simObjCondition.columnName] = generatorUtils.encodeSpacesFromStringWith(origDataRowColumnValue, simObjCondition.encodeWith);
+                  simDataRow[simObjCondition.columnName] = generatorUtils.encodeSpacesFromStringWith(dataRowColumnValue, simObjCondition.encodeWith);
                 } else {
-                  simDataRow[simObjCondition.columnName] = generatorUtils.encodeSpacesFromStringWith(origDataRowColumnValue);
+                  simDataRow[simObjCondition.columnName] = generatorUtils.encodeSpacesFromStringWith(dataRowColumnValue);
                 }
               }
             }

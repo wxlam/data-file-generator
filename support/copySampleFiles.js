@@ -5,7 +5,7 @@ var generator = require('../support/generator.js')
 var sampleFileSetup = {
     checkIfConfigFile: function checkIfConfigFile() {
         // default data files directory is './data-files'
-        //  else read value from data-file-gen.rc
+        //  else read value from datafile.opt
         var dataFileDir = '/data-files'
         if (fsExtra.existsSync(process.cwd() + '/datafile.opt')) {
             console.log('reading from: datafile.opt')
