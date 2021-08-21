@@ -5,13 +5,32 @@ const escape = require("html-escape");
 const _ = require('lodash');
 const jexl = require('jexl')
 var sumTotal;
+var mainGenObj;
 
 var generatorUtils = {
 
-  getParameters: function getParameters(template) {
+  getDelimiters: function getDelimiters() {
+    let delim = {}
+    // default delimiter = '{' '}' eg. param => {ADDRESS} where column name = ADDRESS
+    delim.startDelim = '\{' 
+    delim.endDelim = '\}'
 
+    // use global mainGenObj
+    if(mainGenObj && mainGenObj.hasOwnProperty('customDelimiter')) {
+      if(mainGenObj.customDelimiter.hasOwnProperty('startsWith') && mainGenObj.customDelimiter.hasOwnProperty('endsWith')) {
+        delim.startDelim = mainGenObj.customDelimiter.startsWith
+        delim.endDelim = mainGenObj.customDelimiter.endsWith
+      } else {
+        throw new Error('generator config > [ customDelimiter ] missing "startsWith" and "endsWith"')
+      }
+    }
+    return delim
+  },
+
+  getParameters: function getParameters(template) {
+    let delim = generatorUtils.getDelimiters()
     /* Match from template file */
-    var regexPattern = new RegExp('\{' + '([^"]*?)' + '\}', 'g');
+    var regexPattern = new RegExp(`${delim.startDelim}([^"]*?)${delim.endDelim}`, 'g');
     var templateParameters = template.match(regexPattern);
     var parameters = [];
     var param;
@@ -20,7 +39,7 @@ var generatorUtils = {
     if (_.isObject(templateParameters)) {
       //create array of matches for the parameters name values
       Object.keys(templateParameters).forEach(function (p) {
-        param = templateParameters[p].toString().replace('\{', "").replace('\}', "");
+        param = templateParameters[p].toString().replace(delim.startDelim, "").replace(delim.endDelim, "");
         parameters.push(param);
       });
     }
@@ -436,10 +455,10 @@ var generatorUtils = {
     //check to make sure you have parameters to replace the values with,
     //  if not, then return the resultsFile
     if (parameters.length > 0) {
-      //match header returned from template
+      let delim = generatorUtils.getDelimiters(genObj)      //match header returned from template
       Object.keys(parameters).forEach(function (x) {
         paramName = parameters[x];
-        fullParamName = '{' + paramName + '}';
+        fullParamName = delim.startDelim + paramName + delim.endDelim;
         paramValue = dataRow[paramName];
         if (paramName === '%AUTO_INCREMENT%') {
           paramValue = incrementalValue;
@@ -478,10 +497,10 @@ var generatorUtils = {
               // if single value then can be using defaultValue
               // if repeatingGroup then need to remove
               paramValue = null;
-              fullParamName = '"{' + paramName + '}"';
-              let pNameRegEx = new RegExp(fullParamName)                            // {ADDRESS}
-              let pNameInBodyRegEx = new RegExp(`\\:\\s+?"{${paramName}}",?`)       // "streetNumber": "{STREET_NUMBER}",
-              let pNameInBodyNumberRegEx = new RegExp(`\\:\\s+?{${paramName}},?`)   // "unitFlatLevel": {UNIT}
+              fullParamName = `"${delim.startDelim}${paramName}${delim.endDelim}"`;
+              let pNameRegEx = new RegExp(fullParamName)  // {ADDRESS}
+              let pNameInBodyRegEx = new RegExp(`\\:\\s+?"${delim.startDelim}${paramName}${delim.endDelim}",?`)       // "streetNumber": "{STREET_NUMBER}",
+              let pNameInBodyNumberRegEx = new RegExp(`\\:\\s+?${delim.startDelim}${paramName}${delim.endDelim},?`)   // "unitFlatLevel": {UNIT}
               if (pNameInBodyRegEx.test(resultsFile)) {
                 // if in body > it's likely to be a value matched to a key
                 paramValue = '""'
@@ -1071,11 +1090,13 @@ var generatorUtils = {
         var dataRowColumnValue = dataRow[simCondition.columnName];
         useSimConfig = generatorUtils.checkTemplateConditionalValue(dataRowColumnValue, simCondition);
         if(useSimConfig) {
+          // apply format to sim condition
           if (simCondition.hasOwnProperty('format')) { 
-            if (simCondition.format === '%NO SPACES%') 
-            {
+            if (simCondition.format === '%NO SPACES%') {
+              // remove spaces from column value
               dataRow[simCondition.columnName] = generatorUtils.removeSpacesFromString(dataRowColumnValue);
             } else if(simCondition.format === '%USE_BACKSLASH_APOSTROPHE%') {
+              // use \' as escape value for apostrophe
               dataRow[simCondition.columnName] = dataRowColumnValue.replace('\'', '%BACKSLASH_APOSTROPHE%');
             }
            }
@@ -1186,7 +1207,7 @@ var generatorUtils = {
         /* Read the file */
         result.template = generatorUtils.readFile(pathToTemplate);
       }
-      result.parameters = generatorUtils.getParameters(result.template);
+      result.parameters = generatorUtils.getParameters(result.template, generatorObj);
       return result;
     } else {
       new Error("Unable to find default template");
@@ -1202,6 +1223,8 @@ var generatorUtils = {
     var generatorObj = JSON.parse(generatorUtils.readFile(generateObjectFile, true));
     //merge with default generator config
     generatorObj = _.merge(defaultGeneratorObj, generatorObj);
+    // save generator obj as global value mainGenObj
+    mainGenObj = generatorObj
 
     // read folder location from datafile.opt
     var folderLocation = generatorUtils.readDataGenFolderLocation()
