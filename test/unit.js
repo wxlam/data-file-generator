@@ -1698,11 +1698,11 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-001.xml')).to.equal(true);
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
 
-    var simFile = utils.readFile('test/data/output/00Simulator/00-sim-basic.xml');
+    var simFile = utils.readFile('output/00Simulator/00-sim-basic.xml');
     var simParams = utils.getParameters(simFile);
     expect(simParams.length).to.equal(0);
 
-    var genFile = utils.readFile('test/data/output/sample/BASIC-001.xml');
+    var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
     expect(genParams.length).to.equal(0);
     expect(genFile).to.contain('<UNIQUE_ID>001</UNIQUE_ID>');
@@ -1723,7 +1723,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
 
-    var genFile = utils.readFile('test/data/output/sample/BASIC-001.xml');
+    var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
     expect(genParams.length).to.equal(0);
     expect(genFile).to.contain('<UNIQUE_ID>001</UNIQUE_ID>');
@@ -1745,7 +1745,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
 
-    var genFile = utils.readFile('test/data/output/sample/BASIC-001.xml');
+    var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
     expect(genParams.length).to.equal(0);
     expect(genFile).to.contain('<UNIQUE_ID>001</UNIQUE_ID>');
@@ -1767,7 +1767,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(false);
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
 
-    var genFile = utils.readFile('test/data/output/sample/BASIC-001.xml');
+    var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
     expect(genParams.length).to.equal(0);
     expect(genFile).to.contain('<UNIQUE_ID>001</UNIQUE_ID>');
@@ -1789,7 +1789,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(false);
 
-    var genFile = utils.readFile('test/data/output/sample/BASIC-001.xml');
+    var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
     expect(genParams.length).to.equal(0);
     expect(genFile).to.contain('<UNIQUE_ID>001</UNIQUE_ID>');
@@ -1813,7 +1813,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
 
-    var genFile = utils.readFile('test/data/output/sample/BASIC-001.xml');
+    var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
     expect(genParams.length).to.equal(0);
     expect(genFile).to.contain('<UNIQUE_ID>001</UNIQUE_ID>');
@@ -1821,7 +1821,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(genFile).to.contain('<VALUE2>Value1</VALUE2>');
     expect(genFile).to.contain('<MAP>\n        <MAP-VALUE1>Value1</MAP-VALUE1>\n        <MAP-VALUE2>Value1</MAP-VALUE2>\n        <MAP-VALUE3>Value1</MAP-VALUE3>\n    </MAP>\n\n</SampleRs>');
 
-    var genFile2 = utils.readFile('test/data/output/sample/BASIC-002.xml');
+    var genFile2 = utils.readFile('output/sample/BASIC-002.xml');
     var genParams2 = utils.getParameters(genFile2);
     expect(genParams2.length).to.equal(0);
     expect(genFile2).to.contain('<UNIQUE_ID>002</UNIQUE_ID>');
@@ -1842,13 +1842,13 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
 
-    var genFile = utils.readFile('test/data/output/sample/BASIC-001.xml');
+    var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
     expect(genParams.length).to.equal(0);
     expect(genFile).to.contain('<UNIQUE_ID>001</UNIQUE_ID>');
     expect(genFile).to.contain('<ERROR_VALUE1>Value1</ERROR_VALUE1>');
 
-    var genFile2 = utils.readFile('test/data/output/sample/BASIC-002.xml');
+    var genFile2 = utils.readFile('output/sample/BASIC-002.xml');
     var genParams2 = utils.getParameters(genFile2);
     expect(genParams2.length).to.equal(0);
     expect(genFile2).to.contain('<UNIQUE_ID>002</UNIQUE_ID>');
@@ -1870,7 +1870,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(false);
 
-    var genFile2 = utils.readFile('test/data/output/sample/BASIC-002.xml');
+    var genFile2 = utils.readFile('output/sample/BASIC-002.xml');
     var genParams2 = utils.getParameters(genFile2);
     expect(genParams2.length).to.equal(0);
     expect(genFile2).to.contain('<UNIQUE_ID>002</UNIQUE_ID>');
@@ -1893,7 +1893,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-004.xml')).to.equal(false);
 
-    var genFile2 = utils.readFile('test/data/output/sample/BASIC-002.xml');
+    var genFile2 = utils.readFile('output/sample/BASIC-002.xml');
     var genParams2 = utils.getParameters(genFile2);
     expect(genParams2.length).to.equal(0);
     expect(genFile2).to.contain('<UNIQUE_ID>002</UNIQUE_ID>');
@@ -1915,7 +1915,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
 
-    var genFile2 = utils.readFile('test/data/output/sample/BASIC-002.xml');
+    var genFile2 = utils.readFile('output/sample/BASIC-002.xml');
     var genParams2 = utils.getParameters(genFile2);
     expect(genParams2.length).to.equal(0);
     expect(genFile2).to.contain('<UNIQUE_ID>002</UNIQUE_ID>');
@@ -1938,17 +1938,17 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.txt')).to.equal(true);
     expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.txt')).to.equal(true);
 
-    var genFile1 = utils.readFile('test/data/output/sample/BASIC-001.txt');
+    var genFile1 = utils.readFile('output/sample/BASIC-001.txt');
     var genParams1 = utils.getParameters(genFile1);
     expect(genParams1.length).to.equal(0);
     expect(genFile1).to.equal('SAMPLE   00001Value1    00SOME TEXT HERE000111');
 
-    var genFile2 = utils.readFile('test/data/output/sample/BASIC-002.txt');
+    var genFile2 = utils.readFile('output/sample/BASIC-002.txt');
     var genParams2 = utils.getParameters(genFile2);
     expect(genParams2.length).to.equal(0);
     expect(genFile2).to.equal('SAMPLE   00002Value2    00SOME TEXT HERE000111');
 
-    var genFile3 = utils.readFile('test/data/output/sample/BASIC-003.txt');
+    var genFile3 = utils.readFile('output/sample/BASIC-003.txt');
     var genParams3 = utils.getParameters(genFile3);
     expect(genParams3.length).to.equal(0);
     expect(genFile3).to.equal('SAMPLE   00003Value3    00SOME TEXT HERE000111');
@@ -1967,12 +1967,12 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(fs.existsSync('data-files/test/data/output/sample/json-basic-001.json')).to.equal(true);
     expect(fs.existsSync('data-files/test/data/output/sample/json-basic-002.json')).to.equal(true);
 
-    var genFile1 = utils.readFile('test/data/output/sample/json-basic-001.json');
+    var genFile1 = utils.readFile('output/sample/json-basic-001.json');
     var genParams1 = utils.getParameters(genFile1);
     expect(genParams1.length).to.equal(0);
     expect(genFile1).to.equal('{\n  "id": "001",\n  "value1": "Value1",\n  "value2": "Value1",\n  "existingValue": "existing value goes here"\n}');
 
-    var genFile2 = utils.readFile('test/data/output/sample/json-basic-002.json');
+    var genFile2 = utils.readFile('output/sample/json-basic-002.json');
     var genParams2 = utils.getParameters(genFile2);
     expect(genParams2.length).to.equal(0);
     expect(genFile2).to.equal('{\n  "id": "002",\n  "value1": "Value1",\n  "value2": "Value1",\n  "existingValue": "existing value goes here"\n}');

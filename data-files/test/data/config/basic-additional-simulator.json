@@ -1,9 +1,9 @@
 {
   "profileName": "basic-additional-simulator",
-  "inputSheet": "test/data/spreadsheet/sample.xlsx",
+  "inputSheet": "spreadsheet/sample.xlsx",
   "sheetName": "Sheet1",
   "output": {
-    "folder": "test/data/output/sample/",
+    "folder": "output/sample/",
     "fileNamePrefix": "BASIC-",
     "fileIdColumn": "UNIQUE_ID_COLUMN",
     "fileExtension": ".xml"
@@ -12,15 +12,15 @@
   "endRow": 3,
   "simulator": [
     {
-      "simulatorConfigOutput": "test/data/output/00Simulator/",
+      "simulatorConfigOutput": "output/00Simulator/",
       "simulatorFilename": "00-sim-basic.xml",
-      "simulatorConfigTemplatePath": "test/data/template/",
+      "simulatorConfigTemplatePath": "template/",
       "simulatorConfigTemplate": "SIM_basic-template.xml",
       "simulatorConfigFilenameParam": "{SIM_COL_NAME}",
       "additionalSimulatorConfig": [
         {
           "name": "additional simulator config name",
-          "simulatorConfigTemplatePath": "test/data/template/",
+          "simulatorConfigTemplatePath": "template/",
           "simulatorConfigTemplate": "SIM_additional-template.xml",
           "simulatorConfigFilenameParam": "{FILE_NAME}",
           "condition": [
@@ -38,7 +38,7 @@
   "templates": [
     {
       "name": "default",
-      "path": "test/data/template/",
+      "path": "template/",
       "fileName": "basic-template.xml"
     }
   ]

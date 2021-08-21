@@ -1,9 +1,9 @@
 {
   "profileName": "other-with-parameter-template",
-  "inputSheet": "test/data/spreadsheet/sample.xlsx",
+  "inputSheet": "spreadsheet/sample.xlsx",
   "sheetName": "Sheet1",
   "output": {
-    "folder": "test/data/output/sample/",
+    "folder": "output/sample/",
     "fileNamePrefix": "BASIC-",
     "fileIdColumn": "UNIQUE_ID_COLUMN",
     "fileExtension": ".xml"
@@ -12,13 +12,13 @@
   "templates": [
     {
       "name": "default",
-      "path" : "test/data/template/",
+      "path" : "template/",
       "fileName": "mapped-template.xml"
     },
     {
       "type": "param-template",
       "parameterTemplate" : {
-        "templateFile": "test/data/template/pre-defined-snippet.xml",
+        "templateFile": "template/pre-defined-snippet.xml",
         "parameter": "{REPLACEMENT_PARAMETER}"
       }
     }
