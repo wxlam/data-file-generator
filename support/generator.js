@@ -1207,7 +1207,7 @@ var generatorUtils = {
         /* Read the file */
         result.template = generatorUtils.readFile(pathToTemplate);
       }
-      result.parameters = generatorUtils.getParameters(result.template, generatorObj);
+      result.parameters = generatorUtils.getParameters(result.template);
       return result;
     } else {
       new Error("Unable to find default template");
