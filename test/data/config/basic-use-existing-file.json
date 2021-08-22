@@ -1,10 +1,10 @@
 {
   "profileName": "basic-use-existing-file",
-  "inputSheet": "test/data/spreadsheet/sample-existing-files.xlsx",
+  "inputSheet": "spreadsheet/sample-existing-files.xlsx",
   "useExistingFilenameColumn": "USE_EXISTING_FILE",
   "sheetName": "Sheet1",
   "output": {
-    "folder": "test/data/output/sample/",
+    "folder": "output/sample/",
     "fileNamePrefix": "BASIC-",
     "fileIdColumn": "UNIQUE_ID_COLUMN",
     "fileExtension": ".xml"
@@ -13,9 +13,9 @@
   "endRow": 10,
   "simulator": [
     {
-      "simulatorConfigOutput": "test/data/output/00Simulator/",
+      "simulatorConfigOutput": "output/00Simulator/",
       "simulatorFilename": "00-sim-basic.xml",
-      "simulatorConfigTemplatePath": "test/data/template/",
+      "simulatorConfigTemplatePath": "template/",
       "simulatorConfigTemplate": "SIM_basic-template.xml",
       "simulatorConfigFilenameParam": "{SIM_COL_NAME}"
     }
@@ -23,7 +23,7 @@
   "templates": [
     {
       "name": "default",
-      "path": "test/data/template/",
+      "path": "template/",
       "fileName": "basic-template.xml"
     }
   ]

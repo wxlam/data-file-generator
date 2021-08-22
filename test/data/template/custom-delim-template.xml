@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <SampleRs>
-    <UNIQUE_ID>{UNIQUE_ID_COLUMN}</UNIQUE_ID>
-    <VALUE1>{SHEET1_COLUMN_VALUE1}</VALUE1>
-    <VALUE2>{SHEET1_COLUMN_VALUE2}</VALUE2>
+    <UNIQUE_ID><<UNIQUE_ID_COLUMN>></UNIQUE_ID>
+    <VALUE1><<SHEET1_COLUMN_VALUE1>></VALUE1>
+    <VALUE2><<SHEET1_COLUMN_VALUE2>></VALUE2>
     <EXISTING_VALUE>some value that can be ignored</EXISTING_VALUE>
 </SampleRs>

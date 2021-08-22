@@ -17,17 +17,17 @@ afterEach(function () {
   simple.restore();
 
   //remove extra folders
-  fsExtra.removeSync('data-files/test/data/output');
+  fsExtra.removeSync('test/data/output');
 });
 
 describe('unit tests for getParameters function in generator', function () {
   it('should test match for parameters', function () {
-    var addressInput = fs.readFileSync('./data-files/test/data/ADDRESS.xml', {encoding: 'utf-8'});
+    var addressInput = fs.readFileSync('./test/data/ADDRESS.xml', {encoding: 'utf-8'});
     expect(utils.getParameters(addressInput).length).to.equal(10);
   });
 
   it('should test not match for parameters', function () {
-    var addressInput = fs.readFileSync('./data-files/test/data/NoParameters.xml', {encoding: 'utf-8'});
+    var addressInput = fs.readFileSync('./test/data/NoParameters.xml', {encoding: 'utf-8'});
     expect(utils.getParameters(addressInput).length).to.equal(0);
   });
 
@@ -35,20 +35,20 @@ describe('unit tests for getParameters function in generator', function () {
 
 describe('unit tests for readContentsOfWorksheet function in generator', function () {
   it('should test data is read from the worksheet', function () {
-    var workBook = xlsx.readFile('./data-files/test/data/worksheet.xlsx');
+    var workBook = xlsx.readFile('./test/data/worksheet.xlsx');
     var worksheet = workBook.Sheets['AOCM Search'];
     var contents = utils.readContentsOfWorksheet(worksheet);
     expect(contents[0]['SEARCH_IDENTIFIER']).to.equal('All');
   });
 
   it('should test no. of rows read from the worksheet', function () {
-    var workBook = xlsx.readFile('./data-files/test/data/worksheet.xlsx');
+    var workBook = xlsx.readFile('./test/data/worksheet.xlsx');
     var worksheet = workBook.Sheets['AOCM Search'];
     expect(utils.readContentsOfWorksheet(worksheet).length).to.equal(2);
   });
 
   it('should test no. of non empty row 1 read from the worksheet', function () {
-    var workBook = xlsx.readFile('./data-files/test/data/worksheet.xlsx');
+    var workBook = xlsx.readFile('./test/data/worksheet.xlsx');
     var worksheet = workBook.Sheets['AOCM Search'];
     var contents = utils.readContentsOfWorksheet(worksheet);
     expect(Object.keys(contents[0]).length).to.equal(6);
@@ -1685,18 +1685,18 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   it('should test for generateTemplateWithJSON for basic config', function () {
 
-    var fileName = './data-files/test/data/config/basic.json';
+    var fileName = './test/data/config/basic.json';
     utils.generateTemplateWithJSON(fileName);
 
-    var simFiles = utils.getFiles('data-files/test/data/output/00Simulator/', simFiles);
-    var configFiles = utils.getFiles('data-files/test/data/output/sample/', configFiles);
+    var simFiles = utils.getFiles('test/data/output/00Simulator/', simFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
 
-    expect(fs.existsSync('data-files/test/data/output/00Simulator')).to.equal(true);
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
     expect(simFiles.length).to.equal(1);
-    expect(fs.existsSync('data-files/test/data/output/00Simulator/00-sim-basic.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/00Simulator/00-sim-basic.xml')).to.equal(true);
     expect(configFiles.length).to.equal(2);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-001.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.xml')).to.equal(true);
 
     var simFile = utils.readFile('output/00Simulator/00-sim-basic.xml');
     var simParams = utils.getParameters(simFile);
@@ -1712,16 +1712,16 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   it('should test for generateTemplateWithJSON with no simulator config', function () {
 
-    var fileName = './data-files/test/data/config/basic-no-simulator.json';
+    var fileName = './test/data/config/basic-no-simulator.json';
     utils.generateTemplateWithJSON(fileName);
 
-    var configFiles = utils.getFiles('data-files/test/data/output/sample/', configFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
 
-    expect(fs.existsSync('data-files/test/data/output/00Simulator')).to.equal(false);
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(false);
     expect(configFiles.length).to.equal(3);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-001.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.xml')).to.equal(true);
 
     var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
@@ -1734,16 +1734,16 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   it('should test for generateTemplateWithJSON with no start and end rows', function () {
 
-    var fileName = './data-files/test/data/config/basic-no-start-end-rows.json';
+    var fileName = './test/data/config/basic-no-start-end-rows.json';
     utils.generateTemplateWithJSON(fileName);
 
-    var configFiles = utils.getFiles('data-files/test/data/output/sample/', configFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
 
-    expect(fs.existsSync('data-files/test/data/output/00Simulator')).to.equal(false);
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(false);
     expect(configFiles.length).to.equal(3);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-001.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.xml')).to.equal(true);
 
     var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
@@ -1756,16 +1756,16 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   it('should test for generateTemplateWithJSON with multiple templates', function () {
 
-    var fileName = './data-files/test/data/config/multi-template-with-conditions.json';
+    var fileName = './test/data/config/multi-template-with-conditions.json';
     utils.generateTemplateWithJSON(fileName);
 
-    var configFiles = utils.getFiles('data-files/test/data/output/sample/', configFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
 
-    expect(fs.existsSync('data-files/test/data/output/00Simulator')).to.equal(false);
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(false);
     expect(configFiles.length).to.equal(2);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-001.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(false);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.xml')).to.equal(false);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.xml')).to.equal(true);
 
     var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
@@ -1778,16 +1778,16 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   it('should test for generateTemplateWithJSON with filtered templates', function () {
 
-    var fileName = './data-files/test/data/config/filtered-template.json';
+    var fileName = './test/data/config/filtered-template.json';
     utils.generateTemplateWithJSON(fileName);
 
-    var configFiles = utils.getFiles('data-files/test/data/output/sample/', configFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
 
-    expect(fs.existsSync('data-files/test/data/output/00Simulator')).to.equal(true);
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
     expect(configFiles.length).to.equal(2);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-001.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(false);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.xml')).to.equal(false);
 
     var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
@@ -1802,16 +1802,16 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   it('should test for generateTemplateWithJSON with mapped templates', function () {
 
-    var fileName = './data-files/test/data/config/mapped-template.json';
+    var fileName = './test/data/config/mapped-template.json';
     utils.generateTemplateWithJSON(fileName);
 
-    var configFiles = utils.getFiles('data-files/test/data/output/sample/', configFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
 
-    expect(fs.existsSync('data-files/test/data/output/00Simulator')).to.equal(true);
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
     expect(configFiles.length).to.equal(3);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-001.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.xml')).to.equal(true);
 
     var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
@@ -1831,16 +1831,16 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   it('should test for generateTemplateWithJSON with other template', function () {
 
-    var fileName = './data-files/test/data/config/basic-other-template.json';
+    var fileName = './test/data/config/basic-other-template.json';
     utils.generateTemplateWithJSON(fileName);
 
-    var configFiles = utils.getFiles('data-files/test/data/output/sample/', configFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
 
-    expect(fs.existsSync('data-files/test/data/output/00Simulator')).to.equal(false);
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(false);
     expect(configFiles.length).to.equal(3);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-001.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.xml')).to.equal(true);
 
     var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
@@ -1859,16 +1859,16 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   it('should test for generateTemplateWithJSON with simulator template with additional config', function () {
 
-    var fileName = './data-files/test/data/config/basic-additional-simulator.json';
+    var fileName = './test/data/config/basic-additional-simulator.json';
     utils.generateTemplateWithJSON(fileName);
 
-    var configFiles = utils.getFiles('data-files/test/data/output/sample/', configFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
 
-    expect(fs.existsSync('data-files/test/data/output/00Simulator')).to.equal(true);
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
     expect(configFiles.length).to.equal(2);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-001.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(false);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.xml')).to.equal(false);
 
     var genFile2 = utils.readFile('output/sample/BASIC-002.xml');
     var genParams2 = utils.getParameters(genFile2);
@@ -1881,17 +1881,17 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   it('should test for generateTemplateWithJSON with use existing filename set', function () {
 
-    var fileName = './data-files/test/data/config/basic-use-existing-file.json';
+    var fileName = './test/data/config/basic-use-existing-file.json';
     utils.generateTemplateWithJSON(fileName);
 
-    var configFiles = utils.getFiles('data-files/test/data/output/sample/', configFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
 
-    expect(fs.existsSync('data-files/test/data/output/00Simulator')).to.equal(true);
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
     expect(configFiles.length).to.equal(3);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-001.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-004.xml')).to.equal(false);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-004.xml')).to.equal(false);
 
     var genFile2 = utils.readFile('output/sample/BASIC-002.xml');
     var genParams2 = utils.getParameters(genFile2);
@@ -1904,16 +1904,16 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   it('should test for generateTemplateWithJSON with parameter template', function () {
 
-    var fileName = './data-files/test/data/config/parameter-template.json';
+    var fileName = './test/data/config/parameter-template.json';
     utils.generateTemplateWithJSON(fileName);
 
-    var configFiles = utils.getFiles('data-files/test/data/output/sample/', configFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
 
-    expect(fs.existsSync('data-files/test/data/output/00Simulator')).to.equal(false);
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(false);
     expect(configFiles.length).to.equal(3);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-001.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.xml')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.xml')).to.equal(true);
 
     var genFile2 = utils.readFile('output/sample/BASIC-002.xml');
     var genParams2 = utils.getParameters(genFile2);
@@ -1927,16 +1927,16 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   it('should test for generateTemplateWithJSON with position based template', function () {
 
-    var fileName = './data-files/test/data/config/position-based-template.json';
+    var fileName = './test/data/config/position-based-template.json';
     utils.generateTemplateWithJSON(fileName);
 
-    var configFiles = utils.getFiles('data-files/test/data/output/sample/', configFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
 
-    expect(fs.existsSync('data-files/test/data/output/00Simulator')).to.equal(true);
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
     expect(configFiles.length).to.equal(3);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-001.txt')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-002.txt')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/BASIC-003.txt')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.txt')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.txt')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.txt')).to.equal(true);
 
     var genFile1 = utils.readFile('output/sample/BASIC-001.txt');
     var genParams1 = utils.getParameters(genFile1);
@@ -1957,15 +1957,15 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   it('should test for generateTemplateWithJSON with json template', function () {
 
-    var fileName = './data-files/test/data/config/json-basic.json';
+    var fileName = './test/data/config/json-basic.json';
     utils.generateTemplateWithJSON(fileName);
 
-    var configFiles = utils.getFiles('data-files/test/data/output/sample/', configFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
 
-    expect(fs.existsSync('data-files/test/data/output/00Simulator')).to.equal(true);
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
     expect(configFiles.length).to.equal(2);
-    expect(fs.existsSync('data-files/test/data/output/sample/json-basic-001.json')).to.equal(true);
-    expect(fs.existsSync('data-files/test/data/output/sample/json-basic-002.json')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/json-basic-001.json')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/json-basic-002.json')).to.equal(true);
 
     var genFile1 = utils.readFile('output/sample/json-basic-001.json');
     var genParams1 = utils.getParameters(genFile1);
@@ -1978,6 +1978,33 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(genFile2).to.equal('{\n  "id": "002",\n  "value1": "Value1",\n  "value2": "Value1",\n  "existingValue": "existing value goes here"\n}');
 
   });
+
+  it('should test for generateTemplateWithJSON for custom delimeter config', function () {
+
+    var fileName = './test/data/config/basic-custom-delimeters.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var simFiles = utils.getFiles('test/data/output/00Simulator/', simFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
+    expect(simFiles.length).to.equal(1);
+    expect(fs.existsSync('test/data/output/00Simulator/00-sim-basic.xml')).to.equal(true);
+    expect(configFiles.length).to.equal(2);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.xml')).to.equal(true);
+
+    var simFile = utils.readFile('output/00Simulator/00-sim-basic.xml');
+    var simParams = utils.getParameters(simFile);
+    expect(simParams.length).to.equal(0);
+
+    var genFile = utils.readFile('output/sample/BASIC-001.xml');
+    var genParams = utils.getParameters(genFile);
+    expect(genParams.length).to.equal(0);
+    expect(genFile).to.contain('<UNIQUE_ID>001</UNIQUE_ID>');
+    expect(genFile).to.contain('<VALUE1>Value1</VALUE1>');
+    expect(genFile).to.contain('<VALUE2>Value1</VALUE2>');
+  });  
 
 });
 

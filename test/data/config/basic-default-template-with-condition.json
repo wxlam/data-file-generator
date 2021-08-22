@@ -1,9 +1,9 @@
 {
   "profileName": "basic-default-template-with-condition",
-  "inputSheet": "test/data/spreadsheet/sample.xlsx",
+  "inputSheet": "spreadsheet/sample.xlsx",
   "sheetName": "Sheet1",
   "output": {
-    "folder": "test/data/output/sample/",
+    "folder": "output/sample/",
     "fileNamePrefix": "BASIC-",
     "fileIdColumn": "UNIQUE_ID_COLUMN",
     "fileExtension": ".xml"
@@ -12,7 +12,7 @@
   "templates": [
     {
       "name": "default",
-      "path" : "test/data/template/",
+      "path" : "template/",
       "fileName": "basic-template.xml",
       "condition" : [
         {

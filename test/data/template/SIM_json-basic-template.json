@@ -1,0 +1,7 @@
+{
+    "applicable-to": "basic",
+    "matcher" : {
+        "jexl": "request.body ~= {UNIQUE_ID_COLUMN}"
+    },
+    "request-payload": "sim-endpoint-folder/{SIM_COL_NAME}"
+}

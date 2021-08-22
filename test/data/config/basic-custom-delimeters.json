@@ -1,8 +1,11 @@
 {
-  "profileName": "basic-use-existing-file",
-  "inputSheet": "spreadsheet/sample-existing-files.xlsx",
-  "useExistingFilenameColumn": "USE_EXISTING_FILE",
+  "profileName": "basic",
+  "inputSheet": "spreadsheet/sample.xlsx",
   "sheetName": "Sheet1",
+  "customDelimiter": {
+    "startsWith": "<<",
+    "endsWith": ">>"
+  },
   "output": {
     "folder": "output/sample/",
     "fileNamePrefix": "BASIC-",
@@ -10,7 +13,7 @@
     "fileExtension": ".xml"
   },
   "startRow": 2,
-  "endRow": 10,
+  "endRow": 3,
   "simulator": [
     {
       "simulatorConfigOutput": "output/00Simulator/",
@@ -24,7 +27,7 @@
     {
       "name": "default",
       "path": "template/",
-      "fileName": "basic-template.xml"
+      "fileName": "custom-delim-template.xml"
     }
   ]
 }
