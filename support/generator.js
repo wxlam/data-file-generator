@@ -30,7 +30,14 @@ var generatorUtils = {
   getParameters: function getParameters(template) {
     let delim = generatorUtils.getDelimiters()
     /* Match from template file */
-    var regexPattern = new RegExp(`${delim.startDelim}([^"]*?)${delim.endDelim}`, 'g');
+
+    // if delim contains '[' or ']' or '(' or ')' need to properly escape it for regex
+    //  only need to escape it for regex
+    let regexStartDelim = delim.startDelim
+    let regexEndDelim = delim.endDelim
+    regexStartDelim  = regexStartDelim.replace(/\[/g, "\\[").replace(/\(/g, "\\(").replace(/\]/g, "\\]").replace(/\)/g, "\\)")
+    regexEndDelim  = regexEndDelim.replace(/\[/g, "\\[").replace(/\(/g, "\\(").replace(/\]/g, "\\]").replace(/\)/g, "\\)")
+    var regexPattern = new RegExp(`${regexStartDelim}([^"]*?)${regexEndDelim}`, 'g');
     var templateParameters = template.match(regexPattern);
     var parameters = [];
     var param;
@@ -39,6 +46,7 @@ var generatorUtils = {
     if (_.isObject(templateParameters)) {
       //create array of matches for the parameters name values
       Object.keys(templateParameters).forEach(function (p) {
+        // delim values do not need to be escaped when used here
         param = templateParameters[p].toString().replace(delim.startDelim, "").replace(delim.endDelim, "");
         parameters.push(param);
       });
@@ -429,15 +437,21 @@ var generatorUtils = {
     return transformValue
   },
 
-  replaceValues: function replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue) {
+  replaceValues: function replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue, simIndex) {
     var paramName, fullParamName, paramValue;
     var fileExtension;
+    var simIndexValue = 0
     //check if output object exists, if it does not then default to '.xml'
     //  eg. in the case of simulator config
     if (genObj.output) {
       fileExtension = genObj.output.fileExtension;
-    } else if (genObj.hasOwnProperty('simulatorConfigTemplate')) {
-      fileExtension = '.' + genObj.simulatorConfigTemplate.split('.').pop()
+    } else if (genObj.hasOwnProperty('simulator')) {
+      if(simIndex && simIndex != '') {
+        simIndexValue = simIndex
+      }
+      if(genObj.simulator[simIndexValue].hasOwnProperty('simulatorConfigTemplate')) {
+        fileExtension = '.' + genObj.simulator[simIndexValue].simulatorConfigTemplate.split('.').pop()
+      }
     } else {
       fileExtension = '.xml'
     }
@@ -1076,7 +1090,7 @@ var generatorUtils = {
     }
   },
 
-  generateSimulatorConfig: function generateSimulatorConfig(dataRow, simObj, simTemplate, simParameters, simFile) {
+  generateSimulatorConfig: function generateSimulatorConfig(dataRow, simObj, simTemplate, simParameters, simFile, simIndex) {
     var useSimConfig = true
     // should really check if condition exists
     if (simObj.hasOwnProperty('condition')) {
@@ -1098,8 +1112,8 @@ var generatorUtils = {
             } else if(simCondition.format === '%USE_BACKSLASH_APOSTROPHE%') {
               // use \' as escape value for apostrophe
               dataRow[simCondition.columnName] = dataRowColumnValue.replace('\'', '%BACKSLASH_APOSTROPHE%');
-            }
-           }
+            } 
+          }
         }
       })
 
@@ -1108,7 +1122,7 @@ var generatorUtils = {
       // apply global match when replacing filename
       let simFilenameRegex = new RegExp(simObj.simulatorConfigFilenameParam, 'g')
       simTemplate = simTemplate.replace(simFilenameRegex, simFile);
-      return generatorUtils.replaceValues(simObj, dataRow, simParameters, simTemplate);
+      return generatorUtils.replaceValues(simObj, dataRow, simParameters, simTemplate, '', simIndex);
     }
   },
 
@@ -1239,7 +1253,6 @@ var generatorUtils = {
     var parameters = defaultTemplate.parameters;
     var isTemplateSim = false
     var isJsonSim = false
-    var multipleSimTemplates = false
     let templateSimArr = []
     var templateSim = []
     var jsonMapSim = []
@@ -1248,58 +1261,31 @@ var generatorUtils = {
     var useExistingFilenameColumn = generatorObj.useExistingFilenameColumn;
 
     if (generatorObj.hasOwnProperty('simulator') && _.isObject(generatorObj.simulator)) {
-      // handle multple sim config
-      if(_.isArray(generatorObj.simulator) && generatorObj.simulator.length > 1) {
-        multipleSimTemplates = true
+      _.forEach(generatorObj.simulator, function (simObj, index) {
+        if(simObj.hasOwnProperty('simulatorConfigTemplate')) {
+          templateSim.push(simObj)
+        }
 
-        _.forEach(generatorObj.simulator, function (simObj, index) {
-          if(simObj.hasOwnProperty('simulatorConfigTemplate')) {
-            templateSim.push(simObj)
-          }
+        if(simObj.hasOwnProperty('jsonPrimaryNode')) {
+          jsonMapSim.push(findJsonMapMatch)
+        }
+      })
 
-          if(simObj.hasOwnProperty('jsonPrimaryNode')) {
-            jsonMapSim.push(findJsonMapMatch)
-          }
+      if (templateSim) {
+        _.forEach(templateSim, function(template) {
+          let templateSimObj = {}
+          templateSimObj.pathToSimTemplate = template.simulatorConfigTemplatePath + template.simulatorConfigTemplate;
+          templateSimObj.simTemplate = generatorUtils.readFile(templateSimObj.pathToSimTemplate);
+          templateSimObj.simParameters = generatorUtils.getParameters(templateSimObj.simTemplate);
+          templateSimObj.simFile = '';
+          templateSimObj.isTemplateSim = true
+          templateSimArr.push(templateSimObj)
         })
+      }
 
-        if (templateSim) {
-          _.forEach(templateSim, function(template) {
-            let templateSimObj = {}
-            templateSimObj.pathToSimTemplate = template.simulatorConfigTemplatePath + template.simulatorConfigTemplate;
-            templateSimObj.simTemplate = generatorUtils.readFile(templateSimObj.pathToSimTemplate);
-            templateSimObj.simParameters = generatorUtils.getParameters(templateSimObj.simTemplate);
-            templateSimObj.simFile = '';
-            templateSimObj.isTemplateSim = true
-            templateSimArr.push(templateSimObj)
-          })
-        }
-
-        if (_.isObject(jsonMapSim)) {
-          isJsonSim = true
-          var simJsonMapResult = []
-        }
-
-      } else {
-        // handle 1 sim config
-        var templateSim = _.find(generatorObj.simulator, function (simObj) {
-          return simObj.hasOwnProperty('simulatorConfigTemplate')
-        })
-
-        var jsonMapSim = _.find(generatorObj.simulator, function (simObj) {
-          return simObj.hasOwnProperty('jsonPrimaryNode')
-        })
-
-        if (templateSim) {
-          var pathToSimTemplate = templateSim.simulatorConfigTemplatePath + templateSim.simulatorConfigTemplate;
-          var simTemplate = generatorUtils.readFile(pathToSimTemplate);
-          var simParameters = generatorUtils.getParameters(simTemplate);
-          isTemplateSim = true
-        }
-
-        if (_.isObject(jsonMapSim)) {
-          isJsonSim = true
-          var simJsonMapResult = []
-        }
+      if (_.isObject(jsonMapSim)) {
+        isJsonSim = true
+        var simJsonMapResult = []
       }
     }
 
@@ -1584,75 +1570,50 @@ var generatorUtils = {
           //===========================================\\
           // OUTPUT new simulator config File
           //===========================================\\
-          if(multipleSimTemplates) {
-            _.forEach(templateSimArr, function (singleSimTemplate, index) {
-                // let templateSim = singleSimTemplate
-                let simTemplate = singleSimTemplate.simTemplate
-                let isTemplateSim = singleSimTemplate.isTemplateSim
-                let simParameters = singleSimTemplate.simParameters
 
-                if (simTemplate && isTemplateSim) {
-                  singleSimTemplate.simFile = singleSimTemplate.simFile + generatorUtils.generateSimulatorConfig(data[r], templateSim[index], simTemplate, simParameters, fileName);
-                  //If there's additional simulator config that needs to be added ..
-                  if (templateSim[index].hasOwnProperty('additionalSimulatorConfig')) {
-                    singleSimTemplate.simFile = singleSimTemplate.simFile + generatorUtils.generateAdditionalSimulatorConfig(data[r], templateSim[index].additionalSimulatorConfig, fileName)
-                  }
-                  if (templateSim[index].simulatorConfigTemplate.indexOf('.json') > 0) {
-                    singleSimTemplate.simFile = singleSimTemplate.simFile.replace(/}\s{0,}{/g, '},{').replace(/}{/g, '},{')
-                  }
-                  console.log('generated fileName: ' + fileName)
-                }
+          // handle multiple simTemplates
+          _.forEach(templateSimArr, function (singleSimTemplate, index) {
 
-                //output simulator config file
-                if (simTemplate && simTemplate.simFile !== '') {
-                  generatorUtils.writeFile(templateSim[index].simulatorConfigOutput, templateSim[index].simulatorFilename, singleSimTemplate.simFile);
-                }
-          
-                if (jsonMapSim && jsonMapSim.length > 1 && _.isObject(simJsonMapResult)) {
-                  let finalSimJson = {}
-                  finalSimJson[jsonMapSim[index].jsonPrimaryNode] = simJsonMapResult
-                  generatorUtils.writeFile(jsonMapSim[index].simulatorConfigOutput, jsonMapSim[index].simulatorFilename, JSON.stringify(finalSimJson, null, 2));
-                }
-            })
+              let simTemplate = singleSimTemplate.simTemplate
+              let isTemplateSim = singleSimTemplate.isTemplateSim
+              let simParameters = singleSimTemplate.simParameters
 
-          } else {
-            if (simTemplate && isTemplateSim) {
-              simFile = simFile + generatorUtils.generateSimulatorConfig(data[r], templateSim, simTemplate, simParameters, fileName);
-              //If there's additional simulator config that needs to be added ..
-              if (templateSim.hasOwnProperty('additionalSimulatorConfig')) {
-                simFile = simFile + generatorUtils.generateAdditionalSimulatorConfig(data[r], templateSim.additionalSimulatorConfig, fileName)
+              if (simTemplate && isTemplateSim) {
+                let newTemplate = generatorUtils.generateSimulatorConfig(data[r], templateSim[index], simTemplate, simParameters, fileName, index);
+                // if JSON, escape backslash
+                if (templateSim[index].simulatorConfigTemplate.indexOf('.json') > 0) {
+                  newTemplate = newTemplate.replace(/\\/g, "\\\\")
+                }
+                singleSimTemplate.simFile = singleSimTemplate.simFile + newTemplate
+                //If there's additional simulator config that needs to be added ..
+                if (templateSim[index].hasOwnProperty('additionalSimulatorConfig')) {
+                  singleSimTemplate.simFile = singleSimTemplate.simFile + generatorUtils.generateAdditionalSimulatorConfig(data[r], templateSim[index].additionalSimulatorConfig, fileName)
+                }
+                // if JSON, make sure commas in correct place and properly update '&apos;' to "\\'"
+                if (templateSim[index].simulatorConfigTemplate.indexOf('.json') > 0) {
+                  singleSimTemplate.simFile = singleSimTemplate.simFile.replace(/}\s{0,}{/g, '},{').replace(/}{/g, '},{').replace(/&apos;/g, "\\\\'")
+                }
+                console.log('generated fileName: ' + fileName)
               }
-              if (templateSim.simulatorConfigTemplate.indexOf('.json') > 0) {
-                simFile = simFile.replace(/}\s{0,}{/g, '},{').replace(/}{/g, '},{')
+
+              //output simulator config file
+              if (simTemplate && simTemplate.simFile !== '') {
+                generatorUtils.writeFile(templateSim[index].simulatorConfigOutput, templateSim[index].simulatorFilename, singleSimTemplate.simFile);
               }
-              console.log('generated fileName: ' + fileName)
-            }
-  
-            if (isJsonSim) {
-              let jsonSimConfig = generatorUtils.generateSimulatorJSONResponse(data[r], jsonMapSim, fileName)
-              simJsonMapResult.push(jsonSimConfig)
-              console.log('generated json fileName: ' + fileName)
-            }
-          }
+        
+              if (jsonMapSim && jsonMapSim.length > 0 && _.isObject(simJsonMapResult)) {
+                let finalSimJson = {}
+                finalSimJson[jsonMapSim[index].jsonPrimaryNode] = simJsonMapResult
+                generatorUtils.writeFile(jsonMapSim[index].simulatorConfigOutput, jsonMapSim[index].simulatorFilename, JSON.stringify(finalSimJson, null, 2));
+              }
+          })
+
         } else {
           console.log('> ' + index + ' > don\'t create file for >> ' + identifier);
         }
 
       }
     });
-
-    if(!multipleSimTemplates) {
-      //output simulator config file
-      if (simTemplate && simFile !== '') {
-        generatorUtils.writeFile(templateSim.simulatorConfigOutput, templateSim.simulatorFilename, simFile);
-      }
-
-      if (_.isObject(simJsonMapResult)) {
-        let finalSimJson = {}
-        finalSimJson[jsonMapSim.jsonPrimaryNode] = simJsonMapResult
-        generatorUtils.writeFile(jsonMapSim.simulatorConfigOutput, jsonMapSim.simulatorFilename, JSON.stringify(finalSimJson, null, 2));
-      }
-    }
 
   }
 };
