@@ -4,6 +4,7 @@ const fsExtra = require('fs-extra');
 const escape = require("html-escape");
 const _ = require('lodash');
 const jexl = require('jexl')
+const falsey = require('falsey');
 var sumTotal;
 var mainGenObj;
 
@@ -1331,9 +1332,24 @@ var generatorUtils = {
 
     //loop through each row
     Object.keys(data).forEach(function (r, index) {
-
-      //Only required for testing, if you want to limit the number of results
-      if (index >= startRow && index <= endRow) {
+      // default genRowFlag to true > to always genRow unless flag value evaluates to false
+      let genRowFlag = true
+      // if useGenRowFlag is set and data[r] contains the col with genRowColumnName and data[r][genRowColumnName] value is !falsey() then continue
+      if (generatorObj.hasOwnProperty('useGenRowFlag')) {
+        if (generatorObj.useGenRowFlag.hasOwnProperty('genRowColumnName')) {
+          let genRowColName = generatorObj.useGenRowFlag.genRowColumnName
+          let genRowValue = data[r][genRowColName] 
+          // add extra check with falsey for missing negative values 'N' and 'n'
+          genRowFlag = !falsey(genRowValue) && !falsey(genRowValue, ['N', 'n'])
+          if(genRowFlag) {
+            console.log(`genRowFlag active for row [ ${index} ]`)
+          }
+        } else {
+          throw new Error ('config "useGenRowFlag" does not have "genRowColumnName" property')
+        }
+      }
+      // check if within startRow/endRow OR genRowFlag is set for row
+      if ((index >= startRow && index <= endRow) && genRowFlag) {
 
         paramName = '';
         fullParamName = '';
