@@ -36,20 +36,20 @@ describe('unit tests for getParameters function in generator', function () {
 describe('unit tests for readContentsOfWorksheet function in generator', function () {
   it('should test data is read from the worksheet', function () {
     var workBook = xlsx.readFile('./test/data/worksheet.xlsx');
-    var worksheet = workBook.Sheets['AOCM Search'];
+    var worksheet = workBook.Sheets['Search-Tab'];
     var contents = utils.readContentsOfWorksheet(worksheet);
     expect(contents[0]['SEARCH_IDENTIFIER']).to.equal('All');
   });
 
   it('should test no. of rows read from the worksheet', function () {
     var workBook = xlsx.readFile('./test/data/worksheet.xlsx');
-    var worksheet = workBook.Sheets['AOCM Search'];
+    var worksheet = workBook.Sheets['Search-Tab'];
     expect(utils.readContentsOfWorksheet(worksheet).length).to.equal(2);
   });
 
   it('should test no. of non empty row 1 read from the worksheet', function () {
     var workBook = xlsx.readFile('./test/data/worksheet.xlsx');
-    var worksheet = workBook.Sheets['AOCM Search'];
+    var worksheet = workBook.Sheets['Search-Tab'];
     var contents = utils.readContentsOfWorksheet(worksheet);
     expect(Object.keys(contents[0]).length).to.equal(6);
     expect(Object.keys(contents[1]).length).to.equal(7);
