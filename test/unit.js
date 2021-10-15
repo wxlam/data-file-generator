@@ -52,7 +52,7 @@ describe('unit tests for readContentsOfWorksheet function in generator', functio
     var worksheet = workBook.Sheets['Search-Tab'];
     var contents = utils.readContentsOfWorksheet(worksheet);
     expect(Object.keys(contents[0]).length).to.equal(6);
-    expect(Object.keys(contents[1]).length).to.equal(8);
+    expect(Object.keys(contents[1]).length).to.equal(7);
   });
 
 });
@@ -2032,6 +2032,33 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(genFile).to.contain('<VALUE1>Value1</VALUE1>');
     expect(genFile).to.contain('<VALUE2>Value1</VALUE2>');
   });  
+
+  it('should test for generateTemplateWithJSON for useGenRowFlag config', function () {
+
+    var fileName = './test/data/config/basic-use-gen-row-flag-false.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var simFiles = utils.getFiles('test/data/output/00Simulator/', simFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
+    expect(simFiles.length).to.equal(1);
+    expect(fs.existsSync('test/data/output/00Simulator/00-sim-basic.xml')).to.equal(true);
+    expect(configFiles.length).to.equal(2);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.xml')).to.equal(true);
+
+    var simFile = utils.readFile('output/00Simulator/00-sim-basic.xml');
+    var simParams = utils.getParameters(simFile);
+    expect(simParams.length).to.equal(0);
+
+    var genFile = utils.readFile('output/sample/BASIC-002.xml');
+    var genParams = utils.getParameters(genFile);
+    expect(genParams.length).to.equal(0);
+    expect(genFile).to.contain('<UNIQUE_ID>002</UNIQUE_ID>');
+    expect(genFile).to.contain('<VALUE1>Value1</VALUE1>');
+    expect(genFile).to.contain('<VALUE2>Value1</VALUE2>');
+  }); 
 
 });
 

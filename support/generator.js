@@ -1336,16 +1336,23 @@ var generatorUtils = {
       let genRowFlag = true
       // if useGenRowFlag is set and data[r] contains the col with genRowColumnName and data[r][genRowColumnName] value is !falsey() then continue
       if (generatorObj.hasOwnProperty('useGenRowFlag')) {
-        if (generatorObj.useGenRowFlag.hasOwnProperty('genRowColumnName')) {
-          let genRowColName = generatorObj.useGenRowFlag.genRowColumnName
-          let genRowValue = data[r][genRowColName] 
-          // add extra check with falsey for missing negative values 'N' and 'n'
-          genRowFlag = !falsey(genRowValue) && !falsey(genRowValue, ['N', 'n'])
-          if(genRowFlag) {
-            console.log(`genRowFlag active for row [ ${index} ]`)
+        let setGenRowFlag = true
+        // if additional option is set 'setGenRowFlag' then use it to determine whether or not getRow options should be used or not
+        if(generatorObj.useGenRowFlag.hasOwnProperty('setGenRowFlag')) {
+          setGenRowFlag = generatorObj.useGenRowFlag.setGenRowFlag
+        }
+        if(setGenRowFlag) {
+          if (generatorObj.useGenRowFlag.hasOwnProperty('genRowColumnName')) {
+            let genRowColName = generatorObj.useGenRowFlag.genRowColumnName
+            let genRowValue = data[r][genRowColName] 
+            // add extra check with falsey for missing negative values 'N' and 'n'
+            genRowFlag = !falsey(genRowValue) && !falsey(genRowValue, ['N', 'n'])
+            if(genRowFlag) {
+              console.log(`genRowFlag active for row [ ${index} ]`)
+            }
+          } else {
+            throw new Error ('config "useGenRowFlag" does not have "genRowColumnName" property')
           }
-        } else {
-          throw new Error ('config "useGenRowFlag" does not have "genRowColumnName" property')
         }
       }
       // check if within startRow/endRow OR genRowFlag is set for row
