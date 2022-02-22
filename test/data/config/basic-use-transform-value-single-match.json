@@ -1,0 +1,44 @@
+{
+  "profileName": "basic",
+  "inputSheet": "spreadsheet/sample.xlsx",
+  "sheetName": "Sheet1",
+  "output": {
+    "folder": "output/sample/",
+    "fileNamePrefix": "BASIC-",
+    "fileIdColumn": "UNIQUE_ID_COLUMN",
+    "fileExtension": ".xml"
+  },
+  "startRow": 2,
+  "endRow": 3,
+  "simulator": [
+    {
+      "simulatorConfigOutput": "output/00Simulator/",
+      "simulatorFilename": "00-sim-basic.xml",
+      "simulatorConfigTemplatePath": "template/",
+      "simulatorConfigTemplate": "SIM_basic-template.xml",
+      "simulatorConfigFilenameParam": "{SIM_COL_NAME}"
+    }
+  ],
+  "templates": [
+    {
+      "name": "default",
+      "path": "template/",
+      "fileName": "basic-template.xml"
+    }
+  ],
+  "transform": [
+    {
+      "expression": "SHEET1_COLUMN_VALUE1 == 'Value1'",
+      "columnName": "SHEET1_COLUMN_VALUE1",
+      "conditionalValue": "==",
+      "columnValue": "Value1",
+      "replacementValue": "value 1"
+    },
+    {
+      "columnName": "SHEET1_COLUMN_VALUE2",
+      "conditionalValue": "==",
+      "columnValue": "No Match",
+      "replacementValue": "value2"
+    }
+  ]
+}

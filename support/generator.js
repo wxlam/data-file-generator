@@ -491,13 +491,6 @@ var generatorUtils = {
           paramValue = generatorUtils.escapeJSON(paramValue);
         }
 
-        // if transformation needs to be applied to value
-        if (genObj.hasOwnProperty('transform') && !(_.isUndefined(_.find(genObj.transform, { columnName: paramName })))) {
-          _.forEach(genObj.transform, function (transObj) {
-            paramValue = generatorUtils.transformValues(transObj, paramName, paramValue)
-          })
-        }
-
         // handle when parameter is not set, set to default values empty or null
         if (paramValue === undefined) {
           // if default value has been set in config then use it
@@ -555,6 +548,18 @@ var generatorUtils = {
           if (positionBasedValue && positionBasedValue.length > 0) {
             paramValue = generatorUtils.padOutParamValues(positionBasedValue[0], paramValue);
           }
+        }
+
+        // check if transformation needs to be applied to value, eg. convert 'ADDR' to 'addressProperty'
+        if (genObj.hasOwnProperty('transform') && !(_.isUndefined(_.find(genObj.transform, { columnName: paramName })))) {
+          // loop through each of the transform options to see if it applies
+          _.forEach(genObj.transform, function (transObj) {
+            let replacementParamValue = generatorUtils.transformValues(transObj, paramName, paramValue)
+            // if replacementParamValue is not empty then replace it
+            if(replacementParamValue != undefined && replacementParamValue) {
+              resultsFile = resultsFile.replace(fullParamName, replacementParamValue)
+            } 
+          })
         }
 
         resultsFile = resultsFile.replace(fullParamName, paramValue).replace('%BACKSLASH_APOSTROPHE%', '\\\'');
