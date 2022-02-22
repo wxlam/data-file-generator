@@ -834,14 +834,33 @@ var generatorUtils = {
         //  need to consider 1-D array then multi-D array
         matchingDataSet = {};
 
-        _.forEach(fromData, function (fromDataRow) {
-          //if the mapping sheet is the same, then need to set fromTag to be the value in the 'toSheetColumn'
-          //  so it will correctly match
+        // can be cases where fromData is just single row of data already
+        //  fromData can be Array or array of objects
+        //  need to check if fromData[0] also exists, as it can be identified as an object even though it's array-like
+        if(Array.isArray(fromData) || _.isObject(fromData[0])) {  
+          _.forEach(fromData, function (fromDataRow) {
+            //if the mapping sheet is the same, then need to set fromTag to be the value in the 'toSheetColumn'
+            //  so it will correctly match
+            if (mapping.fromSheetName === mapping.toSheetName) {
+              fromTag = fromDataRow[mapping.toSheetColumn];
+            } else {
+              if (!fromTag) {
+                fromTag = fromDataRow[mapping.fromSheetColumn]
+              }
+            }
+            //if fromTag exists, then apply mapping filter else don't
+            if (fromTag) {
+              //append matchingDataSet results together
+              matchingDataSet = _.extend(matchingDataSet, generatorUtils.getFilteredSet(toData, toTagColumn, fromTag));
+            }
+          });
+        } else {
+          // when single row of data
           if (mapping.fromSheetName === mapping.toSheetName) {
-            fromTag = fromDataRow[mapping.toSheetColumn];
+            fromTag = fromData[mapping.toSheetColumn];
           } else {
             if (!fromTag) {
-              fromTag = fromDataRow[mapping.fromSheetColumn]
+              fromTag = fromData[mapping.fromSheetColumn]
             }
           }
           //if fromTag exists, then apply mapping filter else don't
@@ -849,8 +868,7 @@ var generatorUtils = {
             //append matchingDataSet results together
             matchingDataSet = _.extend(matchingDataSet, generatorUtils.getFilteredSet(toData, toTagColumn, fromTag));
           }
-
-        });
+        }
 
         fromSheetName = mapping.fromSheetName;
         toSheetName = mapping.toSheetName;

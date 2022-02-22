@@ -1979,6 +1979,29 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   });
 
+  it('should test for generateTemplateWithJSON with json template with optional section', function () {
+
+    var fileName = './test/data/config/json-basic-conditional-section.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
+    expect(configFiles.length).to.equal(2);
+    expect(fs.existsSync('test/data/output/sample/json-basic-condition-001.json')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/json-basic-condition-002.json')).to.equal(true);
+
+    var genFile1 = utils.readFile('output/sample/json-basic-condition-001.json');
+    var genParams1 = utils.getParameters(genFile1);
+    expect(genParams1.length).to.equal(0);
+    expect(genFile1).to.equal('{\n    "id": "001",\n    "value1": "Value1",\n    "value2": "Value1",\n    "existingValue": "existing value goes here"\n    "optional-value": "SINGLE_CONDITION_VALUE"\n}');
+
+    var genFile2 = utils.readFile('output/sample/json-basic-condition-002.json');
+    var genParams2 = utils.getParameters(genFile2);
+    expect(genParams2.length).to.equal(0);
+    expect(genFile2).to.equal('{\n  "id": "002",\n  "value1": "Value1",\n  "value2": "Value1",\n  "existingValue": "existing value goes here"\n}');
+  });
+
   it('should test for generateTemplateWithJSON for custom delimeter config', function () {
 
     var fileName = './test/data/config/basic-custom-delimeters.json';
