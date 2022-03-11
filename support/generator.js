@@ -371,19 +371,22 @@ var generatorUtils = {
 
   checkKeyNameExists: function checkKeyNameExists(dataRow, keyName, secondMatch, exactMatch) {
     return _.filter(dataRow, function (value, key) {
-      if (exactMatch) {
-        if (key === keyName) {
-          return key;
-        }
-      } else {
-        //if partial match, then check for keyName and if another match in the name needs to be found
-        if (key.indexOf(keyName) >= 0) {
-          if (secondMatch) {
-            if (key.indexOf(secondMatch) >= 0) {
+      // apply check if value is empty then don't return as a match for repeating group
+      if(value != '') {
+        if (exactMatch) {
+          if (key === keyName) {
+            return key;
+          }
+        } else {
+          //if partial match, then check for keyName and if another match in the name needs to be found
+          if (key.indexOf(keyName) >= 0) {
+            if (secondMatch) {
+              if (key.indexOf(secondMatch) >= 0) {
+                return key;
+              }
+            } else {
               return key;
             }
-          } else {
-            return key;
           }
         }
       }

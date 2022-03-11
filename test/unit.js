@@ -1659,7 +1659,10 @@ describe('unit tests for getNamedTemplate function in generator', function () {
   it('should test for getNamedTemplate for default template', function () {
     simple.mock(utils, 'readFile').returnWith('abc');
     simple.mock(utils, 'getParameters').returnWith(['a', 'b']);
-    assert.throws(utils.getNamedTemplate, Error, "Cannot read property 'templates' of undefined");
+    assert.throws(utils.getNamedTemplate, Error);
+    // message can vary depending on how it's run
+    // assert.throws(utils.getNamedTemplate, Error, "Cannot read properties of undefined");
+    // assert.throws(utils.getNamedTemplate, Error, "Cannot read property \'templates\' of undefined");
   });
 
   it('should test for getNamedTemplate for undefined template', function () {
