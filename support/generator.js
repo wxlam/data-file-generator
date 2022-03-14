@@ -455,7 +455,7 @@ var generatorUtils = {
       if(simIndex && simIndex != '') {
         simIndexValue = simIndex
       }
-      if(genObj.simulator[simIndexValue].hasOwnProperty('simulatorConfigTemplate')) {
+      if(genObj.simulator[simIndexValue] && genObj.simulator[simIndexValue].hasOwnProperty('simulatorConfigTemplate')) {
         fileExtension = '.' + genObj.simulator[simIndexValue].simulatorConfigTemplate.split('.').pop()
       }
     } else {
@@ -491,10 +491,12 @@ var generatorUtils = {
           paramValue = escape(paramValue);
         }
 
-        //only escape if json in simulator config
-        if (fileExtension === '.json' && genObj.hasOwnProperty('simulatorConfigTemplate')) {
-          paramValue = generatorUtils.escapeJSON(paramValue);
-        }
+        // //only escape if json in simulator config > not quite working
+        // if (fileExtension === '.json' && genObj.hasOwnProperty('simulator') &&
+        //   (genObj.simulator.hasOwnProperty('simulatorConfigTemplate') ||
+        //   genObj.simulator[simIndexValue].hasOwnProperty('simulatorConfigTemplate')) ) {
+        //   paramValue = generatorUtils.escapeJSON(paramValue);
+        // }
 
         // handle when parameter is not set, set to default values empty or null
         if (paramValue === undefined) {

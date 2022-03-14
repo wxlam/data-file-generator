@@ -480,6 +480,70 @@ describe('unit tests for replaceValues function in generator', function () {
 
   });
 
+  it('should test for replaceValues for simObj with simulator', function () {
+
+    var genObj = {
+      "profileName": "test-profile",
+      "simulator": {
+        "simulatorFilename": "00-sim-json-basic.json"
+      }
+    };
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
+    var resultsFile = "abc {VALUE1_ONE} def";
+    var incrementalValue = 1;
+    var sumTotal = 1;
+
+    var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
+    expect(res).to.equal('abc four def');
+  });
+
+  it('should test for replaceValues for simObj with sim array and simIndex', function () {
+
+    var genObj = {
+      "profileName": "test-profile",
+      "simulator": [
+        {
+          "simulatorFilename": "00-sim-json-basic.json",
+          "simulatorConfigTemplate": "sim-json-template-one.json"
+        }
+      ]
+    };
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
+    var resultsFile = "abc {VALUE1_ONE} def";
+    var incrementalValue = 1;
+    var sumTotal = 1;
+    var simIndex = 0;
+
+    var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue, simIndex);
+    expect(res).to.equal('abc four def');
+  });
+
+  it('should test for replaceValues for simObj with sim array', function () {
+
+    var genObj = {
+      "profileName": "test-profile",
+      "simulator": [
+        {
+          "simulatorConfigTemplate": "sim-json-template-one.json"
+        },
+        {
+          "simulatorConfigTemplate": "sim-json-template-two.json"
+        }
+      ]
+    };
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
+    var resultsFile = "abc {VALUE1_ONE} def";
+    var incrementalValue = 1;
+    var sumTotal = 1;
+    var simIndex = 1;
+
+    var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue, simIndex);
+    expect(res).to.equal('abc four def');
+  });
+
   it('should test for replaceValues for AUTO_INCREMENT', function () {
 
     var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
