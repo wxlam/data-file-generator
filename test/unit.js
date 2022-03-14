@@ -656,7 +656,7 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
       {
         "name": "default",
         "path": "data/template/",
-        "fileName": "qasSearch.xml"
+        "fileName": "search.xml"
       }
     ],
     "filteredSection": {
@@ -674,7 +674,7 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
         {
           "name": "default",
           "path": "data/template/",
-          "fileName": "qasSearch_picklistEntryItem.xml",
+          "fileName": "search_Item.xml",
           "replacementParamName": "{REPLACE_VALUE}"
         }
       ]
@@ -712,7 +712,7 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
       {
         "name": "default",
         "path": "data/template/",
-        "fileName": "qasSearch_picklistEntryItem.xml",
+        "fileName": "search_Item.xml",
         "replacementParamName": "{REPLACE_VALUE}"
       }
     ]
@@ -749,7 +749,7 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
     simple.mock(utils, 'getNamedTemplate').returnWith({
       "name": "default",
       "path": "data/template/",
-      "fileName": "qasSearch_picklistEntryItem.xml",
+      "fileName": "search_Item.xml",
       "replacementParamName": "{REPLACE_VALUE}"
     });
     simple.mock(utils, 'replaceValues').returnWith('abc test def');
@@ -776,7 +776,7 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
         {
           "name": "default",
           "path": "data/template/",
-          "fileName": "qasSearch_picklistEntryItem.xml",
+          "fileName": "search_Item.xml",
           "replacementParamName": "{REPLACE_VALUE}"
         }
       ]
@@ -787,7 +787,7 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
     simple.mock(utils, 'getNamedTemplate').returnWith({
       "name": "default",
       "path": "data/template/",
-      "fileName": "qasSearch_picklistEntryItem.xml",
+      "fileName": "search_Item.xml",
       "replacementParamName": "{REPLACE_VALUE}"
     });
     simple.mock(utils, 'replaceValues').returnWith('abc test def');
@@ -888,7 +888,7 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
         {
           "name": "default",
           "path": "data/template/",
-          "fileName": "qasSearch.xml"
+          "fileName": "search.xml"
         }
       ],
       "filteredSection": {
@@ -896,8 +896,8 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
         "sectionSheetTagColumn": "VALUE1_ONE",
         "primarySheetTagColumn": "VALUE1_ONE",
         "templateFromFile": {
-          "templateInputFolder": "output/cap-profile-acc/",
-          "templateFileNameFormat": "CAP-ACC-{ACCOUNT_NUMBER}.xml",
+          "templateInputFolder": "output/profile/",
+          "templateFileNameFormat": "P-{ACCOUNT_NUMBER}.xml",
           "templateFileParamName": "{ACCOUNT_NUMBER}",
           "templateFileParamColumn": "ACCOUNT_NUMBER",
           "replacementParamName": "{REPLACE_VALUE}"
@@ -910,8 +910,8 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
       "sectionSheetTagColumn": "VALUE1_ONE",
       "primarySheetTagColumn": "VALUE1_ONE",
       "templateFromFile": {
-        "templateInputFolder": "output/cap-profile-acc/",
-        "templateFileNameFormat": "CAP-ACC-{ACCOUNT_NUMBER}.xml",
+        "templateInputFolder": "output/profile/",
+        "templateFileNameFormat": "P-{ACCOUNT_NUMBER}.xml",
         "templateFileParamName": "{ACCOUNT_NUMBER}",
         "templateFileParamColumn": "ACCOUNT_NUMBER",
         "replacementParamName": "{REPLACE_VALUE}"
@@ -981,16 +981,16 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
         {
           "name": "default",
           "path": "data/template/",
-          "fileName": "qasSearch.xml"
+          "fileName": "search.xml"
         }
       ],
       "filteredSection": {
         "sectionSheetName": "Sheet 2",
         "sectionSheetTagColumn": "VALUE1_ONE",
         "primarySheetTagColumn": "VALUE1_ONE",
-        "templateFromFiles": {
-          "templateInputFolder": "output/cap-profile-acc/",
-          "templateFileNameFormat": "CAP-ACC-{ACCOUNT_NUMBER}.xml",
+        "invalidTemplateFromFile": {
+          "templateInputFolder": "output/profile/",
+          "templateFileNameFormat": "P-{ACCOUNT_NUMBER}.xml",
           "templateFileParamName": "{ACCOUNT_NUMBER}",
           "templateFileParamColumn": "ACCOUNT_NUMBER",
           "replacementParamName": "{REPLACE_VALUE}"
@@ -1002,14 +1002,16 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
       "sectionSheetName": "Sheet 2",
       "sectionSheetTagColumn": "VALUE1_ONE",
       "primarySheetTagColumn": "VALUE1_ONE",
-      "templateFromFiles": {
-        "templateInputFolder": "output/cap-profile-acc/",
-        "templateFileNameFormat": "CAP-ACC-{ACCOUNT_NUMBER}.xml",
+      "invalidTemplateFromFile": {
+        "templateInputFolder": "output/profile/",
+        "templateFileNameFormat": "P-{ACCOUNT_NUMBER}.xml",
         "templateFileParamName": "{ACCOUNT_NUMBER}",
         "templateFileParamColumn": "ACCOUNT_NUMBER",
         "replacementParamName": "{REPLACE_VALUE}"
       }
     };
+
+    generatedTemplateFile = '{"VALUE1_ONE": "four"}{"VALUE1_TWO": "two"}{"VALUE2_THREE": "one"}{"VALUE1_TWO": "VALUE2_TWO": "three}', '{"VALUE1_ONE": "four"}{"VALUE1_TWO": "two"}{"VALUE2_THREE": "one"}{"VALUE1_TWO": "VALUE2_TWO": "three}'
 
     simple.mock(utils, 'readContentsOfWorksheet').returnWith(['{"VALUE1_ONE": "four"}{"VALUE1_TWO": "two"}{"VALUE2_THREE": "one"}{"VALUE1_TWO": "VALUE2_TWO": "three}', '{"VALUE1_ONE": "four"}{"VALUE1_TWO": "two"}{"VALUE2_THREE": "one"}{"VALUE1_TWO": "VALUE2_TWO": "three}']);
     simple.mock(utils, 'getFilteredSet').returnWith(filteredSetData);
@@ -1284,7 +1286,7 @@ describe('unit tests for useOtherTemplate function in generator', function () {
         {
           "name": "default",
           "path": "data/template/",
-          "fileName": "qasSearch.xml"
+          "fileName": "search.xml"
         }
       ],
       "filteredSection": {
@@ -1302,7 +1304,7 @@ describe('unit tests for useOtherTemplate function in generator', function () {
           {
             "name": "default",
             "path": "data/template/",
-            "fileName": "qasSearch_picklistEntryItem.xml",
+            "fileName": "search_Item.xml",
             "replacementParamName": "{REPLACE_VALUE}"
           }
         ]
@@ -1326,7 +1328,7 @@ describe('unit tests for useOtherTemplate function in generator', function () {
         {
           "name": "default",
           "path": "data/template/",
-          "fileName": "qasSearch.xml"
+          "fileName": "search.xml"
         }
       ],
       "filteredSection": {
@@ -1344,7 +1346,7 @@ describe('unit tests for useOtherTemplate function in generator', function () {
           {
             "name": "default",
             "path": "data/template/",
-            "fileName": "qasSearch_picklistEntryItem.xml",
+            "fileName": "search_Item.xml",
             "replacementParamName": "{REPLACE_VALUE}"
           }
         ]
@@ -1353,7 +1355,7 @@ describe('unit tests for useOtherTemplate function in generator', function () {
     var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var otherTemplate = {
       "path": "data/template/",
-      "fileName": "qasSearch.xml"
+      "fileName": "search.xml"
     };
     simple.mock(utils, 'readFile').returnWith('abc');
     simple.mock(utils, 'getParameters').returnWith(['a', 'd']);
@@ -1370,7 +1372,7 @@ describe('unit tests for useOtherTemplate function in generator', function () {
         {
           "name": "default",
           "path": "data/template/",
-          "fileName": "qasSearch.xml"
+          "fileName": "search.xml"
         }
       ],
       "filteredSection": {
@@ -1388,7 +1390,7 @@ describe('unit tests for useOtherTemplate function in generator', function () {
           {
             "name": "default",
             "path": "data/template/",
-            "fileName": "qasSearch_picklistEntryItem.xml",
+            "fileName": "search_Item.xml",
             "replacementParamName": "{REPLACE_VALUE}"
           }
         ]
@@ -1397,7 +1399,7 @@ describe('unit tests for useOtherTemplate function in generator', function () {
     var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var otherTemplate = {
       "path": "data/template/",
-      "fileName": "qasSearch.xml"
+      "fileName": "search.xml"
     };
     simple.mock(utils, 'readFile').returnWith('abc');
     simple.mock(utils, 'getParameters').returnWith([]);
@@ -1646,7 +1648,7 @@ describe('unit tests for getDefaultTemplate function in generator', function () 
         {
           "name": "default",
           "path": "data/template/",
-          "fileName": "qasSearch.xml"
+          "fileName": "search.xml"
         }
       ],
       "filteredSection": {
@@ -1664,7 +1666,7 @@ describe('unit tests for getDefaultTemplate function in generator', function () 
           {
             "name": "default",
             "path": "data/template/",
-            "fileName": "qasSearch_picklistEntryItem.xml",
+            "fileName": "search_Item.xml",
             "replacementParamName": "{REPLACE_VALUE}"
           }
         ]
@@ -1685,7 +1687,7 @@ describe('unit tests for getNamedTemplate function in generator', function () {
         {
           "name": "abc",
           "path": "data/template/",
-          "fileName": "qasSearch.xml"
+          "fileName": "search.xml"
         }
       ]
     };
@@ -1715,7 +1717,7 @@ describe('unit tests for getNamedTemplate function in generator', function () {
         {
           "name": "abc",
           "path": "data/template/",
-          "fileName": "qasSearch.xml"
+          "fileName": "search.xml"
         }
       ]
     };
