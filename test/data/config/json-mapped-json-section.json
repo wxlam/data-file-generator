@@ -1,0 +1,42 @@
+{
+  "profileName": "json-mapped-json-section",
+  "inputSheet": "spreadsheet/sample.xlsx",
+  "sheetName": "Sheet1",
+  "output": {
+    "folder": "output/sample/",
+    "fileNamePrefix": "BASIC-",
+    "fileIdColumn": "UNIQUE_ID_COLUMN",
+    "fileExtension": ".json"
+  },
+  "startRow": 2,
+  "endRow": 10,
+  "templates": [
+    {
+      "name": "default",
+      "path": "template/",
+      "fileName": "mapped-template.json"
+    }
+  ],
+  "mappedJSONSection": 
+    {
+      "name": "repeating template example",
+      "parameter": "{REPLACEMENT_PARAMETER}",
+      "templateFile": "template/mapped-template-section.json",
+      "childMap": [
+        {
+          "parameter": "{CHILD_PARAM}",
+          "templateFile": "template/mapped-template-snippet-child.json",
+          "isInJSONArray": true,
+          "uniqueIdentifier": {
+            "prefix": "SHEET",
+            "suffix": "_COLUMN_VALUE1"
+          },
+          "map" : {
+            "TEMPLATE_VALUE1": "SHEET_COLUMN_VALUE1",
+            "TEMPLATE_VALUE2": "SHEET_COLUMN_VALUE2",
+            "TEMPLATE_VALUE3": "SHEET_COLUMN_VALUE3"
+          }
+        }
+      ]
+    }
+}

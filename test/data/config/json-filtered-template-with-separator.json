@@ -1,0 +1,62 @@
+{
+  "profileName": "json-filtered-template-with-separator",
+  "inputSheet": "spreadsheet/sample.xlsx",
+  "sheetName": "Sheet1",
+  "output": {
+    "folder": "output/sample/",
+    "fileNamePrefix": "BASIC-",
+    "fileIdColumn": "UNIQUE_ID_COLUMN",
+    "fileExtension": ".json"
+  },
+  "startRow": 2,
+  "endRow": 3,
+  "simulator": [
+    {
+      "simulatorConfigOutput": "output/00Simulator/",
+      "simulatorFilename": "00-sim-basic.xml",
+      "simulatorConfigTemplatePath": "template/",
+      "simulatorConfigTemplate": "SIM_basic-template.xml",
+      "simulatorConfigFilenameParam": "{SIM_COL_NAME}"
+    }
+  ],
+  "templates": [
+    {
+      "name": "default",
+      "path": "template/",
+      "fileName": "json-filtered-template.json"
+    }
+  ],
+  "filteredSection": {
+    "sectionSheetName": "Sheet1",
+    "sectionSheetTagColumn": "FILTERED_COLUMN_NAME",
+    "columnMappings": [
+      {
+        "fromSheetName": "Sheet1",
+        "fromSheetColumn": "FILTERED_COLUMN_NAME",
+        "toSheetName": "Sheet2",
+        "toSheetColumn": "MATCHING_COLUMN_NAME"
+      },
+      {
+        "fromSheetName": "Sheet2",
+        "fromSheetColumn": "MATCHING_COLUMN_NAME",
+        "toSheetName": "Sheet2",
+        "toSheetColumn": "OTHER_COLUMN_NAME"
+      },
+      {
+        "fromSheetName": "Sheet2",
+        "fromSheetColumn": "OTHER_COLUMN_NAME",
+        "toSheetName": "Sheet3",
+        "toSheetColumn": "FINAL_COLUMN_NAME"
+      }
+    ],
+    "templates": [
+      {
+        "name": "default",
+        "path": "template/",
+        "fileName": "json-filtered-template-separator-snippet.json",
+        "separator": " || ",
+        "replacementParamName": "{TEMPLATE_REPLACEMENT_PARAM_NAME}"
+      }
+    ]
+  }
+}

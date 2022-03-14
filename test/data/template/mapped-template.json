@@ -1,0 +1,7 @@
+{
+    "uniqueId": "{UNIQUE_ID_COLUMN}",
+    "value1": "{SHEET1_COLUMN_VALUE1}",
+    "value2": "{SHEET1_COLUMN_VALUE2}",
+    "existingValue": "some value that can be ignored",
+    {REPLACEMENT_PARAMETER}
+}

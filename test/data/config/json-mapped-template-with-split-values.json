@@ -1,0 +1,34 @@
+{
+  "profileName": "json-mapped-template-with-split-values",
+  "inputSheet": "spreadsheet/sample.xlsx",
+  "sheetName": "Sheet1",
+  "output": {
+    "folder": "output/sample/",
+    "fileNamePrefix": "BASIC-",
+    "fileIdColumn": "UNIQUE_ID_COLUMN",
+    "fileExtension": ".json"
+  },
+  "startRow": 2,
+  "endRow": 10,
+  "templates": [
+    {
+      "name": "default",
+      "path": "template/",
+      "fileName": "mapped-template-map.json"
+    }
+  ],
+  "mappedSection": [
+    {
+      "name": "repeating template example",
+      "templateFile": "template/mapped-template-snippet-alternative.json",
+      "parameter": "{REPLACEMENT_PARAMETER}",
+      "splitValues": {
+        "columnName": "{ALT_PARAM}",
+        "splitWith": "--"
+      },
+      "map": {
+        "ALT_PARAM": "ALT_PARAM"
+      }
+    }
+  ]
+}

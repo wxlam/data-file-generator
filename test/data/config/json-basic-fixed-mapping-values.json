@@ -1,0 +1,32 @@
+{
+  "profileName": "json-basic",
+  "inputSheet": "spreadsheet/sample.xlsx",
+  "sheetName": "Sheet1",
+  "output": {
+    "folder": "output/sample/",
+    "fileNamePrefix": "json-basic-",
+    "fileIdColumn": "UNIQUE_ID_COLUMN",
+    "fileExtension": ".json"
+  },
+  "startRow": 2,
+  "endRow": 3,
+  "fixedMappingValues": {
+    "SHEET1_COLUMN_VALUE1": "sheet1_value1"
+  },
+  "simulator": [
+    {
+      "simulatorConfigOutput": "output/00Simulator/",
+      "simulatorFilename": "00-sim-json-basic.json",
+      "simulatorConfigTemplatePath": "template/",
+      "simulatorConfigTemplate": "SIM_json-basic-template.json",
+      "simulatorConfigFilenameParam": "{SIM_COL_NAME}"
+    }
+  ],
+  "templates": [
+    {
+      "name": "default",
+      "path": "template/",
+      "fileName": "json-basic-template.json"
+    }
+  ]
+}

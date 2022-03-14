@@ -1,0 +1,7 @@
+    "map": [
+        {
+            "mapValue1": "{TEMPLATE_VALUE1}",
+            "mapValue2": "{TEMPLATE_VALUE2}",
+            "mapValue3": "{TEMPLATE_VALUE3}"
+        }
+    ]

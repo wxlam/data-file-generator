@@ -273,10 +273,11 @@ var generatorUtils = {
     return template;
   },
 
-  applyRepeatingGrp: function applyRepeatingGrp(dataRow, repeatingGrpTemplate, counter) {
+  applyRepeatingGrp: function applyRepeatingGrp(dataRow, repeatingGrpTemplate, counter, isSplitValue) {
     var applyCondition = true;
     var repeatingGrpValue = ''
     var repeatingGrpTransform = false
+    isSplitValue = isSplitValue == true
 
     // check to see if condition applied to repeating group
     if (repeatingGrpTemplate.hasOwnProperty('condition')) {
@@ -291,7 +292,7 @@ var generatorUtils = {
       }
 
       //append repeating groups into single instance to be added to results file
-      repeatingGrpValue = generatorUtils.getRepeatingGroupValues(repeatingGrpTemplate.map, dataRow, counter + 1, repeatingGrpTemplate.templateFile, false, repeatingGrpTransform);
+      repeatingGrpValue = generatorUtils.getRepeatingGroupValues(repeatingGrpTemplate.map, dataRow, counter + 1, repeatingGrpTemplate.templateFile, isSplitValue, repeatingGrpTransform);
     }
 
     return repeatingGrpValue
@@ -355,7 +356,8 @@ var generatorUtils = {
     var repeatingGrpArray = repeatingGrpValues.split(repeatingGrpSplitWith);
 
     _.forEach(repeatingGrpArray, function (value, index) {
-      repeatingGrp = generatorUtils.applyRepeatingGrp(value, repeatingGrp, repeatingGrpTemplate, index)
+      // set isSplitValue flag to true
+      repeatingGrp = repeatingGrp + generatorUtils.applyRepeatingGrp(value, repeatingGrpTemplate, index, true)
     })
 
     resultsFile = resultsFile.replace(repeatingGrpParam, repeatingGrp);
@@ -1202,6 +1204,7 @@ var generatorUtils = {
     return addSimFile;
   },
 
+  // currently not used
   generateSimulatorJSONResponse: function generateSimulatorJSONResponse(dataRow, jsonSimObj, generatedFilename) {
 
     // when you don't have a template for the simulator AND it's a JSON object
@@ -1469,6 +1472,8 @@ var generatorUtils = {
               // additional check for when to add comma, if empty result returned then 
               //  no need to add comma
               addComma = childMapResult != ''
+            } else {
+              childMapResult = childRepeatingGrp
             }
             jsonParentTemplate = jsonParentTemplate.replace(cMap.parameter, childMapResult)
           })
@@ -1606,6 +1611,7 @@ var generatorUtils = {
               resultsFile = resultsFile.replace(/}\s{0,}{/g, '},{').replace(/""""/g, '""')
                 .replace(/},\s+\],/g, '}],').replace(/[[\s]{0,}""[[\s]{0,}]/g, '[]')
                 .replace(/,\s{0,}\}/g, '}').replace(/\[\s{0,}\{\s{0,}}\s{0,}\]/g, '[]')
+                .replace(/"\s+"/g, '","')
               try {
                 resultsFile = JSON.stringify(JSON.parse(resultsFile), null, 2)
               } catch (e) {

@@ -1,0 +1,83 @@
+{
+  "profileName": "json-filtered-template-with-apply-template",
+  "inputSheet": "spreadsheet/sample.xlsx",
+  "sheetName": "Sheet1",
+  "output": {
+    "folder": "output/sample/",
+    "fileNamePrefix": "BASIC-",
+    "fileIdColumn": "UNIQUE_ID_COLUMN",
+    "fileExtension": ".json"
+  },
+  "startRow": 2,
+  "endRow": 3,
+  "simulator": [
+    {
+      "simulatorConfigOutput": "output/00Simulator/",
+      "simulatorFilename": "00-sim-basic.xml",
+      "simulatorConfigTemplatePath": "template/",
+      "simulatorConfigTemplate": "SIM_basic-template.xml",
+      "simulatorConfigFilenameParam": "{SIM_COL_NAME}"
+    }
+  ],
+  "templates": [
+    {
+      "name": "default",
+      "path": "template/",
+      "fileName": "json-filtered-template.json"
+    }
+  ],
+  "filteredSection": [
+    {
+      "name": "default",
+      "sectionSheetName": "Sheet1",
+      "sectionSheetTagColumn": "FILTERED_COLUMN_NAME",
+      "columnMappings": [
+        {
+          "fromSheetName": "Sheet1",
+          "fromSheetColumn": "FILTERED_COLUMN_NAME",
+          "toSheetName": "Sheet2",
+          "toSheetColumn": "MATCHING_COLUMN_NAME"
+        }
+      ],
+      "templates": [
+        {
+          "name": "default",
+          "path": "template/",
+          "fileName": "json-filtered-apply-snippet.json",
+          "replacementParamName": "{TEMPLATE_REPLACEMENT_PARAM_NAME}",
+          "applyTemplate": {
+            "name": "filteredList",
+            "sectionSheetName": "Sheet3",
+            "sectionSheetTagColumn": "FINAL_COLUMN_NAME",
+            "columnMappings": [
+              {
+                "fromSheetName": "Sheet2",
+                "fromSheetColumn": "MATCHING_COLUMN_NAME",
+                "toSheetName": "Sheet2",
+                "toSheetColumn": "OTHER_COLUMN_NAME"
+              },
+              {
+                "fromSheetName": "Sheet2",
+                "fromSheetColumn": "OTHER_COLUMN_NAME",
+                "toSheetName": "Sheet3",
+                "toSheetColumn": "FINAL_COLUMN_NAME"
+              }
+            ],
+            "applyToTemplate": {
+              "path": "template/",
+              "fileName": "json-filtered-apply-template.json"
+            },
+            "templates": [
+              {
+                "name": "default",
+                "path": "template/",
+                "fileName": "json-filtered-apply-template.json",
+                "replacementParamName": "{APPLY_FILTER}"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

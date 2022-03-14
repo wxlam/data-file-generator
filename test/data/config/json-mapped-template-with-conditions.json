@@ -1,0 +1,46 @@
+{
+  "profileName": "mapped-json-template-with-conditions",
+  "inputSheet": "spreadsheet/sample.xlsx",
+  "sheetName": "Sheet1",
+  "output": {
+    "folder": "output/sample/",
+    "fileNamePrefix": "BASIC-",
+    "fileIdColumn": "UNIQUE_ID_COLUMN",
+    "fileExtension": ".json"
+  },
+  "startRow": 2,
+  "endRow": 10,
+  "templates": [
+    {
+      "name": "default",
+      "path": "template/",
+      "fileName": "mapped-template.json"
+    }
+  ],
+  "mappedSection": [
+    {
+      "name": "repeating template example",
+      "templateFile": "template/mapped-template-snippet.json",
+      "parameter": "{REPLACEMENT_PARAMETER}",
+      "uniqueIdentifier": {
+        "prefix": "SHEET",
+        "suffix": "_COLUMN_VALUE1"
+      },
+      "condition": [
+        {
+          "uniqueIdentifier": {
+            "prefix": "SHEET",
+            "suffix": "_COLUMN_VALUE1"
+          },
+          "conditionalValue": "=",
+          "columnValue": "Value2"
+        }
+      ],
+      "map": {
+        "TEMPLATE_VALUE1": "SHEET_COLUMN_VALUE1",
+        "TEMPLATE_VALUE2": "SHEET_COLUMN_VALUE2",
+        "TEMPLATE_VALUE3": "SHEET_COLUMN_VALUE3"
+      }
+    }
+  ]
+}

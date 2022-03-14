@@ -22,12 +22,12 @@ afterEach(function () {
 
 describe('unit tests for getParameters function in generator', function () {
   it('should test match for parameters', function () {
-    var addressInput = fs.readFileSync('./test/data/ADDRESS.xml', {encoding: 'utf-8'});
+    var addressInput = fs.readFileSync('./test/data/template/ADDRESS.xml', { encoding: 'utf-8' });
     expect(utils.getParameters(addressInput).length).to.equal(10);
   });
 
   it('should test not match for parameters', function () {
-    var addressInput = fs.readFileSync('./test/data/NoParameters.xml', {encoding: 'utf-8'});
+    var addressInput = fs.readFileSync('./test/data/template/NoParameters.xml', { encoding: 'utf-8' });
     expect(utils.getParameters(addressInput).length).to.equal(0);
   });
 
@@ -35,20 +35,20 @@ describe('unit tests for getParameters function in generator', function () {
 
 describe('unit tests for readContentsOfWorksheet function in generator', function () {
   it('should test data is read from the worksheet', function () {
-    var workBook = xlsx.readFile('./test/data/worksheet.xlsx');
+    var workBook = xlsx.readFile('./test/data/spreadsheet/worksheet.xlsx');
     var worksheet = workBook.Sheets['Search-Tab'];
     var contents = utils.readContentsOfWorksheet(worksheet);
     expect(contents[0]['SEARCH_IDENTIFIER']).to.equal('All');
   });
 
   it('should test no. of rows read from the worksheet', function () {
-    var workBook = xlsx.readFile('./test/data/worksheet.xlsx');
+    var workBook = xlsx.readFile('./test/data/spreadsheet/worksheet.xlsx');
     var worksheet = workBook.Sheets['Search-Tab'];
     expect(utils.readContentsOfWorksheet(worksheet).length).to.equal(2);
   });
 
   it('should test no. of non empty row 1 read from the worksheet', function () {
-    var workBook = xlsx.readFile('./test/data/worksheet.xlsx');
+    var workBook = xlsx.readFile('./test/data/spreadsheet/worksheet.xlsx');
     var worksheet = workBook.Sheets['Search-Tab'];
     var contents = utils.readContentsOfWorksheet(worksheet);
     expect(Object.keys(contents[0]).length).to.equal(6);
@@ -213,6 +213,13 @@ describe('unit tests for removeFilesFromDir function in generator', function () 
 
 });
 
+describe('unit tests for escapeJSON function in generator', function () {
+  it('should JSON is escaped', function () {
+    var str = 'Hello \\world\\ and \bbold\b';
+    expect(utils.escapeJSON(str)).to.equal('Hello \\\\world\\\\ and \\bbold\\b');
+  });
+});
+
 describe('unit tests for removeSpacesFromString function in generator', function () {
   it('should test spaces are removed from  strings', function () {
     var str = "Hello world I am here";
@@ -226,7 +233,7 @@ describe('unit tests for removeSpacesFromString function in generator', function
       "ONE": "VALUE_ONE",
       "TWO": "VALUE_TWO"
     };
-    var dataRow = {"VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var count = 2;
     var templatePath = 'abcd';
     simple.mock(utils, 'readFile').returnWith("<ONE>{ONE}</ONE><TWO>{TWO}</TWO>");
@@ -239,7 +246,7 @@ describe('unit tests for removeSpacesFromString function in generator', function
       "ONE": "%AUTO_INCREMENT%",
       "TWO": "VALUE_TWO"
     };
-    var dataRow = {"VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var count = 0;
     var templatePath = 'abcd';
     simple.mock(utils, 'readFile').returnWith("<ONE>{ONE}</ONE><TWO>{TWO}</TWO>");
@@ -263,7 +270,7 @@ describe('unit tests for addRepeatingGrp function in generator', function () {
         "TWO": "VALUE_TWO"
       }
     };
-    var dataRow = {"VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var resultsFile = 'Hello {REPLACEMENT_PARAMETER} Marry';
     simple.mock(utils, 'checkKeyNameExists').returnWith(["VALUE1_ONE"]);
     simple.mock(utils, 'getRepeatingGroupValues').returnWith("Moana");
@@ -285,7 +292,7 @@ describe('unit tests for addRepeatingGrp function in generator', function () {
         "TWO": "VALUE_TWO"
       }
     };
-    var dataRow = {"VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var resultsFile = 'Hello {REPLACEMENT_PARAMETER} Marry';
     simple.mock(utils, 'checkKeyNameExists').returnWith(undefined);
     simple.mock(utils, 'getRepeatingGroupValues').returnWith("Moana");
@@ -309,7 +316,7 @@ describe('unit tests for addParamGrp function in generator', function () {
 
 describe('unit tests for checkKeyNameExists function in generator', function () {
   it('should test for checkKeyNameExists for first match', function () {
-    var dataRow = {"VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var keyName = 'VALUE2_ONE';
     var secondMatch = '';
     var exactMatch = true;
@@ -319,7 +326,7 @@ describe('unit tests for checkKeyNameExists function in generator', function () 
   });
 
   it('should test for checkKeyNameExists for second match', function () {
-    var dataRow = {"VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var keyName = 'VALUE1';
     var secondMatch = 'TWO';
     var exactMatch = false;
@@ -329,7 +336,7 @@ describe('unit tests for checkKeyNameExists function in generator', function () 
   });
 
   it('should test for checkKeyNameExists for first match', function () {
-    var dataRow = {"VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var keyName = 'VALUE1';
     var secondMatch = '';
     var exactMatch = false;
@@ -398,7 +405,7 @@ describe('unit tests for replaceValues function in generator', function () {
 
   it('should test for replaceValues for parameters < 0', function () {
 
-    var dataRow = {"VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var parameters = [];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
@@ -411,7 +418,7 @@ describe('unit tests for replaceValues function in generator', function () {
 
   it('should test for replaceValues for xml', function () {
 
-    var dataRow = {"VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
@@ -424,7 +431,7 @@ describe('unit tests for replaceValues function in generator', function () {
 
   it('should test for replaceValues for no incremental value', function () {
 
-    var dataRow = {"VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = '';
@@ -446,7 +453,7 @@ describe('unit tests for replaceValues function in generator', function () {
       }
     };
 
-    var dataRow = {"VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
@@ -462,7 +469,7 @@ describe('unit tests for replaceValues function in generator', function () {
     var genObj = {
       "profileName": "test-profile"
     };
-    var dataRow = {"VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
@@ -475,7 +482,7 @@ describe('unit tests for replaceValues function in generator', function () {
 
   it('should test for replaceValues for AUTO_INCREMENT', function () {
 
-    var dataRow = {"VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var parameters = ["%AUTO_INCREMENT%", "VALUE2_ONE"];
     var resultsFile = "abc {%AUTO_INCREMENT%} def";
     var incrementalValue = 1;
@@ -488,7 +495,7 @@ describe('unit tests for replaceValues function in generator', function () {
 
   it('should test for replaceValues for SUM_TOTAL', function () {
 
-    var dataRow = {"VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var parameters = ["%SUM_TOTAL%", "VALUE2_ONE"];
     var resultsFile = "abc {%SUM_TOTAL%} def";
     var incrementalValue = 2;
@@ -528,7 +535,7 @@ describe('unit tests for replaceValues function in generator', function () {
         }]
     };
 
-    var dataRow = {"VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
@@ -567,7 +574,7 @@ describe('unit tests for replaceValues function in generator', function () {
         }]
     };
 
-    var dataRow = {"VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
@@ -678,14 +685,14 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
     "SheetNames": ["Sheet 1", "Sheet 2"],
     "Sheets": [{
       "Sheet 1": [{
-        "A1": {"a": "value"}
+        "A1": { "a": "value" }
       }, {
-        "B2": {"b": "value"}
+        "B2": { "b": "value" }
       }],
       "Sheet 2": [{
-        "A1": {"a": "value"}
+        "A1": { "a": "value" }
       }, {
-        "B2": {"b": "value"}
+        "B2": { "b": "value" }
       }]
     }]
   };
@@ -1086,7 +1093,7 @@ describe('unit tests for getMatchingPositionBasedValue function in generator', f
 describe('unit tests for checkAllTemplateConditionalValues function in generator', function () {
   it('should test for checkAllTemplateConditionalValues with templatedUsed, so ignore conditions', function () {
     var templateUsed = true;
-    var dataRow = {"ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three"};
+    var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
     var templateConditions = [{
       "columnName": "ACCOUNT_TYPE",
       "conditionalValue": "=",
@@ -1100,7 +1107,7 @@ describe('unit tests for checkAllTemplateConditionalValues function in generator
 
   it('should test for checkAllTemplateConditionalValues without templatedUsed so check for singular condition', function () {
     var templateUsed = false;
-    var dataRow = {"ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three"};
+    var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
     var templateConditions = [{
       "columnName": "ACCOUNT_TYPE",
       "conditionalValue": "=",
@@ -1114,7 +1121,7 @@ describe('unit tests for checkAllTemplateConditionalValues function in generator
 
   it('should test for checkAllTemplateConditionalValues without templatedUsed so check for singular condition', function () {
     var templateUsed = false;
-    var dataRow = {"ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three"};
+    var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
     var templateConditions = [{
       "columnName": "ACCOUNT_TYPE",
       "conditionalValue": "!=",
@@ -1128,7 +1135,7 @@ describe('unit tests for checkAllTemplateConditionalValues function in generator
 
   it('should test for checkAllTemplateConditionalValues without templatedUsed so check for multiiple condition', function () {
     var templateUsed = false;
-    var dataRow = {"ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three"};
+    var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
     var templateConditions = [
       {
         "columnName": "ACCOUNT_TYPE",
@@ -1148,7 +1155,7 @@ describe('unit tests for checkAllTemplateConditionalValues function in generator
 
   it('should test for checkAllTemplateConditionalValues without templatedUsed so check for multiiple condition', function () {
     var templateUsed = false;
-    var dataRow = {"ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three"};
+    var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
     var templateConditions = [
       {
         "columnName": "ACCOUNT_TYPE",
@@ -1301,7 +1308,7 @@ describe('unit tests for useOtherTemplate function in generator', function () {
         ]
       }
     };
-    var dataRow = {"VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var otherTemplate = {
       "path": "data/template/",
       "fileName": "%NONE%"
@@ -1343,7 +1350,7 @@ describe('unit tests for useOtherTemplate function in generator', function () {
         ]
       }
     };
-    var dataRow = {"VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var otherTemplate = {
       "path": "data/template/",
       "fileName": "qasSearch.xml"
@@ -1387,7 +1394,7 @@ describe('unit tests for useOtherTemplate function in generator', function () {
         ]
       }
     };
-    var dataRow = {"VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var otherTemplate = {
       "path": "data/template/",
       "fileName": "qasSearch.xml"
@@ -1401,15 +1408,15 @@ describe('unit tests for useOtherTemplate function in generator', function () {
 });
 
 describe('unit tests for generateSimulatorConfig function in generator', function () {
-  it('should test data useOtherTemplate for %None%', function () {
+  it('should test default simulator config', function () {
     var simObj = {
-      "simulatorConfigOutput": "output/00Simulator/",
-      "simulatorFilename": "00-sim-aocm-retrieve-all-clg",
+      "simulatorConfigOutput": "output/00Sim/",
+      "simulatorFilename": "00-sim-all",
       "simulatorConfigTemplatePath": "data/template/",
-      "simulatorConfigTemplate": "SIM_AOCM_RetrieveAllClg.xml",
+      "simulatorConfigTemplate": "SIM_All.xml",
       "simulatorConfigFilenameParam": "{FILE_NAME}"
     };
-    var dataRow = {"VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three"};
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
     var simTemplate = 'xzzz';
     var simParameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var simFile = "abc {VALUE1_ONE} def";
@@ -1417,181 +1424,217 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
     var contents = utils.generateSimulatorConfig(dataRow, simObj, simTemplate, simParameters, simFile);
     expect(contents).to.equal('aav');
   });
-});
 
-describe('unit tests for generateAdditionalSimulatorConfig function in generator', function () {
-  it('should test for generateAdditionalSimulatorConfig with additional sim config', function () {
+  describe('unit tests for generateAdditionalSimulatorConfig function in generator', function () {
+    it('should test for generateAdditionalSimulatorConfig with additional sim config', function () {
 
-    var dataRow = {"ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three"};
-    var additionalSimObj = [{
-      "name": "additional simulator config name",
-      "simulatorConfigTemplatePath": "data/template/",
-      "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
-      "simulatorConfigFilenameParam": "{FILE_NAME}",
-      "condition": [
-        {
-          "columnName": "ACCOUNT_TYPE",
-          "conditionalValue": "!=",
-          "columnValue": "%EMPTY%",
-          "format": "%NO SPACES%"
-        }
-      ]
-    }];
+      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var additionalSimObj = [{
+        "name": "additional simulator config name",
+        "simulatorConfigTemplatePath": "data/template/",
+        "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
+        "simulatorConfigFilenameParam": "{FILE_NAME}",
+        "condition": [
+          {
+            "columnName": "ACCOUNT_TYPE",
+            "conditionalValue": "!=",
+            "columnValue": "%EMPTY%",
+            "format": "%NO SPACES%"
+          }
+        ]
+      }];
 
-    simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
-    simple.mock(utils, 'readFile').returnWith('abc def');
-    simple.mock(utils, 'getParameters').returnWith(['a', 'b']);
-    simple.mock(utils, 'removeSpacesFromString').returnWith('abc');
-    simple.mock(utils, 'replaceValues').returnWith('abc def ghi');
-    var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
-    expect(contents).to.equal('abc def ghi');
+      simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
+      simple.mock(utils, 'readFile').returnWith('abc def');
+      simple.mock(utils, 'getParameters').returnWith(['a', 'b']);
+      simple.mock(utils, 'removeSpacesFromString').returnWith('abc');
+      simple.mock(utils, 'replaceValues').returnWith('abc def ghi');
+      var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
+      expect(contents).to.equal('abc def ghi');
+    });
+
+    it('should test for generateAdditionalSimulatorConfig with additional sim config (encode spaces)', function () {
+
+      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var additionalSimObj = [{
+        "name": "additional simulator config name",
+        "simulatorConfigTemplatePath": "data/template/",
+        "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
+        "simulatorConfigFilenameParam": "{FILE_NAME}",
+        "condition": [
+          {
+            "columnName": "ACCOUNT_TYPE",
+            "conditionalValue": "!=",
+            "columnValue": "%EMPTY%",
+            "format": "%ENCODE SPACES%"
+          }
+        ]
+      }];
+
+      simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
+      simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} aaa');
+
+      var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
+      expect(contents).to.equal('ACC%20TYPE aaa');
+    });
+
+    it('should test for generateAdditionalSimulatorConfig with additional sim config (encode spaces - replaceWith)', function () {
+
+      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var additionalSimObj = [{
+        "name": "additional simulator config name",
+        "simulatorConfigTemplatePath": "data/template/",
+        "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
+        "simulatorConfigFilenameParam": "{FILE_NAME}",
+        "condition": [
+          {
+            "columnName": "ACCOUNT_TYPE",
+            "conditionalValue": "!=",
+            "columnValue": "%EMPTY%",
+            "format": "%ENCODE SPACES%",
+            "encodeWith": "+"
+          }
+        ]
+      }];
+
+      simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
+      simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} aaa');
+      var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
+      expect(contents).to.equal('ACC+TYPE aaa');
+    });
+
+    it('should test for generateAdditionalSimulatorConfig with additional sim config and condition with no format option', function () {
+
+      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var additionalSimObj = [{
+        "name": "additional simulator config name",
+        "simulatorConfigTemplatePath": "data/template/",
+        "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
+        "simulatorConfigFilenameParam": "{FILE_NAME}",
+        "condition": [
+          {
+            "columnName": "ACCOUNT_TYPE",
+            "conditionalValue": "!=",
+            "columnValue": "%EMPTY%"
+          }
+        ]
+      }];
+
+      simple.mock(utils, 'checkTemplateConditionalValue').returnWith(false);
+      simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} aaa');
+      var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
+      expect(contents).to.equal('');
+    });
+
+    it('should test for generateAdditionalSimulatorConfig with additional sim config and multiple conditions', function () {
+
+      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var additionalSimObj = [{
+        "name": "additional simulator config name",
+        "simulatorConfigTemplatePath": "data/template/",
+        "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
+        "simulatorConfigFilenameParam": "{FILE_NAME}",
+        "condition": [
+          {
+            "columnName": "ACCOUNT_TYPE",
+            "conditionalValue": "!=",
+            "columnValue": "%EMPTY%"
+          },
+          {
+            "columnName": "STATUS_CODE",
+            "conditionalValue": "!=",
+            "columnValue": "200",
+            "format": "%NO SPACES%"
+          }
+        ]
+      }];
+
+      simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
+      simple.mock(utils, 'readFile').returnWith('abc def');
+
+      var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
+      expect(contents).to.equal('abc defabc def');
+    });
+
+    it('should test for generateAdditionalSimulatorConfig with additional sim config with no condition', function () {
+
+      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var additionalSimObj = [{
+        "name": "additional simulator config name",
+        "simulatorConfigTemplatePath": "data/template/",
+        "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
+        "simulatorConfigFilenameParam": "{FILE_NAME}"
+      }];
+
+      simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
+      simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} def');
+
+      var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
+      expect(contents).to.equal('');
+    });
+
+    it('should test for generateAdditionalSimulatorConfig with columnName not matching', function () {
+
+      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var additionalSimObj = [{
+        "name": "additional simulator config name",
+        "simulatorConfigTemplatePath": "data/template/",
+        "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
+        "simulatorConfigFilenameParam": "{FILE_NAME}",
+        "condition": [
+          {
+            "columnName": "VALUE1_ONE",
+            "conditionalValue": "!=",
+            "columnValue": "%EMPTY%"
+          }
+        ]
+      }];
+
+      simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
+      simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} def');
+
+      var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
+      expect(contents).to.equal('');
+    });
+
   });
 
-  it('should test for generateAdditionalSimulatorConfig with additional sim config (encode spaces)', function () {
-
-    var dataRow = {"ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three"};
-    var additionalSimObj = [{
-      "name": "additional simulator config name",
-      "simulatorConfigTemplatePath": "data/template/",
-      "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
-      "simulatorConfigFilenameParam": "{FILE_NAME}",
-      "condition": [
-        {
-          "columnName": "ACCOUNT_TYPE",
-          "conditionalValue": "!=",
-          "columnValue": "%EMPTY%",
-          "format": "%ENCODE SPACES%"
+  describe('unit tests for generateSimulatorJSONResponse', function () {
+    it('should test simulator config with jsonPrimaryNode', function () {
+      var simObj = {
+        "simulatorConfigOutput": "output/00Sim/",
+        "simulatorConfigTemplatePath": "data/template/",
+        "jsonPrimaryNode": "allValues",
+        "jsonMap": {
+          "VALUE1_ONE": "v1",
+          "VALUE2_ONE": "v2"
         }
-      ]
-    }];
+      };
+      var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+      var generatedFilename = "00-sim-all.json";
+      simple.mock(utils, 'replaceValues').returnWith('aav'); 
+      var contents = utils.generateSimulatorJSONResponse(dataRow, simObj, generatedFilename );
+      expect(JSON.stringify(contents)).to.equal('{"VALUE1_ONE":"v1","VALUE2_ONE":"v2"}');
+    });
 
-    simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
-    simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} aaa');
-  
-    var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
-    expect(contents).to.equal('ACC%20TYPE aaa');
-  });
-
-  it('should test for generateAdditionalSimulatorConfig with additional sim config (encode spaces - replaceWith)', function () {
-
-    var dataRow = {"ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three"};
-    var additionalSimObj = [{
-      "name": "additional simulator config name",
-      "simulatorConfigTemplatePath": "data/template/",
-      "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
-      "simulatorConfigFilenameParam": "{FILE_NAME}",
-      "condition": [
-        {
-          "columnName": "ACCOUNT_TYPE",
-          "conditionalValue": "!=",
-          "columnValue": "%EMPTY%",
-          "format": "%ENCODE SPACES%",
-          "encodeWith": "+"
+    it('should test simulator config with jsonPrimaryNode with filename', function () {
+      var simObj = {
+        "simulatorConfigOutput": "output/00Sim/",
+        "simulatorConfigTemplatePath": "data/template/",
+        "jsonPrimaryNode": "allValues",
+        "jsonMap": {
+          "fileName": "{FILE_NAME}",
+          "matchString": "{VALUE2_ONE}"
         }
-      ]
-    }];
-
-    simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
-    simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} aaa');
-    var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
-    expect(contents).to.equal('ACC+TYPE aaa');
-  });  
-
-  it('should test for generateAdditionalSimulatorConfig with additional sim config and condition with no format option', function () {
-
-    var dataRow = {"ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three"};
-    var additionalSimObj = [{
-      "name": "additional simulator config name",
-      "simulatorConfigTemplatePath": "data/template/",
-      "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
-      "simulatorConfigFilenameParam": "{FILE_NAME}",
-      "condition": [
-        {
-          "columnName": "ACCOUNT_TYPE",
-          "conditionalValue": "!=",
-          "columnValue": "%EMPTY%"
-        }
-      ]
-    }];
-
-    simple.mock(utils, 'checkTemplateConditionalValue').returnWith(false);
-    simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} aaa');
-    var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
-    expect(contents).to.equal('');
-  });
-
-  it('should test for generateAdditionalSimulatorConfig with additional sim config and multiple conditions', function () {
-
-    var dataRow = {"ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three"};
-    var additionalSimObj = [{
-      "name": "additional simulator config name",
-      "simulatorConfigTemplatePath": "data/template/",
-      "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
-      "simulatorConfigFilenameParam": "{FILE_NAME}",
-      "condition": [
-        {
-          "columnName": "ACCOUNT_TYPE",
-          "conditionalValue": "!=",
-          "columnValue": "%EMPTY%"
-        },
-        {
-          "columnName": "STATUS_CODE",
-          "conditionalValue": "!=",
-          "columnValue": "200",
-          "format": "%NO SPACES%"
-        }
-      ]
-    }];
-
-    simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
-    simple.mock(utils, 'readFile').returnWith('abc def');
-
-    var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
-    expect(contents).to.equal('abc defabc def');
-  });
-
-  it('should test for generateAdditionalSimulatorConfig with additional sim config with no condition', function () {
-
-    var dataRow = {"ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three"};
-    var additionalSimObj = [{
-      "name": "additional simulator config name",
-      "simulatorConfigTemplatePath": "data/template/",
-      "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
-      "simulatorConfigFilenameParam": "{FILE_NAME}"
-    }];
-
-    simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
-    simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} def');
-
-    var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
-    expect(contents).to.equal('');
-  });
-
-  it('should test for generateAdditionalSimulatorConfig with columnName not matching', function () {
-
-    var dataRow = {"ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three"};
-    var additionalSimObj = [{
-      "name": "additional simulator config name",
-      "simulatorConfigTemplatePath": "data/template/",
-      "simulatorConfigTemplate": "SIM_ADDITIONAL_CONFIG_FILE.xml",
-      "simulatorConfigFilenameParam": "{FILE_NAME}",
-      "condition": [
-        {
-          "columnName": "VALUE1_ONE",
-          "conditionalValue": "!=",
-          "columnValue": "%EMPTY%"
-        }
-      ]
-    }];
-
-    simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
-    simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} def');
-
-    var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
-    expect(contents).to.equal('');
-  });
-
-});
+      };
+      var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+      var generatedFilename = "00-sim-all.json";
+      simple.mock(utils, 'replaceValues').returnWith('aav'); 
+      var contents = utils.generateSimulatorJSONResponse(dataRow, simObj, generatedFilename );
+      expect(JSON.stringify(contents)).to.equal('{"fileName":"00-sim-all.json","matchString":"one"}');
+    });
+  })
+})
 
 describe('unit tests for getDefaultTemplate function in generator', function () {
   it('should test for getDefaultTemplate', function () {
@@ -1704,6 +1747,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     var simFile = utils.readFile('output/00Simulator/00-sim-basic.xml');
     var simParams = utils.getParameters(simFile);
     expect(simParams.length).to.equal(0);
+    expect(simFile).to.contain('<applicable-to>sim-endpoint-config-name</applicable-to>');
 
     var genFile = utils.readFile('output/sample/BASIC-001.xml');
     var genParams = utils.getParameters(genFile);
@@ -1757,6 +1801,35 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
 
   });
 
+  it('should test for generateTemplateWithJSON for basic config and simulator config with conditions', function () {
+
+    var fileName = './test/data/config/basic-sim-config-with-condition.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var simFiles = utils.getFiles('test/data/output/00Simulator/', simFiles);
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
+    expect(simFiles.length).to.equal(1);
+    expect(fs.existsSync('test/data/output/00Simulator/00-sim-basic.xml')).to.equal(true);
+    expect(configFiles.length).to.equal(2);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.xml')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.xml')).to.equal(true);
+
+    var simFile = utils.readFile('output/00Simulator/00-sim-basic.xml');
+    var simParams = utils.getParameters(simFile);
+    expect(simParams.length).to.equal(0);
+    expect(simFile).to.contain('<applicable-to>sim-endpoint-config-name</applicable-to>');
+    expect(simFile).to.contain('<request-expression>request contains \'ColName>OtherValue\'</request-expression>');
+
+    var genFile = utils.readFile('output/sample/BASIC-001.xml');
+    var genParams = utils.getParameters(genFile);
+    expect(genParams.length).to.equal(0);
+    expect(genFile).to.contain('<UNIQUE_ID>001</UNIQUE_ID>');
+    expect(genFile).to.contain('<VALUE1>Value1</VALUE1>');
+    expect(genFile).to.contain('<VALUE2>Value1</VALUE2>');
+  });
+
   it('should test for generateTemplateWithJSON with multiple templates', function () {
 
     var fileName = './test/data/config/multi-template-with-conditions.json';
@@ -1799,8 +1872,103 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(genFile).to.contain('<VALUE1>Value1</VALUE1>');
     expect(genFile).to.contain('<VALUE2>Value1</VALUE2>');
     expect(genFile).to.contain('<FILTER-VALUE1>Matched1</FILTER-VALUE1>');
-    expect(genFile).to.contain('<FILTER-VALUE2>001</FILTER-VALUE2>');
+    expect(genFile).to.contain('<FILTER-VALUE2>&apos;001</FILTER-VALUE2>');
 
+  });
+
+  it('should test for generateTemplateWithJSON with filtered templates (json)', function () {
+
+    var fileName = './test/data/config/json-filtered-template.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
+    expect(configFiles.length).to.equal(2);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.json')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.json')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.json')).to.equal(false);
+
+    var genFile = utils.readFile('output/sample/BASIC-001.json');
+    var genParams = utils.getParameters(genFile);
+    expect(genParams.length).to.equal(0);
+    expect(genFile).to.contain('"id": "001"');
+    expect(genFile).to.contain('"value1": "Value1"');
+    expect(genFile).to.contain('"value2": "Value1"');
+    expect(genFile).to.contain('"existingValue": "existing value goes here"');
+    expect(genFile).to.contain('"filterValue1": "\'002"');
+    expect(genFile).to.contain('"filterValue2": "Matched1"');
+  });
+
+  it('should test for generateTemplateWithJSON with filtered templates with separator', function () {
+
+    var fileName = './test/data/config/json-filtered-template-with-separator.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
+    expect(configFiles.length).to.equal(2);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.json')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.json')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.json')).to.equal(false);
+
+    var genFile = utils.readFile('output/sample/BASIC-001.json');
+    var genParams = utils.getParameters(genFile);
+    expect(genParams.length).to.equal(0);
+    expect(genFile).to.contain('"id": "001"');
+    expect(genFile).to.contain('"value1": "Value1"');
+    expect(genFile).to.contain('"value2": "Value1"');
+    expect(genFile).to.contain('"existingValue": "existing value goes here"');
+    expect(genFile).to.contain('"\'001 Matched1" ||   "\'002 Matched1"');
+  });
+
+  it('should test for generateTemplateWithJSON with filtered templates (applyTemplate)', function () {
+
+    // multi level filter template
+    var fileName = './test/data/config/json-filtered-template-with-apply-template.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
+    expect(configFiles.length).to.equal(2);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.json')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.json')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.json')).to.equal(false);
+
+    var genFile = utils.readFile('output/sample/BASIC-001.json');
+    var genParams = utils.getParameters(genFile);
+    expect(genParams.length).to.equal(0);
+    expect(genFile).to.contain('"id": "001"');
+    expect(genFile).to.contain('"value1": "Value1"');
+    expect(genFile).to.contain('"value2": "Value1"');
+    expect(genFile).to.contain('"existingValue": "existing value goes here"');
+    expect(genFile).to.contain('"filterValue2": "Matched1"');
+  });
+
+  it('should test for generateTemplateWithJSON with filtered templates with condition', function () {
+
+    var fileName = './test/data/config/json-filtered-template-with-condition.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
+    expect(configFiles.length).to.equal(2);
+    expect(fs.existsSync('test/data/output/sample/BASIC-001.json')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-002.json')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/BASIC-003.json')).to.equal(false);
+
+    var genFile = utils.readFile('output/sample/BASIC-001.json');
+    var genParams = utils.getParameters(genFile);
+    expect(genParams.length).to.equal(0);
+    expect(genFile).to.contain('"id": "001"');
+    expect(genFile).to.contain('"value1": "Value1"');
+    expect(genFile).to.contain('"value2": "Value1"');
+    expect(genFile).to.contain('"existingValue": "existing value goes here"');
+    expect(genFile).to.contain('"filterValue1": "\'002"');
+    expect(genFile).to.contain('"filterValue2": "Matched1"');
   });
 
   it('should test for generateTemplateWithJSON with mapped templates', function () {
@@ -1830,6 +1998,161 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(genFile2).to.contain('<UNIQUE_ID>002</UNIQUE_ID>');
     expect(genFile2).to.contain('<MAP>\n        <MAP-VALUE1>Value1</MAP-VALUE1>\n        <MAP-VALUE2>Value1</MAP-VALUE2>\n        <MAP-VALUE3></MAP-VALUE3>\n    </MAP>\n    <MAP>\n        <MAP-VALUE1>Value</MAP-VALUE1>\n        <MAP-VALUE2>Value</MAP-VALUE2>\n        <MAP-VALUE3>Value</MAP-VALUE3>\n    </MAP>\n\n</SampleRs>');
 
+  });
+
+  it('should test for generateTemplateWithJSON with mapped templates (json)', function () {
+    var fileName = './test/data/config/json-mapped-template.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(false);
+
+    var genFile = utils.readFile('output/sample/BASIC-001.json');
+    var genParams = utils.getParameters(genFile);
+    expect(genParams.length).to.equal(0);
+    expect(genFile).to.contain('"uniqueId": "001"');
+    expect(genFile).to.contain('"value1": "Value1"');
+    expect(genFile).to.contain('"value2": "Value1"');
+    expect(genFile).to.contain(' "map": [\n    {\n      "mapValue1": "Value1",\n      "mapValue2": "Value1",\n      "mapValue3": "Value1"\n    }\n  ]\n}');
+
+    var genFile2 = utils.readFile('output/sample/BASIC-002.json');
+    var genParams2 = utils.getParameters(genFile2);
+    expect(genParams2.length).to.equal(0);
+    expect(genFile2).to.contain('"uniqueId": "002"');
+    expect(genFile2).to.contain('"value1": "Value1"');
+    expect(genFile2).to.contain('"value2": "Value1"');
+    expect(genFile2).to.contain('"map": [\n    {\n      "mapValue1": "Value",\n      "mapValue2": "Value",\n      "mapValue3": "Value"\n    }\n  ]\n}');
+
+    var genFile3 = utils.readFile('output/sample/BASIC-003.json');
+    var genParams3 = utils.getParameters(genFile2);
+    expect(genParams3.length).to.equal(0);
+    expect(genFile3).to.contain('"uniqueId": "003"');
+    expect(genFile3).to.contain('"value1": "Value1"');
+    expect(genFile3).to.contain('"value2": "Value1"');
+    expect(genFile3).to.contain('"map": [\n    {\n      "mapValue1": "Value1",\n      "mapValue2": "Value1",\n      "mapValue3": null\n    }\n  ]\n}');
+  });
+
+  it('should test for generateTemplateWithJSON with mapped templates with transform', function () {
+
+    var fileName = './test/data/config/json-mapped-template-with-transform.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(false);
+
+    var genFile = utils.readFile('output/sample/BASIC-001.json');
+    var genParams = utils.getParameters(genFile);
+    expect(genParams.length).to.equal(0);
+    expect(genFile).to.contain('"uniqueId": "001"');
+    expect(genFile).to.contain('"value1": "Value1"');
+    expect(genFile).to.contain('"value2": "Value1"');
+    expect(genFile).to.contain('"map": [\n    {\n      "mapValue1": "value 1",\n      "mapValue2": "value2",\n      "mapValue3": "Value1"\n    }\n  ]\n}');
+
+    var genFile2 = utils.readFile('output/sample/BASIC-002.json');
+    var genParams2 = utils.getParameters(genFile2);
+    expect(genParams2.length).to.equal(0);
+    expect(genFile2).to.contain('"uniqueId": "002"');
+    expect(genFile2).to.contain('"value1": "Value1"');
+    expect(genFile2).to.contain('"value2": "Value1"');
+    expect(genFile2).to.contain('"map": [\n    {\n      "mapValue1": "Value",\n      "mapValue2": "Value",\n      "mapValue3": "Value"\n    }\n  ]\n}');
+
+    var genFile3 = utils.readFile('output/sample/BASIC-003.json');
+    var genParams3 = utils.getParameters(genFile2);
+    expect(genParams3.length).to.equal(0);
+    expect(genFile3).to.contain('"uniqueId": "003"');
+    expect(genFile3).to.contain('"value1": "Value1"');
+    expect(genFile3).to.contain('"value2": "Value1"');
+    expect(genFile3).to.contain('"map": [\n    {\n      "mapValue1": "value 1",\n      "mapValue2": "value2",\n      "mapValue3": null\n    }\n  ]\n}');
+  });
+
+  it('should test for generateTemplateWithJSON with mapped templates (split values)', function () {
+
+    var fileName = './test/data/config/json-mapped-template-with-split-values.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(false);
+
+    var genFile = utils.readFile('output/sample/BASIC-001.json');
+    var genParams = utils.getParameters(genFile);
+    expect(genParams.length).to.equal(0);
+    expect(genFile).to.contain('"uniqueId": "001"');
+    expect(genFile).to.contain('"value1": "Value1"');
+    expect(genFile).to.contain('"value2": "Value1"');
+    expect(genFile).to.contain('"map": [\n    {\n      "colValue1": "existing value",\n      "altValue": "one"\n    },\n    {\n      "colValue1": "existing value",\n      "altValue": "two"\n    },\n    {\n      "colValue1": "existing value",\n      "altValue": "three"\n    }\n  ]');
+
+    var genFile2 = utils.readFile('output/sample/BASIC-002.json');
+    var genParams2 = utils.getParameters(genFile2);
+    expect(genParams2.length).to.equal(0);
+    expect(genFile2).to.contain('"uniqueId": "002"');
+    expect(genFile2).to.contain('"value1": "Value1"');
+    expect(genFile2).to.contain('"value2": "Value1"');
+    expect(genFile2).to.contain('"map": [\n    {\n      "colValue1": "existing value",\n      "altValue": "four"\n    },\n    {\n      "colValue1": "existing value",\n      "altValue": "five"\n    }\n  ]');
+
+    var genFile3 = utils.readFile('output/sample/BASIC-003.json');
+    var genParams3 = utils.getParameters(genFile2);
+    expect(genParams3.length).to.equal(0);
+    expect(genFile3).to.contain('"uniqueId": "003"');
+    expect(genFile3).to.contain('"value1": "Value1"');
+    expect(genFile3).to.contain('"value2": "Value1"');
+    expect(genFile3).to.contain('"map": [\n    {\n      "colValue1": "existing value",\n      "altValue": "six"\n    }\n  ]');
+  });
+
+  it('should test for generateTemplateWithJSON with mapped templates (mappedJSONSection)', function () {
+
+    // childMap
+    var fileName = './test/data/config/json-mapped-json-section.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(false);
+
+    var genFile = utils.readFile('output/sample/BASIC-001.json');
+    var genParams = utils.getParameters(genFile);
+    expect(genParams.length).to.equal(0);
+    expect(genFile).to.contain('"uniqueId": "001"');
+    expect(genFile).to.contain('"value1": "Value1"');
+    expect(genFile).to.contain('"value2": "Value1"');
+    expect(genFile).to.contain('"map": [\n    {\n      "mapValue": "Value1"\n    }\n  ]');
+
+    var genFile2 = utils.readFile('output/sample/BASIC-002.json');
+    var genParams2 = utils.getParameters(genFile2);
+    expect(genParams2.length).to.equal(0);
+    expect(genFile2).to.contain('"uniqueId": "002"');
+    expect(genFile2).to.contain('"value1": "Value1"');
+    expect(genFile2).to.contain('"value2": "Value1"');
+    expect(genFile2).to.contain('"map": [\n    {\n      "mapValue": "Value"\n    }\n  ]');
+
+    var genFile3 = utils.readFile('output/sample/BASIC-003.json');
+    var genParams3 = utils.getParameters(genFile2);
+    expect(genParams3.length).to.equal(0);
+    expect(genFile3).to.contain('"uniqueId": "003"');
+    expect(genFile3).to.contain('"value1": "Value1"');
+    expect(genFile3).to.contain('"value2": "Value1"');
+    expect(genFile3).to.contain('"map": [\n    {\n      "mapValue": null\n    }\n  ]');
+  });
+
+  it('should test for generateTemplateWithJSON with mapped templates with conditions (conditions not met)', function () {
+
+    var fileName = './test/data/config/json-mapped-template-with-conditions.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(false);
+
+    var genFile = utils.readFile('output/sample/BASIC-001.json');
+    var genParams = utils.getParameters(genFile);
+    expect(genParams.length).to.equal(1);
+    expect(genFile).to.contain('"uniqueId": "001"');
+    expect(genFile).to.contain('"value1": "Value1"');
+    expect(genFile).to.contain('"value2": "Value1"');
+    // expect nothing to be replaced
+    expect(genFile).to.contain('{REPLACEMENT_PARAMETER}\n}');
   });
 
   it('should test for generateTemplateWithJSON with other template', function () {
@@ -1997,12 +2320,37 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     var genFile1 = utils.readFile('output/sample/json-basic-condition-001.json');
     var genParams1 = utils.getParameters(genFile1);
     expect(genParams1.length).to.equal(0);
-    expect(genFile1).to.equal('{\n    "id": "001",\n    "value1": "Value1",\n    "value2": "Value1",\n    "existingValue": "existing value goes here"\n    "optional-value": "SINGLE_CONDITION_VALUE"\n}');
+    expect(genFile1).to.equal('{\n  "id": "001",\n  "value1": "Value1",\n  "value2": "Value1",\n  "existingValue": "existing value goes here",\n  "optional-value": "SINGLE_CONDITION_VALUE"\n}');
 
     var genFile2 = utils.readFile('output/sample/json-basic-condition-002.json');
     var genParams2 = utils.getParameters(genFile2);
     expect(genParams2.length).to.equal(0);
     expect(genFile2).to.equal('{\n  "id": "002",\n  "value1": "Value1",\n  "value2": "Value1",\n  "existingValue": "existing value goes here"\n}');
+  });
+
+  it('should test for generateTemplateWithJSON with json template (fixedMappingValues)', function () {
+    // apply mappings ignoring any conditions
+    // eg. {column1}  must always be replaces with "col1"
+    var fileName = './test/data/config/json-basic-fixed-mapping-values.json';
+    utils.generateTemplateWithJSON(fileName);
+
+    var configFiles = utils.getFiles('test/data/output/sample/', configFiles);
+
+    expect(fs.existsSync('test/data/output/00Simulator')).to.equal(true);
+    expect(configFiles.length).to.equal(2);
+    expect(fs.existsSync('test/data/output/sample/json-basic-001.json')).to.equal(true);
+    expect(fs.existsSync('test/data/output/sample/json-basic-002.json')).to.equal(true);
+
+    var genFile1 = utils.readFile('output/sample/json-basic-001.json');
+    var genParams1 = utils.getParameters(genFile1);
+    expect(genParams1.length).to.equal(0);
+    expect(genFile1).to.equal('{\n  "id": "001",\n  "value1": "sheet1_value1",\n  "value2": "Value1",\n  "existingValue": "existing value goes here"\n}');
+
+    var genFile2 = utils.readFile('output/sample/json-basic-002.json');
+    var genParams2 = utils.getParameters(genFile2);
+    expect(genParams2.length).to.equal(0);
+    expect(genFile2).to.equal('{\n  "id": "002",\n  "value1": "sheet1_value1",\n  "value2": "Value1",\n  "existingValue": "existing value goes here"\n}');
+
   });
 
   it('should test for generateTemplateWithJSON for custom delimeter config', function () {
@@ -2030,7 +2378,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(genFile).to.contain('<UNIQUE_ID>001</UNIQUE_ID>');
     expect(genFile).to.contain('<VALUE1>Value1</VALUE1>');
     expect(genFile).to.contain('<VALUE2>Value1</VALUE2>');
-  });  
+  });
 
   it('should test for generateTemplateWithJSON for useGenRowFlag config', function () {
 
@@ -2057,7 +2405,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(genFile).to.contain('<UNIQUE_ID>002</UNIQUE_ID>');
     expect(genFile).to.contain('<VALUE1>Value1</VALUE1>');
     expect(genFile).to.contain('<VALUE2>Value1</VALUE2>');
-  });  
+  });
 
   it('should test for generateTemplateWithJSON for useGenRowFlag config', function () {
 
@@ -2084,7 +2432,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(genFile).to.contain('<UNIQUE_ID>002</UNIQUE_ID>');
     expect(genFile).to.contain('<VALUE1>Value1</VALUE1>');
     expect(genFile).to.contain('<VALUE2>Value1</VALUE2>');
-  }); 
+  });
 
   it('should test for generateTemplateWithJSON for basic config apply transform to values (all values)', function () {
 
@@ -2111,7 +2459,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(genFile).to.contain('<UNIQUE_ID>001</UNIQUE_ID>');
     expect(genFile).to.contain('<VALUE1>value 1</VALUE1>');
     expect(genFile).to.contain('<VALUE2>value2</VALUE2>');
-  });  
+  });
 
   it('should test for generateTemplateWithJSON for basic config apply transform to value (single value transform)', function () {
 
@@ -2138,7 +2486,7 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(genFile).to.contain('<UNIQUE_ID>001</UNIQUE_ID>');
     expect(genFile).to.contain('<VALUE1>value 1</VALUE1>');
     expect(genFile).to.contain('<VALUE2>Value1</VALUE2>');
-  });    
+  });
 
 });
 
