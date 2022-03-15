@@ -31,6 +31,191 @@ describe('unit tests for getParameters function in generator', function () {
     expect(utils.getParameters(addressInput).length).to.equal(0);
   });
 
+  it('should test match for hasMockoonResponseHelperFormat (true) in genObj config - 0 matches (faker & time format)', function () {
+    fsmock({
+      'test/data/template': {
+        'test.json': '{"value" : "{{faker \'random.uuid\'}}", "value1": "{{now \'yyyy-MM-dd\'}}T{{now \'HH:mm:ssxxx\'}} "}'
+      }
+    });
+    simple.mock(fs, 'readFileSync');
+
+    let genObj = {
+      hasMockoonResponseHelperFormat: true
+    }
+
+    var templateInput = fs.readFileSync('./test/data/template/test.json', { encoding: 'utf-8' });
+    expect(utils.getParameters(templateInput, genObj).length).to.equal(0);
+    fsmock.restore();
+  });
+
+  it('should test match for hasMockoonResponseHelperFormat (true) in genObj config - 0 matches (time)', function () {
+    fsmock({
+      'test/data/template': {
+        'test.json': '{"value" : "{{time \'09:00\' \'10:00\' \'HH:mm\'}}", "value1": "{{now \'yyyy-MM-dd\'}} "}'
+      }
+    });
+    simple.mock(fs, 'readFileSync');
+
+    let genObj = {
+      hasMockoonResponseHelperFormat: true
+    }
+
+    var templateInput = fs.readFileSync('./test/data/template/test.json', { encoding: 'utf-8' });
+    expect(utils.getParameters(templateInput, genObj).length).to.equal(0);
+    fsmock.restore();
+  });
+
+  it('should test match for hasMockoonResponseHelperFormat (true) in genObj config - 0 matches (complex datetime)', function () {
+    fsmock({
+      'test/data/template': {
+        'test.json': '{"value" : "{{date \'2020-11-20\' \'2020-11-25\' "yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\'"}}" "}'
+      }
+    });
+    simple.mock(fs, 'readFileSync');
+
+    let genObj = {
+      hasMockoonResponseHelperFormat: true
+    }
+
+    var templateInput = fs.readFileSync('./test/data/template/test.json', { encoding: 'utf-8' });
+    expect(utils.getParameters(templateInput, genObj).length).to.equal(0);
+    fsmock.restore();
+  });
+
+  it('should test match for hasMockoonResponseHelperFormat (true) in genObj config - 0 matches (header)', function () {
+    fsmock({
+      'test/data/template': {
+        'test.json': '{"value" : "value2": "{{header \'MessageID\'}}" "value3": "{{header \'MessageID\' \'f77798de-6a43-4980-ba3c-411ebaeb123e\'}}" "}'
+      }
+    });
+    simple.mock(fs, 'readFileSync');
+
+    let genObj = {
+      hasMockoonResponseHelperFormat: true
+    }
+
+    var templateInput = fs.readFileSync('./test/data/template/test.json', { encoding: 'utf-8' });
+    expect(utils.getParameters(templateInput, genObj).length).to.equal(0);
+    fsmock.restore();
+  });
+
+  it('should test match for hasMockoonResponseHelperFormat (true) in genObj config - 0 matches (queryParam)', function () {
+    fsmock({
+      'test/data/template': {
+        'test.json': '{"value" : "{{queryParam \'path.to.property\'}}"}'
+      }
+    });
+    simple.mock(fs, 'readFileSync');
+
+    let genObj = {
+      hasMockoonResponseHelperFormat: true
+    }
+
+    var templateInput = fs.readFileSync('./test/data/template/test.json', { encoding: 'utf-8' });
+    expect(utils.getParameters(templateInput, genObj).length).to.equal(0);
+    fsmock.restore();
+  });
+
+  it('should test match for hasMockoonResponseHelperFormat (true) in genObj config - 0 matches (includes)', function () {
+    fsmock({
+      'test/data/template': {
+        'test.json': '{"value" : "{{includes \'Some data\' \'data\'}}"}'
+      }
+    });
+    simple.mock(fs, 'readFileSync');
+
+    let genObj = {
+      hasMockoonResponseHelperFormat: true
+    }
+
+    var templateInput = fs.readFileSync('./test/data/template/test.json', { encoding: 'utf-8' });
+    expect(utils.getParameters(templateInput, genObj).length).to.equal(0);
+    fsmock.restore();
+  });
+
+  it('should test match for hasMockoonResponseHelperFormat (true) in genObj config - 0 matches (substr)', function () {
+    fsmock({
+      'test/data/template': {
+        'test.json': '{"value" : "{{substr \'Some data\' 5 4}}"}'
+      }
+    });
+    simple.mock(fs, 'readFileSync');
+
+    let genObj = {
+      hasMockoonResponseHelperFormat: true
+    }
+
+    var templateInput = fs.readFileSync('./test/data/template/test.json', { encoding: 'utf-8' });
+    expect(utils.getParameters(templateInput, genObj).length).to.equal(0);
+    fsmock.restore();
+  });
+
+  it('should test match for hasMockoonResponseHelperFormat (true) in genObj config - 0 matches (int (range))', function () {
+    fsmock({
+      'test/data/template': {
+        'test.json': '{"value" : "{{int 0 100}}"}'
+      }
+    });
+    simple.mock(fs, 'readFileSync');
+
+    let genObj = {
+      hasMockoonResponseHelperFormat: true
+    }
+
+    var templateInput = fs.readFileSync('./test/data/template/test.json', { encoding: 'utf-8' });
+    expect(utils.getParameters(templateInput, genObj).length).to.equal(0);
+    fsmock.restore();
+  });
+
+  it('should test match for hasMockoonResponseHelperFormat (true) in genObj config - 0 matches (objectId)', function () {
+    fsmock({
+      'test/data/template': {
+        'test.json': '{"value" : "{{objectId 141409 3117}}", "value2": "{{objectId \'54495ad94c934721ede76d90\'}}"}'
+      }
+    });
+    simple.mock(fs, 'readFileSync');
+
+    let genObj = {
+      hasMockoonResponseHelperFormat: true
+    }
+
+    var templateInput = fs.readFileSync('./test/data/template/test.json', { encoding: 'utf-8' });
+    expect(utils.getParameters(templateInput, genObj).length).to.equal(0);
+    fsmock.restore();
+  });
+
+  it('should test match for hasMockoonResponseHelperFormat (true) in genObj config - 1 match', function () {
+    fsmock({
+      'test/data/template': {
+        'test.json': '{"value" : "{{faker \'random.uuid\'}}", "value1": "{paramVal}"}'
+      }
+    });
+    simple.mock(fs, 'readFileSync');
+
+    let genObj = {
+      hasMockoonResponseHelperFormat: true
+    }
+    var templateInput = fs.readFileSync('./test/data/template/test.json', { encoding: 'utf-8' });
+    expect(utils.getParameters(templateInput, genObj).length).to.equal(1);
+    fsmock.restore();
+  });
+
+  it('should test match for hasMockoonResponseHelperFormat (false) in genObj config - 2 match', function () {
+    fsmock({
+      'test/data/template': {
+        'test.json': '{"value" : "{{faker \'random.uuid\'}}", "value1": "{paramVal}"}'
+      }
+    });
+    simple.mock(fs, 'readFileSync');
+
+    let genObj = {
+      hasMockoonResponseHelperFormat: false
+    }
+    var templateInput = fs.readFileSync('./test/data/template/test.json', { encoding: 'utf-8' });
+    expect(utils.getParameters(templateInput, genObj).length).to.equal(2);
+    fsmock.restore();
+  });
+
 });
 
 describe('unit tests for readContentsOfWorksheet function in generator', function () {
@@ -237,6 +422,16 @@ describe('unit tests for escapeJSON function in generator', function () {
   it('should JSON is escaped "\\t"', function () {
     var str = 'abc\tthere';
     expect(utils.escapeJSON(str)).to.equal('abc\\tthere');
+  });
+
+  it('should JSON is escaped "\\n"', function () {
+    var str = 'abc\nthere';
+    expect(utils.escapeJSON(str)).to.equal('abc\\nthere');
+  });
+
+  it('should JSON is escaped "\&"', function () {
+    var str = 'abc & there';
+    expect(utils.escapeJSON(str)).to.equal('abc \\\\& there');
   });
 });
 
@@ -1715,8 +1910,8 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
       };
       var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
       var generatedFilename = "00-sim-all.json";
-      simple.mock(utils, 'replaceValues').returnWith('aav'); 
-      var contents = utils.generateSimulatorJSONResponse(dataRow, simObj, generatedFilename );
+      simple.mock(utils, 'replaceValues').returnWith('aav');
+      var contents = utils.generateSimulatorJSONResponse(dataRow, simObj, generatedFilename);
       expect(JSON.stringify(contents)).to.equal('{"VALUE1_ONE":"v1","VALUE2_ONE":"v2"}');
     });
 
@@ -1732,8 +1927,8 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
       };
       var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
       var generatedFilename = "00-sim-all.json";
-      simple.mock(utils, 'replaceValues').returnWith('aav'); 
-      var contents = utils.generateSimulatorJSONResponse(dataRow, simObj, generatedFilename );
+      simple.mock(utils, 'replaceValues').returnWith('aav');
+      var contents = utils.generateSimulatorJSONResponse(dataRow, simObj, generatedFilename);
       expect(JSON.stringify(contents)).to.equal('{"fileName":"00-sim-all.json","matchString":"one"}');
     });
   })

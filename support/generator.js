@@ -28,7 +28,7 @@ var generatorUtils = {
     return delim
   },
 
-  getParameters: function getParameters(template) {
+  getParameters: function getParameters(template, genObj) {
     let delim = generatorUtils.getDelimiters()
     /* Match from template file */
 
@@ -47,9 +47,18 @@ var generatorUtils = {
     if (_.isObject(templateParameters)) {
       //create array of matches for the parameters name values
       Object.keys(templateParameters).forEach(function (p) {
-        // delim values do not need to be escaped when used here
-        param = templateParameters[p].toString().replace(delim.startDelim, "").replace(delim.endDelim, "");
-        parameters.push(param);
+        let mockoonParamMatch = null
+        // add check for single line mockoon response helpers (faker, header, now, date)
+        // eg. {{faker 'random.uuid'}}
+        if(genObj && genObj.hasOwnProperty('hasMockoonResponseHelperFormat') && genObj.hasMockoonResponseHelperFormat) {
+          mockoonParamMatch = templateParameters[p].match(/(?<=\{\{)\w+ |(\d+ \d+){1}|('[\w\.\-\: ]+' ?){1,}| ?(\d+ \d+){1}(?=\})/)
+        }
+        // only add to parameters array if not checking if mockoonParam
+        if(_.isNull(mockoonParamMatch)) {
+          // delim values do not need to be escaped when used here
+          param = templateParameters[p].toString().replace(delim.startDelim, "").replace(delim.endDelim, "");
+          parameters.push(param);
+        }
       });
     }
     //can return empty array if no matches found in parameters
@@ -1109,7 +1118,7 @@ var generatorUtils = {
 
     if (otherTemplate.fileName !== '%NONE%') {
       var template = generatorUtils.readFile(pathToOtherTemplate);
-      var parameters = generatorUtils.getParameters(template);
+      var parameters = generatorUtils.getParameters(template, genObj);
       //if no parameters found, just return the template file
       if (parameters.length > 0) {
         return generatorUtils.replaceValues(genObj, dataRow, parameters, template);
@@ -1253,7 +1262,7 @@ var generatorUtils = {
         /* Read the file */
         result.template = generatorUtils.readFile(pathToTemplate);
       }
-      result.parameters = generatorUtils.getParameters(result.template);
+      result.parameters = generatorUtils.getParameters(result.template, generatorObj);
       return result;
     } else {
       new Error("Unable to find default template");
@@ -1446,7 +1455,7 @@ var generatorUtils = {
             } 
             if(useConditionalTemplate) {
               parentTemplate = generatorUtils.readFile(conditionSec.templateFile)
-              let cParameters = generatorUtils.getParameters(parentTemplate);
+              let cParameters = generatorUtils.getParameters(parentTemplate, generatorObj);
               parentTemplate = generatorUtils.replaceValues(generatorObj, data[r], cParameters, parentTemplate);
             }
             resultsFile = resultsFile.replace(conditionSec.parameter, parentTemplate)
@@ -1575,7 +1584,7 @@ var generatorUtils = {
         //==========================================\\
         // FINAL check if any parameters have NOT been updated
         //==========================================\\
-        var checkParameters = generatorUtils.getParameters(resultsFile);
+        var checkParameters = generatorUtils.getParameters(resultsFile, generatorObj);
         if (checkParameters.length > 0) {
           //apply default values
           console.log('NOT all PARAMETERS have been mapped!')
