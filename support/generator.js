@@ -529,7 +529,7 @@ var generatorUtils = {
                   paramValue = null
                 }
               } else {
-                // if not then likely to be repeating grp value > so sould be empty
+                // if not then likely to be repeating grp value > so should be empty
                 // eg. {ADDRESS}
                 if(pNameRegEx.test(resultsFile)) {
                   paramValue = ''

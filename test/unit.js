@@ -218,6 +218,26 @@ describe('unit tests for escapeJSON function in generator', function () {
     var str = 'Hello \\world\\ and \bbold\b';
     expect(utils.escapeJSON(str)).to.equal('Hello \\\\world\\\\ and \\bbold\\b');
   });
+
+  it('should JSON is escaped \'', function () {
+    var str = 'bob\'s here';
+    expect(utils.escapeJSON(str)).to.equal("bob\\\\'s here");
+  });
+
+  it('should JSON is escaped "\'"', function () {
+    var str = "bob's here";
+    expect(utils.escapeJSON(str)).to.equal("bob\\\\'s here");
+  });
+
+  it('should JSON is escaped \"', function () {
+    var str = '"hi" there';
+    expect(utils.escapeJSON(str)).to.equal('\\\"hi\\\" there');
+  });
+
+  it('should JSON is escaped "\\t"', function () {
+    var str = 'abc\tthere';
+    expect(utils.escapeJSON(str)).to.equal('abc\\tthere');
+  });
 });
 
 describe('unit tests for removeSpacesFromString function in generator', function () {
@@ -477,6 +497,23 @@ describe('unit tests for replaceValues function in generator', function () {
 
     var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
     expect(res).to.equal('abc four def');
+
+  });
+
+  it('should test for replaceValues with setAsDefaultValue', function () {
+
+    var genObj = {
+      "profileName": "test-profile",
+      "setAsDefaultValue": "AAA"
+    };
+    var dataRow = { "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
+    var resultsFile = "abc {VALUE1_ONE} def";
+    var incrementalValue = 1;
+    var sumTotal = 1;
+
+    var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
+    expect(res).to.equal('abc AAA def');
 
   });
 
