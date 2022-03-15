@@ -611,9 +611,9 @@ describe('unit tests for replaceValues function in generator', function () {
   var genObj = {
     "profileName": "test-profile",
     "output": {
-      "folder": "output/custcpidinq/",
-      "fileNamePrefix": "CPID-RelMgr-",
-      "fileIdColumn": "CONTROLLING_POST",
+      "folder": "output/folder/",
+      "fileNamePrefix": "Pre-",
+      "fileIdColumn": "ID_COL",
       "fileExtension": ".xml"
     }
   };
@@ -661,10 +661,10 @@ describe('unit tests for replaceValues function in generator', function () {
     var genObj = {
       "profileName": "test-profile",
       "output": {
-        "folder": "output/custcpidinq/",
-        "fileNamePrefix": "CPID-RelMgr-",
-        "fileIdColumn": "CONTROLLING_POST",
         "fileExtension": ".pdf"
+        "folder": "output/folder/",
+        "fileNamePrefix": "Pre-",
+        "fileIdColumn": "ID_COL",
       }
     };
 
@@ -807,9 +807,9 @@ describe('unit tests for replaceValues function in generator', function () {
     var genObj = {
       "profileName": "test-profile",
       "output": {
-        "folder": "output/custcpidinq/",
-        "fileNamePrefix": "CPID-RelMgr-",
-        "fileIdColumn": "CONTROLLING_POST",
+        "folder": "output/folder/",
+        "fileNamePrefix": "Pre-",
+        "fileIdColumn": "ID_COL",
         "fileExtension": ".xml"
       },
       "positionBasedTemplate": [
@@ -846,9 +846,9 @@ describe('unit tests for replaceValues function in generator', function () {
     var genObj = {
       "profileName": "test-profile",
       "output": {
-        "folder": "output/custcpidinq/",
-        "fileNamePrefix": "CPID-RelMgr-",
-        "fileIdColumn": "CONTROLLING_POST",
+        "folder": "output/folder/",
+        "fileNamePrefix": "Pre-",
+        "fileIdColumn": "ID_COL",
         "fileExtension": ".xml"
       },
       "positionBasedTemplate": [
@@ -886,14 +886,14 @@ describe('unit tests for replaceValues function in generator', function () {
 
 describe('unit tests for checkTagsMatch function in generator', function () {
   it('should test for checkTagsMatch for true match', function () {
-    var tagsToMatch = "ALL,DEFAULT,NO_DDA,NO_CDA,NO_PCA,NO_OLL,NO_ILS,OTHER,DNO_OLL";
+    var tagsToMatch = "ALL,DEFAULT,NO_D,NO_C,NO_P,NO_O,NO_I,OTHER,DNO_O";
     var tag = 'DEFAULT';
     var contents = utils.checkTagsMatch(tagsToMatch, tag);
     expect(contents).to.equal(true);
   });
 
   it('should test for checkTagsMatch for no match', function () {
-    var tagsToMatch = "ALL,DEFAULT,NO_DDA,NO_CDA,NO_PCA,NO_OLL,NO_ILS,OTHER,DNO_OLL";
+    var tagsToMatch = "ALL,DEFAULT,NO_D,NO_C,NO_P,NO_O,NO_I,OTHER,DNO_O";
     var tag = 'APPLE';
     var contents = utils.checkTagsMatch(tagsToMatch, tag);
     expect(contents).to.equal(false);
