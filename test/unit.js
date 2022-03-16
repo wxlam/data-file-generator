@@ -7,7 +7,6 @@ var utils = require('../support/generator.js');
 var fs = require('fs');
 var fsExtra = require('fs-extra');
 var xlsx = require('xlsx');
-var fse = require('fs-extra');
 var fsmock = require('mock-fs');
 var _ = require('lodash')
 
@@ -624,7 +623,6 @@ describe('unit tests for replaceValues function in generator', function () {
     var parameters = [];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
-    var sumTotal = 1;
 
     var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
     expect(res).to.equal('abc {VALUE1_ONE} def');
@@ -637,7 +635,6 @@ describe('unit tests for replaceValues function in generator', function () {
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
-    var sumTotal = 1;
 
     var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
     expect(res).to.equal('abc four def');
@@ -650,7 +647,6 @@ describe('unit tests for replaceValues function in generator', function () {
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = '';
-    // var sumTotal = 1;
 
     var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
     expect(res).to.equal('abc four def');
@@ -661,7 +657,7 @@ describe('unit tests for replaceValues function in generator', function () {
     var genObj = {
       "profileName": "test-profile",
       "output": {
-        "fileExtension": ".pdf"
+        "fileExtension": ".pdf",
         "folder": "output/folder/",
         "fileNamePrefix": "Pre-",
         "fileIdColumn": "ID_COL",
@@ -672,7 +668,6 @@ describe('unit tests for replaceValues function in generator', function () {
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
-    var sumTotal = 1;
 
     var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
     expect(res).to.equal('abc four def');
@@ -688,7 +683,6 @@ describe('unit tests for replaceValues function in generator', function () {
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
-    var sumTotal = 1;
 
     var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
     expect(res).to.equal('abc four def');
@@ -705,7 +699,6 @@ describe('unit tests for replaceValues function in generator', function () {
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
-    var sumTotal = 1;
 
     var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
     expect(res).to.equal('abc AAA def');
@@ -724,7 +717,6 @@ describe('unit tests for replaceValues function in generator', function () {
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
-    var sumTotal = 1;
 
     var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
     expect(res).to.equal('abc four def');
@@ -745,7 +737,6 @@ describe('unit tests for replaceValues function in generator', function () {
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
-    var sumTotal = 1;
     var simIndex = 0;
 
     var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue, simIndex);
@@ -769,7 +760,6 @@ describe('unit tests for replaceValues function in generator', function () {
     var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
     var resultsFile = "abc {VALUE1_ONE} def";
     var incrementalValue = 1;
-    var sumTotal = 1;
     var simIndex = 1;
 
     var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue, simIndex);
@@ -782,7 +772,6 @@ describe('unit tests for replaceValues function in generator', function () {
     var parameters = ["%AUTO_INCREMENT%", "VALUE2_ONE"];
     var resultsFile = "abc {%AUTO_INCREMENT%} def";
     var incrementalValue = 1;
-    var sumTotal = 1;
 
     var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
     expect(res).to.equal('abc 1 def');
@@ -795,7 +784,6 @@ describe('unit tests for replaceValues function in generator', function () {
     var parameters = ["%SUM_TOTAL%", "VALUE2_ONE"];
     var resultsFile = "abc {%SUM_TOTAL%} def";
     var incrementalValue = 2;
-    var sumTotal = 1;
 
     var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
     expect(res).to.equal('abc 2 def');
@@ -1267,8 +1255,7 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
     expect(res).to.equal('abc  def');
   });
 
-  // not working
-  it.skip('should test for getMatchingFilteredSet does not have matching filteredSection property - templateFromFile', function () {
+  it('should test for getMatchingFilteredSet does not have matching filteredSection property - sectionSheetTagColumn', function () {
 
     genObj = {
       "profileName": "test-profile",
@@ -1317,15 +1304,9 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
       "fileName": "template.xml",
       "replacementParamName": "{REPLACE_VALUE}"
     });
-    // simple.mock(utils, 'replaceValues').returnWith('abc test def');
-    // simple.mock(utils, 'readFile').returnWith('aa bb cc dd');
-    // var spy = simple.spy(utils, 'getMatchingFilteredSet');
-    utils.getMatchingFilteredSet(genObj, workbook, filteredSetConfigObj)
 
-
-
-    expect(simple.spy.callCount).to.be.above(0);
-    expect(simple.spy.lastCall.threw, Error);
+    let err = 'Cannot read property \'sectionSheetTagColumn\' of undefined'
+    expect(function () { utils.getMatchingFilteredSet(genObj, workbook, filteredSetConfigObj); }).to.throw(err)
   });
 
 });
@@ -2785,8 +2766,4 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(genFile).to.contain('<VALUE1>value 1</VALUE1>');
     expect(genFile).to.contain('<VALUE2>Value1</VALUE2>');
   });
-
 });
-
-
-
