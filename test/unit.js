@@ -664,46 +664,46 @@ describe('unit tests for checkKeyNameExists function in generator', function () 
 describe('unit tests for padOutParamValues function in generator', function () {
   it('should test the param length is 40', function () {
     var paramObject = {
-      "paramName": "{RELATIONSHIP_MANAGER_NAME}",
+      "paramName": "{MGR_NAME}",
       "paramLength": 40,
       "padding": {
         "padWith": " ",
         "leadingWith": false
       }
     };
-    var param = "ABCDDADADA";
+    var param = "ABCDADADA";
     var contents = utils.padOutParamValues(paramObject, param);
     expect(contents.length).to.equal(40);
   });
 
   it('should test for pad out content with trailing pad width', function () {
     var paramObject = {
-      "paramName": "{RELATIONSHIP_MANAGER_NAME}",
+      "paramName": "{MGR_NAME}",
       "paramLength": 40,
       "padding": {
         "padWith": "Q",
         "leadingWith": false
       }
     };
-    var param = "ABCDDADADA";
+    var param = "ABCDADADA";
     var contents = utils.padOutParamValues(paramObject, param);
     expect(contents.length).to.equal(40);
-    expect(contents).to.equal('ABCDDADADAQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ');
+    expect(contents).to.equal('ABCDADADAQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ');
   });
 
   it('should test for pad out content with leading pad width', function () {
     var paramObject = {
-      "paramName": "{RELATIONSHIP_MANAGER_NAME}",
+      "paramName": "{MGR_NAME}",
       "paramLength": 40,
       "padding": {
         "padWith": "Q",
         "leadingWith": true
       }
     };
-    var param = "ABCDDADADA";
+    var param = "ABCDADADA";
     var contents = utils.padOutParamValues(paramObject, param);
     expect(contents.length).to.equal(40);
-    expect(contents).to.equal('QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQABCDDADADA');
+    expect(contents).to.equal('QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQABCDADADA');
   });
 });
 
@@ -1499,7 +1499,7 @@ describe('unit tests for getMatchingPositionBasedValue function in generator', f
   it('should test for getMatchingPositionBasedValue for position', function () {
     var positionObject = [
       {
-        "paramName": "{RELATIONSHIP_MANAGER_NAME}",
+        "paramName": "{MGR_NAME}",
         "paramLength": 40,
         "padding": {
           "padWith": " ",
@@ -1514,10 +1514,10 @@ describe('unit tests for getMatchingPositionBasedValue function in generator', f
           "leadingWith": false
         }
       }];
-    var param = '{RELATIONSHIP_MANAGER_NAME}';
+    var param = '{MGR_NAME}';
     var contents = utils.getMatchingPositionBasedValue(positionObject, param);
     var expResult = {
-      "paramName": "{RELATIONSHIP_MANAGER_NAME}",
+      "paramName": "{MGR_NAME}",
       "paramLength": 40,
       "padding": {
         "padWith": " ",
@@ -1530,7 +1530,7 @@ describe('unit tests for getMatchingPositionBasedValue function in generator', f
   it('should test for getMatchingPositionBasedValue for no match', function () {
     var positionObject = [
       {
-        "paramName": "{RELATIONSHIP_MANAGER_NAME}",
+        "paramName": "{MGR_NAME}",
         "paramLength": 40,
         "padding": {
           "padWith": " ",
@@ -1555,11 +1555,11 @@ describe('unit tests for getMatchingPositionBasedValue function in generator', f
 describe('unit tests for checkAllTemplateConditionalValues function in generator', function () {
   it('should test for checkAllTemplateConditionalValues with templatedUsed, so ignore conditions', function () {
     var templateUsed = true;
-    var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+    var dataRow = { "A_TYPE": 'ACC', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
     var templateConditions = [{
-      "columnName": "ACCOUNT_TYPE",
+      "columnName": "A_TYPE",
       "conditionalValue": "=",
-      "columnValue": "DDA"
+      "columnValue": "DA"
     }];
 
     simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
@@ -1569,11 +1569,11 @@ describe('unit tests for checkAllTemplateConditionalValues function in generator
 
   it('should test for checkAllTemplateConditionalValues without templatedUsed so check for singular condition', function () {
     var templateUsed = false;
-    var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+    var dataRow = { "A_TYPE": 'ACC', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
     var templateConditions = [{
-      "columnName": "ACCOUNT_TYPE",
+      "columnName": "A_TYPE",
       "conditionalValue": "=",
-      "columnValue": "DDA"
+      "columnValue": "DA"
     }];
 
     simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
@@ -1583,11 +1583,11 @@ describe('unit tests for checkAllTemplateConditionalValues function in generator
 
   it('should test for checkAllTemplateConditionalValues without templatedUsed so check for singular condition', function () {
     var templateUsed = false;
-    var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+    var dataRow = { "A_TYPE": 'ACC', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
     var templateConditions = [{
-      "columnName": "ACCOUNT_TYPE",
+      "columnName": "A_TYPE",
       "conditionalValue": "!=",
-      "columnValue": "DDA"
+      "columnValue": "DA"
     }];
 
     simple.mock(utils, 'checkTemplateConditionalValue').returnWith(false);
@@ -1595,14 +1595,14 @@ describe('unit tests for checkAllTemplateConditionalValues function in generator
     expect(contents).to.equal(false);
   });
 
-  it('should test for checkAllTemplateConditionalValues without templatedUsed so check for multiiple condition', function () {
+  it('should test for checkAllTemplateConditionalValues without templatedUsed so check for multiple condition', function () {
     var templateUsed = false;
-    var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+    var dataRow = { "A_TYPE": 'ACC', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
     var templateConditions = [
       {
-        "columnName": "ACCOUNT_TYPE",
+        "columnName": "A_TYPE",
         "conditionalValue": "=",
-        "columnValue": "DDA"
+        "columnValue": "DA"
       }, {
         "columnName": "STATUS_CODE",
         "conditionalValue": "=",
@@ -1615,14 +1615,34 @@ describe('unit tests for checkAllTemplateConditionalValues function in generator
     expect(contents).to.equal(true);
   });
 
-  it('should test for checkAllTemplateConditionalValues without templatedUsed so check for multiiple condition', function () {
+  it('should test for checkAllTemplateConditionalValues without templatedUsed so check for multiple condition', function () {
     var templateUsed = false;
-    var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+    var dataRow = { "A_TYPE": 'ACC', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
     var templateConditions = [
       {
-        "columnName": "ACCOUNT_TYPE",
+        "columnName": "A_TYPE",
         "conditionalValue": "!=",
-        "columnValue": "DDA"
+        "columnValue": "DA"
+      }, {
+        "columnName": "STATUS_CODE",
+        "conditionalValue": "=",
+        "columnValue": "2"
+      }
+    ];
+
+    simple.mock(utils, 'checkTemplateConditionalValue').returnWith(false);
+    var contents = utils.checkAllTemplateConditionalValues(dataRow, templateConditions, templateUsed);
+    expect(contents).to.equal(false);
+  });
+
+  it('should test for checkAllTemplateConditionalValues without templatedUsed so check for multiple condition', function () {
+    var templateUsed = false;
+    var dataRow = { "A_TYPE": 'ACC', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+    var templateConditions = [
+      {
+        "columnName": "A_TYPE",
+        "conditionalValue": "!=",
+        "columnValue": "DA"
       }, {
         "columnName": "STATUS_CODE",
         "conditionalValue": "=",
@@ -1640,9 +1660,9 @@ describe('unit tests for checkTemplateConditionalValue function in generator', f
   it('should test for checkTemplateConditionalValue for =', function () {
     var dataRowValue = "4";
     var templateCondition = {
-      "columnName": "ACCOUNT_TYPE",
+      "columnName": "A_TYPE",
       "conditionalValue": "=",
-      "columnValue": "DDA"
+      "columnValue": "DA"
     };
     var contents = utils.checkTemplateConditionalValue(dataRowValue, templateCondition);
     expect(contents).to.equal(false);
@@ -1734,6 +1754,38 @@ describe('unit tests for checkTemplateConditionalValue function in generator', f
     };
     var contents = utils.checkTemplateConditionalValue(dataRowValue, templateCondition);
     expect(contents).to.equal(false);
+  });
+
+  it('should test for checkTemplateConditionalValue - uniqueIdentifier', function () {
+    var dataRowValue = undefined;
+    var templateCondition = {
+      "uniqueIdentifier" : {
+        "prefix": "VAL",
+        "suffix": "NAME"
+      }
+    };
+    var indexValue = 0
+    var contents = utils.checkTemplateConditionalValue(dataRowValue, templateCondition, indexValue);
+    expect(contents).to.equal(false);
+  });
+
+  it('should test for checkTemplateConditionalValue (error - no columnValue)', function () {
+    var dataRowValue = undefined;
+    var templateCondition = {
+      "columnName": "STATUS_CODE",
+      "conditionalValue": "$",
+    };
+
+    var err = 'template condition does not have "columnValue" or "uniqueIdentifier" property'
+    expect(function () { utils.checkTemplateConditionalValue(dataRowValue, templateCondition); }).to.throw(err)
+  });
+
+  it('should test for checkTemplateConditionalValue (error - no columnValue or uniqueIdentifier)', function () {
+    var dataRowValue = undefined;
+    var templateCondition = {};
+
+    var err = 'template condition does not have "columnValue" or "uniqueIdentifier" property'
+    expect(function () { utils.checkTemplateConditionalValue(dataRowValue, templateCondition); }).to.throw(err)
   });
 });
 
@@ -1890,7 +1942,7 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
   describe('unit tests for generateAdditionalSimulatorConfig function in generator', function () {
     it('should test for generateAdditionalSimulatorConfig with additional sim config', function () {
 
-      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var dataRow = { "A_TYPE": 'ACC', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
       var additionalSimObj = [{
         "name": "additional simulator config name",
         "simulatorConfigTemplatePath": "data/template/",
@@ -1898,7 +1950,7 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
         "simulatorConfigFilenameParam": "{FILE_NAME}",
         "condition": [
           {
-            "columnName": "ACCOUNT_TYPE",
+            "columnName": "A_TYPE",
             "conditionalValue": "!=",
             "columnValue": "%EMPTY%",
             "format": "%NO SPACES%"
@@ -1917,7 +1969,7 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
 
     it('should test for generateAdditionalSimulatorConfig with additional sim config (encode spaces)', function () {
 
-      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var dataRow = { "A_TYPE": 'A TYP', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
       var additionalSimObj = [{
         "name": "additional simulator config name",
         "simulatorConfigTemplatePath": "data/template/",
@@ -1925,7 +1977,7 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
         "simulatorConfigFilenameParam": "{FILE_NAME}",
         "condition": [
           {
-            "columnName": "ACCOUNT_TYPE",
+            "columnName": "A_TYPE",
             "conditionalValue": "!=",
             "columnValue": "%EMPTY%",
             "format": "%ENCODE SPACES%"
@@ -1934,15 +1986,15 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
       }];
 
       simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
-      simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} aaa');
+      simple.mock(utils, 'readFile').returnWith('{A_TYPE} aaa');
 
       var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
-      expect(contents).to.equal('ACC%20TYPE aaa');
+      expect(contents).to.equal('A%20TYP aaa');
     });
 
     it('should test for generateAdditionalSimulatorConfig with additional sim config (encode spaces - replaceWith)', function () {
 
-      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var dataRow = { "A_TYPE": 'A TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
       var additionalSimObj = [{
         "name": "additional simulator config name",
         "simulatorConfigTemplatePath": "data/template/",
@@ -1950,7 +2002,7 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
         "simulatorConfigFilenameParam": "{FILE_NAME}",
         "condition": [
           {
-            "columnName": "ACCOUNT_TYPE",
+            "columnName": "A_TYPE",
             "conditionalValue": "!=",
             "columnValue": "%EMPTY%",
             "format": "%ENCODE SPACES%",
@@ -1960,14 +2012,14 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
       }];
 
       simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
-      simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} aaa');
+      simple.mock(utils, 'readFile').returnWith('{A_TYPE} aaa');
       var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
-      expect(contents).to.equal('ACC+TYPE aaa');
+      expect(contents).to.equal('A+TYPE aaa');
     });
 
     it('should test for generateAdditionalSimulatorConfig with additional sim config and condition with no format option', function () {
 
-      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var dataRow = { "A_TYPE": 'A TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
       var additionalSimObj = [{
         "name": "additional simulator config name",
         "simulatorConfigTemplatePath": "data/template/",
@@ -1975,7 +2027,7 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
         "simulatorConfigFilenameParam": "{FILE_NAME}",
         "condition": [
           {
-            "columnName": "ACCOUNT_TYPE",
+            "columnName": "A_TYPE",
             "conditionalValue": "!=",
             "columnValue": "%EMPTY%"
           }
@@ -1983,14 +2035,14 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
       }];
 
       simple.mock(utils, 'checkTemplateConditionalValue').returnWith(false);
-      simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} aaa');
+      simple.mock(utils, 'readFile').returnWith('{A_TYPE} aaa');
       var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
       expect(contents).to.equal('');
     });
 
     it('should test for generateAdditionalSimulatorConfig with additional sim config and multiple conditions', function () {
 
-      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var dataRow = { "A_TYPE": 'ACC', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
       var additionalSimObj = [{
         "name": "additional simulator config name",
         "simulatorConfigTemplatePath": "data/template/",
@@ -1998,7 +2050,7 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
         "simulatorConfigFilenameParam": "{FILE_NAME}",
         "condition": [
           {
-            "columnName": "ACCOUNT_TYPE",
+            "columnName": "A_TYPE",
             "conditionalValue": "!=",
             "columnValue": "%EMPTY%"
           },
@@ -2020,7 +2072,7 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
 
     it('should test for generateAdditionalSimulatorConfig with additional sim config with no condition', function () {
 
-      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var dataRow = { "A_TYPE": 'ACC', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
       var additionalSimObj = [{
         "name": "additional simulator config name",
         "simulatorConfigTemplatePath": "data/template/",
@@ -2029,7 +2081,7 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
       }];
 
       simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
-      simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} def');
+      simple.mock(utils, 'readFile').returnWith('{A_TYPE} def');
 
       var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
       expect(contents).to.equal('');
@@ -2037,7 +2089,7 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
 
     it('should test for generateAdditionalSimulatorConfig with columnName not matching', function () {
 
-      var dataRow = { "ACCOUNT_TYPE": 'ACC TYPE', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
+      var dataRow = { "A_TYPE": 'ACC', "STATUS_CODE": "4", "VALUE2_TWO": "three" };
       var additionalSimObj = [{
         "name": "additional simulator config name",
         "simulatorConfigTemplatePath": "data/template/",
@@ -2053,7 +2105,7 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
       }];
 
       simple.mock(utils, 'checkTemplateConditionalValue').returnWith(true);
-      simple.mock(utils, 'readFile').returnWith('{ACCOUNT_TYPE} def');
+      simple.mock(utils, 'readFile').returnWith('{A_TYPE} def');
 
       var contents = utils.generateAdditionalSimulatorConfig(dataRow, additionalSimObj);
       expect(contents).to.equal('');
