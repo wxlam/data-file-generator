@@ -519,6 +519,102 @@ describe('unit tests for addRepeatingGrp function in generator', function () {
     var contents = utils.addRepeatingGrp(dataRow, resultsFile, repeatingGrpTemplate);
     expect(contents).to.equal('Hello  Marry');
   });
+
+  it('should test to add a parameter group value with conditions', function () {
+    var repeatingGrpTemplate = {
+      "name": "repeating template example",
+      "templateFile": "data/template/repeating-template.xml",
+      "parameter": "{REPLACEMENT_PARAMETER}",
+      "uniqueIdentifier": {
+        "prefix": "VALUE",
+        "suffix": "_ONE"
+      },
+      "map": {
+        "ONE": "VALUE_ONE",
+        "TWO": "VALUE_TWO"
+      },
+      "condition": [
+        {
+          "columnName": "VALUE1_ONE",
+          "conditionalValue": "!=",
+          "columnValue": "%EMPTY%"
+        }
+      ]
+    };
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var resultsFile = 'Hello {REPLACEMENT_PARAMETER} Marry';
+    simple.mock(utils, 'checkKeyNameExists').returnWith(["VALUE1_ONE"]);
+    simple.mock(utils, 'getRepeatingGroupValues').returnWith("Moana");
+    var contents = utils.addRepeatingGrp(dataRow, resultsFile, repeatingGrpTemplate);
+    expect(contents).to.equal('Hello Moana Marry');
+  });
+});
+
+describe('unit tests for generateRepeatingGrp function in generator', function () {
+  it('should test generate repeating group value', function () {
+    var repeatingGrpTemplate = {
+      "name": "repeating template example",
+      "templateFile": "data/template/repeating-template.xml",
+      "parameter": "{REPLACEMENT_PARAMETER}",
+      "uniqueIdentifier": {
+        "prefix": "VALUE",
+        "suffix": "_ONE"
+      },
+      "map": {
+        "ONE": "VALUE_ONE",
+        "TWO": "VALUE_TWO"
+      }
+    };
+
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two"};
+    var fileExtension = '.xml'
+    simple.mock(utils, 'checkKeyNameExists').returnWith(['VALUE1_ONE', 'VALUE1_TWO']);
+    simple.mock(utils, 'applyRepeatingGrp').returnWith("abc def");
+    var contents = utils.generateRepeatingGrp(dataRow, repeatingGrpTemplate, fileExtension);
+    expect(contents).to.equal('abc defabc def');
+  });
+
+  it('should test generate repeating group value (no uniqueIdentifier)', function () {
+    var repeatingGrpTemplate = {
+      "name": "repeating template example",
+      "templateFile": "data/template/repeating-template.xml",
+      "parameter": "{REPLACEMENT_PARAMETER}",
+      "map": {
+        "ONE": "VALUE_ONE",
+        "TWO": "VALUE_TWO"
+      }
+    };
+
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two"};
+    var fileExtension = '.xml'
+    simple.mock(utils, 'checkKeyNameExists').returnWith(['VALUE1_ONE', 'VALUE1_TWO']);
+    simple.mock(utils, 'applyRepeatingGrp').returnWith("abc def");
+    var contents = utils.generateRepeatingGrp(dataRow, repeatingGrpTemplate, fileExtension);
+    expect(contents).to.equal('abc defabc def');
+  });
+
+  it('should test generate repeating group value (json fileExtension)', function () {
+    var repeatingGrpTemplate = {
+      "name": "repeating template example",
+      "templateFile": "data/template/repeating-template.xml",
+      "parameter": "{REPLACEMENT_PARAMETER}",
+      "uniqueIdentifier": {
+        "prefix": "VALUE",
+        "suffix": "_ONE"
+      },
+      "map": {
+        "ONE": "VALUE_ONE",
+        "TWO": "VALUE_TWO"
+      }
+    };
+
+    var dataRow = { "VALUE1_ONE": 'four', "VALUE1_TWO": "two"};
+    var fileExtension = '.json'
+    simple.mock(utils, 'checkKeyNameExists').returnWith(['VALUE1_ONE', 'VALUE1_TWO']);
+    simple.mock(utils, 'applyRepeatingGrp').returnWith("abc def");
+    var contents = utils.generateRepeatingGrp(dataRow, repeatingGrpTemplate, fileExtension);
+    expect(contents).to.equal('abc def,abc def');
+  });
 });
 
 describe('unit tests for addParamGrp function in generator', function () {
