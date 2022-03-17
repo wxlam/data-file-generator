@@ -19,6 +19,12 @@ afterEach(function () {
   fsExtra.removeSync('test/data/output');
 });
 
+describe('unit tests for getDelimiters function in generator', function () {
+  it('should test match for delimiters (default)', function () {
+    expect(utils.getDelimiters()).to.deep.equal({startDelim: '\{', endDelim: '\}' })
+  });
+});
+
 describe('unit tests for getParameters function in generator', function () {
   it('should test match for parameters', function () {
     var addressInput = fs.readFileSync('./test/data/template/ADDRESS.xml', { encoding: 'utf-8' });
@@ -869,8 +875,89 @@ describe('unit tests for replaceValues function in generator', function () {
     expect(res).to.equal('abc four def');
 
   });
-
 });
+
+describe('unit tests for transformValues function', function () {
+  it('should test for transformValues - value transformed (match)', function() {
+    let transformObj = {
+      columnName: "A1",
+      conditionalValue: "==",
+      columnValue: "value 1",
+      replacementValue: "new value"
+    }
+    let paramName = 'A1'
+    let paramValue = 'value 1'
+
+    let res = utils.transformValues(transformObj, paramName, paramValue)
+    expect(res).to.equal('new value');
+  })
+
+  it('should test for transformValues - value transformed (no match)', function() {
+    let transformObj = {
+      columnName: "A1",
+      conditionalValue: "==",
+      columnValue: "value 1",
+      replacementValue: "new value"
+    }
+    let paramName = 'A1'
+    let paramValue = 'value 2'
+
+    let res = utils.transformValues(transformObj, paramName, paramValue)
+    expect(res).to.equal(undefined);
+  })
+
+  it('should test for transformValues - throw error (no columnName)', function() {
+    let transformObj = {
+      conditionalValue: "==",
+      columnValue: "value 1",
+      replacementValue: "new value"
+    }
+    let paramName = 'A1'
+    let paramValue = 'value 2'
+
+    let err = 'config for transform object has to have all the folowing values: columnName, conditionalValue, columnValue and replacementValue'
+    expect(function () { utils.transformValues(transformObj, paramName, paramValue); }).to.throw(err)
+  })
+
+  it('should test for transformValues - throw error (no conditionalValue)', function() {
+    let transformObj = {
+      columnName: "A1",
+      columnValue: "value 1",
+      replacementValue: "new value"
+    }
+    let paramName = 'A1'
+    let paramValue = 'value 2'
+
+    let err = 'config for transform object has to have all the folowing values: columnName, conditionalValue, columnValue and replacementValue'
+    expect(function () { utils.transformValues(transformObj, paramName, paramValue); }).to.throw(err)
+  })
+
+  it('should test for transformValues - throw error (no columnValue)', function() {
+    let transformObj = {
+      columnName: "A1",
+      conditionalValue: "==",
+      replacementValue: "new value"
+    }
+    let paramName = 'A1'
+    let paramValue = 'value 2'
+
+    let err = 'config for transform object has to have all the folowing values: columnName, conditionalValue, columnValue and replacementValue'
+    expect(function () { utils.transformValues(transformObj, paramName, paramValue); }).to.throw(err)
+  })
+
+  it('should test for transformValues - throw error (no replacementValue)', function() {
+    let transformObj = {
+      columnName: "A1",
+      conditionalValue: "==",
+      columnValue: "value 1",
+    }
+    let paramName = 'A1'
+    let paramValue = 'value 2'
+
+    let err = 'config for transform object has to have all the folowing values: columnName, conditionalValue, columnValue and replacementValue'
+    expect(function () { utils.transformValues(transformObj, paramName, paramValue); }).to.throw(err)
+  })
+})
 
 describe('unit tests for checkTagsMatch function in generator', function () {
   it('should test for checkTagsMatch for true match', function () {
@@ -2657,6 +2744,12 @@ describe('unit tests for generateTemplateWithJSON function in generator', functi
     expect(genFile).to.contain('<UNIQUE_ID>001</UNIQUE_ID>');
     expect(genFile).to.contain('<VALUE1>Value1</VALUE1>');
     expect(genFile).to.contain('<VALUE2>Value1</VALUE2>');
+  });
+
+  it('should test for generateTemplateWithJSON for custom delimeter config (error thrown)', function () {
+    var fileName = './test/data/config/basic-custom-delimeters-error.json';
+    var err = 'generator config > [ customDelimiter ] missing "startsWith" and "endsWith"'
+    expect(function () { utils.generateTemplateWithJSON(fileName); }).to.throw(err)
   });
 
   it('should test for generateTemplateWithJSON for useGenRowFlag config', function () {
