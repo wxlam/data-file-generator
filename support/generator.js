@@ -1623,6 +1623,9 @@ var generatorUtils = {
                 .replace(/},\s+\],/g, '}],').replace(/[[\s]{0,}""[[\s]{0,}]/g, '[]')
                 .replace(/,\s{0,}\}/g, '}').replace(/\[\s{0,}\{\s{0,}}\s{0,}\]/g, '[]')
                 .replace(/"\s+"/g, '","')
+                .replace(/"?:\s+}/g, '":{}')
+                .replace(/":\s?[\r\n]+"/g, '":{"')
+                .replace(/":\s{0,},/g, '":{},')
               try {
                 resultsFile = JSON.stringify(JSON.parse(resultsFile), null, 2)
               } catch (e) {

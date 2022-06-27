@@ -8,7 +8,8 @@ var fs = require('fs');
 var fsExtra = require('fs-extra');
 var xlsx = require('xlsx');
 var fsmock = require('mock-fs');
-var _ = require('lodash')
+var _ = require('lodash');
+const { it } = require('mocha');
 
 //add in afterEach function to clean up after each test
 afterEach(function () {
@@ -438,10 +439,27 @@ describe('unit tests for escapeJSON function in generator', function () {
     var str = 'abc & there';
     expect(utils.escapeJSON(str)).to.equal('abc \\\\& there');
   });
+
+  it('should JSON escaped is empty', function () {
+    expect(utils.escapeJSON()).to.equal(undefined);
+  });
+
+  it('should JSON is unchanged', function () {
+    var str = 'abc there';
+    expect(utils.escapeJSON(str)).to.equal('abc there');
+  });
+});
+
+describe('unit tests for readFile function in generator', function () {
+  it('should test readFile returns error', function () {
+    let file = 'aa.json'
+    let err = 'folderLocationSet is not defined'
+    expect(function () { utils.readFile(file, folderLocationSet); }).to.throw(err)
+  });
 });
 
 describe('unit tests for removeSpacesFromString function in generator', function () {
-  it('should test spaces are removed from  strings', function () {
+  it('should test spaces are removed from strings', function () {
     var str = "Hello world I am here";
     expect(utils.removeSpacesFromString(str)).to.equal('HelloworldIamhere');
   });
@@ -969,7 +987,69 @@ describe('unit tests for replaceValues function in generator', function () {
 
     var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
     expect(res).to.equal('abc four def');
+  });
 
+  it('should test for replaceValues for json file', function () {
+
+    var genObj = {
+      "profileName": "test-profile",
+      "output": {
+        "folder": "output/folder/",
+        "fileNamePrefix": "Pre-",
+        "fileIdColumn": "ID_COL",
+        "fileExtension": ".json"
+      }
+    };
+
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var parameters = ["VALUE1_ONE", "VALUE2_ONE"];
+    var resultsFile = '{"abc": {VALUE1_ONE}, "bcd": "def"}';
+    var incrementalValue = 1;
+
+    var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
+    expect(res).to.equal('{"abc": four, "bcd": "def"}');
+  });
+
+  it('should test for replaceValues for json file - not found in dataRow - json as string value', function () {
+
+    var genObj = {
+      "profileName": "test-profile",
+      "output": {
+        "folder": "output/folder/",
+        "fileNamePrefix": "Pre-",
+        "fileIdColumn": "ID_COL",
+        "fileExtension": ".json"
+      }
+    };
+    // "streetNumber": "{STREET_NUMBER}",
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var parameters = ["VALUE3_ONE"];
+    var resultsFile = '{"abc": "{VALUE3_ONE}", "bcd": "def"}';
+    var incrementalValue = 1;
+
+    var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
+    expect(res).to.equal('{"abc": "", "bcd": "def"}');
+  });
+
+  it('should test for replaceValues for json file - not found in dataRow - json as replacement value', function () {
+
+    var genObj = {
+      "profileName": "test-profile",
+      "output": {
+        "folder": "output/folder/",
+        "fileNamePrefix": "Pre-",
+        "fileIdColumn": "ID_COL",
+        "fileExtension": ".json"
+      }
+    };
+    // eg. {ADDRESS}
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var parameters = ['VALUE3_ONE'];
+    var resultsFile = '{ {VALUE3_ONE}, "bcd": "def"}';
+    var incrementalValue = 1;
+
+    var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
+    expect(res).to.equal('{ {VALUE3_ONE}, "bcd": "def"}');
   });
 });
 
@@ -1937,6 +2017,120 @@ describe('unit tests for generateSimulatorConfig function in generator', functio
     simple.mock(utils, 'replaceValues').returnWith('aav'); //doesn't return array, just a string
     var contents = utils.generateSimulatorConfig(dataRow, simObj, simTemplate, simParameters, simFile);
     expect(contents).to.equal('aav');
+  });
+
+  it('should test default simulator config with single condition', function () {
+    var simObj = {
+      "simulatorConfigOutput": "output/00Sim/",
+      "simulatorFilename": "00-sim-all",
+      "simulatorConfigTemplatePath": "data/template/",
+      "simulatorConfigTemplate": "SIM_All.xml",
+      "simulatorConfigFilenameParam": "{FILE_NAME}",
+      "condition":           {
+        "columnName": "VALUE1_ONE",
+        "conditionalValue": "!=",
+        "columnValue": "%EMPTY%",
+        "format": "%NO SPACES%"
+      }
+    };
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var simTemplate = 'xzzz';
+    var simParameters = ["VALUE1_ONE", "VALUE2_ONE"];
+    var simFile = "abc {VALUE1_ONE} def";
+    simple.mock(utils, 'replaceValues').returnWith('aaa'); //doesn't return array, just a string
+    var contents = utils.generateSimulatorConfig(dataRow, simObj, simTemplate, simParameters, simFile);
+    expect(contents).to.equal('aaa');
+  });
+
+  it('should test default simulator config with single condition and format', function () {
+    var simObj = {
+      "simulatorConfigOutput": "output/00Sim/",
+      "simulatorFilename": "00-sim-all",
+      "simulatorConfigTemplatePath": "data/template/",
+      "simulatorConfigTemplate": "SIM_All.xml",
+      "simulatorConfigFilenameParam": "{FILE_NAME}",
+      "condition":           {
+        "columnName": "VALUE1_ONE",
+        "conditionalValue": "!=",
+        "columnValue": "%EMPTY%",
+        "format": "%USE_BACKSLASH_APOSTROPHE%"
+      }
+    };
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var simTemplate = 'xzzz';
+    var simParameters = ["VALUE1_ONE", "VALUE2_ONE"];
+    var simFile = "abc {VALUE1_ONE} def";
+    simple.mock(utils, 'replaceValues').returnWith('bbb'); //doesn't return array, just a string
+    var contents = utils.generateSimulatorConfig(dataRow, simObj, simTemplate, simParameters, simFile);
+    expect(contents).to.equal('bbb');
+  });
+
+  it('should test default simulator config with single condition unknown format', function () {
+    var simObj = {
+      "simulatorConfigOutput": "output/00Sim/",
+      "simulatorFilename": "00-sim-all",
+      "simulatorConfigTemplatePath": "data/template/",
+      "simulatorConfigTemplate": "SIM_All.xml",
+      "simulatorConfigFilenameParam": "{FILE_NAME}",
+      "condition":           {
+        "columnName": "VALUE1_ONE",
+        "conditionalValue": "!=",
+        "columnValue": "%EMPTY%",
+        "format": "%USE_BACKSLASH%"
+      }
+    };
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var simTemplate = 'xzzz';
+    var simParameters = ["VALUE1_ONE", "VALUE2_ONE"];
+    var simFile = "abc {VALUE1_ONE} def";
+    simple.mock(utils, 'replaceValues').returnWith('bbb'); //doesn't return array, just a string
+    var contents = utils.generateSimulatorConfig(dataRow, simObj, simTemplate, simParameters, simFile);
+    expect(contents).to.equal('bbb');
+  });
+
+  it('should test default simulator config with single condition no format', function () {
+    var simObj = {
+      "simulatorConfigOutput": "output/00Sim/",
+      "simulatorFilename": "00-sim-all",
+      "simulatorConfigTemplatePath": "data/template/",
+      "simulatorConfigTemplate": "SIM_All.xml",
+      "simulatorConfigFilenameParam": "{FILE_NAME}",
+      "condition":           {
+        "columnName": "VALUE1_ONE",
+        "conditionalValue": "!=",
+        "columnValue": "%EMPTY%"
+      }
+    };
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var simTemplate = 'xzzz';
+    var simParameters = ["VALUE1_ONE", "VALUE2_ONE"];
+    var simFile = "abc {VALUE1_ONE} def";
+    simple.mock(utils, 'replaceValues').returnWith('bbb'); //doesn't return array, just a string
+    var contents = utils.generateSimulatorConfig(dataRow, simObj, simTemplate, simParameters, simFile);
+    expect(contents).to.equal('bbb');
+  });
+
+  it('should test default simulator config with single condition not met', function () {
+    var simObj = {
+      "simulatorConfigOutput": "output/00Sim/",
+      "simulatorFilename": "00-sim-all",
+      "simulatorConfigTemplatePath": "data/template/",
+      "simulatorConfigTemplate": "SIM_All.xml",
+      "simulatorConfigFilenameParam": "{FILE_NAME}",
+      "condition":           {
+        "columnName": "VALUE1_ONE",
+        "conditionalValue": "==",
+        "columnValue": "%EMPTY%",
+        "format": "%USE_BACKSLASH_APOSTROPHE%"
+      }
+    };
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var simTemplate = 'xzzz';
+    var simParameters = ["VALUE1_ONE", "VALUE2_ONE"];
+    var simFile = "abc {VALUE1_ONE} def";
+    simple.mock(utils, 'replaceValues').returnWith('bbb'); //doesn't return array, just a string
+    var contents = utils.generateSimulatorConfig(dataRow, simObj, simTemplate, simParameters, simFile);
+    expect(contents).to.equal(undefined);
   });
 
   describe('unit tests for generateAdditionalSimulatorConfig function in generator', function () {
