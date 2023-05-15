@@ -1031,6 +1031,51 @@ describe('unit tests for replaceValues function in generator', function () {
     expect(res).to.equal('{"abc": "", "bcd": "def"}');
   });
 
+  //failing
+  it.skip('should test for replaceValues for json file - not found in dataRow - json as number value', function () {
+
+    var genObj = {
+      "profileName": "test-profile",
+      "output": {
+        "folder": "output/folder/",
+        "fileNamePrefix": "Pre-",
+        "fileIdColumn": "ID_COL",
+        "fileExtension": ".json"
+      }
+    };
+    // "streetNumber": {STREET_NUMBER},
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var parameters = ['VALUE3_ONE'];
+    var resultsFile = '{"abc": {VALUE3_ONE}, "bcd": "def"}';
+    var incrementalValue = 1;
+
+    var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
+    expect(res).to.equal('{"abc": null, "bcd": "def"}');
+  });
+
+  // failing
+  it.skip('should test for replaceValues for json file - not found in dataRow - json as number value with jsonDefaultValue', function () {
+
+    var genObj = {
+      "profileName": "test-profile",
+      "output": {
+        "folder": "output/folder/",
+        "fileNamePrefix": "Pre-",
+        "fileIdColumn": "ID_COL",
+        "fileExtension": ".json"
+      },
+      "jsonDefaultValue": "\"\""
+    };
+
+    var dataRow = { "VALUE1_ONE": "four", "VALUE1_TWO": "two", "VALUE2_ONE": 'one', "VALUE2_TWO": "three" };
+    var parameters = ['VALUE3_ONE'];
+    var resultsFile = '{"abc": {VALUE3_ONE}, "bcd": "def"}';
+    var incrementalValue = 1;
+
+    var res = utils.replaceValues(genObj, dataRow, parameters, resultsFile, incrementalValue);
+    expect(res).to.equal('{"abc": "", "bcd": "def"}');
+  });
+
   it('should test for replaceValues for json file - not found in dataRow - json as replacement value', function () {
 
     var genObj = {
@@ -1568,7 +1613,7 @@ describe('unit tests for getMatchingFilteredSet function in generator', function
       "replacementParamName": "{REPLACE_VALUE}"
     });
 
-    let err = 'Cannot read property \'sectionSheetTagColumn\' of undefined'
+    let err = 'Cannot read properties of undefined (reading \'sectionSheetTagColumn\')'
     expect(function () { utils.getMatchingFilteredSet(genObj, workbook, filteredSetConfigObj); }).to.throw(err)
   });
 
